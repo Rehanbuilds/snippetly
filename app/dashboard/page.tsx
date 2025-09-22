@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Plus } from "lucide-react"
+import Link from "next/link"
 
 export const dynamic = "force-dynamic"
 
@@ -26,10 +27,12 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-bold">All Snippets</h1>
             <p className="text-muted-foreground">Manage and organize your code snippets</p>
           </div>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Snippet
-          </Button>
+          <Link href="/dashboard/new">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Snippet
+            </Button>
+          </Link>
         </div>
 
         {/* Search and Filter Bar */}
@@ -66,7 +69,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Snippets Grid */}
-        <SnippetGrid />
+        <SnippetGrid userId={data.user.id} />
       </div>
     </DashboardLayout>
   )

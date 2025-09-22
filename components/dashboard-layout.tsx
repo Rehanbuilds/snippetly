@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,12 +21,68 @@ import type { User as SupabaseUser } from "@supabase/supabase-js"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
-  user: SupabaseUser // Added user prop for authentication
+  user: SupabaseUser
+}
+
+interface Profile {
+  id: string
+  full_name: string | null
+  display_name: string | null
+  bio: string | null
+  avatar_url: string | null
+}
+
+interface SnippetCounts {
+  total: number
+  favorites: number
+  tags: Record<string, number>
 }
 
 export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [snippetCounts, setSnippetCounts] = useState<SnippetCounts>({
+    total: 0,
+    favorites: 0,
+    tags: {},
+  })
   const router = useRouter()
+  const supabase = createClient()
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // Load profile
+        const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+
+        if (profileData) {
+          setProfile(profileData)
+        }
+
+        // Load snippet counts
+        const { data: snippets } = await supabase.from("snippets").select("tags, is_favorite").eq("user_id", user.id)
+
+        if (snippets) {
+          const total = snippets.length
+          const favorites = snippets.filter((s) => s.is_favorite).length
+
+          // Count tags
+          const tagCounts: Record<string, number> = {}
+          snippets.forEach((snippet) => {
+            snippet.tags.forEach((tag) => {
+              tagCounts[tag] = (tagCounts[tag] || 0) + 1
+            })
+          })
+
+          setSnippetCounts({ total, favorites, tags: tagCounts })
+        }
+      } catch (error) {
+        console.error("Error loading dashboard data:", error)
+      }
+    }
+
+    loadData()
+  }, [user.id, supabase])
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -34,7 +90,12 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
     router.push("/")
   }
 
-  const userDisplayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"
+  const userDisplayName =
+    profile?.display_name ||
+    profile?.full_name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "User"
   const userInitials = userDisplayName
     .split(" ")
     .map((n: string) => n[0])
@@ -69,7 +130,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="/diverse-user-avatars.png" alt="User" />
+                    <AvatarImage src={profile?.avatar_url || "/diverse-user-avatars.png"} alt="User" />
                     <AvatarFallback>{userInitials}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -130,7 +191,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                   <Code className="h-4 w-4 mr-2" />
                   All Snippets
                   <Badge variant="secondary" className="ml-auto">
-                    24
+                    {snippetCounts.total}
                   </Badge>
                 </Button>
               </Link>
@@ -139,7 +200,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                   <Star className="h-4 w-4 mr-2" />
                   Favorites
                   <Badge variant="secondary" className="ml-auto">
-                    8
+                    {snippetCounts.favorites}
                   </Badge>
                 </Button>
               </Link>
@@ -152,42 +213,33 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                 Tags
               </h3>
               <div className="space-y-1">
-                <Link href="/dashboard?tag=react" onClick={() => setSidebarOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                    React
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      12
-                    </Badge>
-                  </Button>
-                </Link>
-                <Link href="/dashboard?tag=javascript" onClick={() => setSidebarOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                    JavaScript
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      8
-                    </Badge>
-                  </Button>
-                </Link>
-                <Link href="/dashboard?tag=utils" onClick={() => setSidebarOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                    Utils
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      6
-                    </Badge>
-                  </Button>
-                </Link>
-                <Link href="/dashboard?tag=hooks" onClick={() => setSidebarOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
-                    <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
-                    Hooks
-                    <Badge variant="secondary" className="ml-auto text-xs">
-                      4
-                    </Badge>
-                  </Button>
-                </Link>
+                {Object.entries(snippetCounts.tags)
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 8)
+                  .map(([tag, count], index) => (
+                    <Link key={tag} href={`/dashboard?tag=${tag}`} onClick={() => setSidebarOpen(false)}>
+                      <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+                        <span
+                          className={`w-2 h-2 rounded-full mr-2 ${
+                            index % 4 === 0
+                              ? "bg-blue-500"
+                              : index % 4 === 1
+                                ? "bg-yellow-500"
+                                : index % 4 === 2
+                                  ? "bg-green-500"
+                                  : "bg-purple-500"
+                          }`}
+                        ></span>
+                        {tag}
+                        <Badge variant="secondary" className="ml-auto text-xs">
+                          {count}
+                        </Badge>
+                      </Button>
+                    </Link>
+                  ))}
+                {Object.keys(snippetCounts.tags).length === 0 && (
+                  <p className="text-xs text-muted-foreground">No tags yet</p>
+                )}
               </div>
             </div>
           </div>

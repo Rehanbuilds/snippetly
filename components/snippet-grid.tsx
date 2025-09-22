@@ -6,119 +6,154 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Copy, Star, Edit, Trash2, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "@/hooks/use-toast"
+
+interface Snippet {
+  id: string
+  title: string
+  description: string | null
+  code: string
+  language: string
+  tags: string[]
+  is_favorite: boolean
+  created_at: string
+  user_id: string
+}
 
 interface SnippetGridProps {
   favoritesOnly?: boolean
+  userId: string
 }
 
-// Mock data for snippets
-const mockSnippets = [
-  {
-    id: 1,
-    title: "useLocalStorage Hook",
-    description: "Custom React hook for managing localStorage with state synchronization",
-    language: "React",
-    tags: ["hooks", "react", "localStorage"],
-    code: `const useLocalStorage = (key, initialValue) => {
-  const [storedValue, setStoredValue] = useState(() => {
+export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps) {
+  const [snippets, setSnippets] = useState<Snippet[]>([])
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const loadSnippets = async () => {
+      try {
+        let query = supabase
+          .from("snippets")
+          .select("*")
+          .eq("user_id", userId)
+          .order("created_at", { ascending: false })
+
+        if (favoritesOnly) {
+          query = query.eq("is_favorite", true)
+        }
+
+        const { data, error } = await query
+
+        if (error) throw error
+
+        setSnippets(data || [])
+      } catch (error) {
+        console.error("Error loading snippets:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load snippets.",
+          variant: "destructive",
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSnippets()
+  }, [userId, favoritesOnly, supabase])
+
+  const toggleFavorite = async (snippetId: string, currentFavorite: boolean) => {
     try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      const { error } = await supabase.from("snippets").update({ is_favorite: !currentFavorite }).eq("id", snippetId)
+
+      if (error) throw error
+
+      // Update local state
+      setSnippets((prev) =>
+        prev.map((snippet) => (snippet.id === snippetId ? { ...snippet, is_favorite: !currentFavorite } : snippet)),
+      )
+
+      toast({
+        title: currentFavorite ? "Removed from favorites" : "Added to favorites",
+        description: `Snippet ${currentFavorite ? "removed from" : "added to"} your favorites.`,
+      })
     } catch (error) {
-      return initialValue;
+      console.error("Error toggling favorite:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status.",
+        variant: "destructive",
+      })
     }
-  });
-  
-  const setValue = (value) => {
-    try {
-      setStoredValue(value);
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  
-  return [storedValue, setValue];
-};`,
-    isFavorite: true,
-    createdAt: "2 days ago",
-  },
-  {
-    id: 2,
-    title: "API Error Handler",
-    description: "Centralized error handling utility for API responses",
-    language: "JavaScript",
-    tags: ["utils", "api", "error-handling"],
-    code: `const handleApiError = (error) => {
-  if (error.response) {
-    // Server responded with error status
-    const { status, data } = error.response;
-    switch (status) {
-      case 401:
-        return 'Unauthorized access';
-      case 404:
-        return 'Resource not found';
-      case 500:
-        return 'Server error occurred';
-      default:
-        return data.message || 'An error occurred';
-    }
-  } else if (error.request) {
-    return 'Network error - please check your connection';
-  } else {
-    return 'Request failed to send';
   }
-};`,
-    isFavorite: false,
-    createdAt: "1 week ago",
-  },
-  {
-    id: 3,
-    title: "Debounce Function",
-    description: "Utility function to debounce rapid function calls",
-    language: "JavaScript",
-    tags: ["utils", "performance"],
-    code: `const debounce = (func, delay) => {
-  let timeoutId;
-  return (...args) => {
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func.apply(this, args), delay);
-  };
-};
 
-// Usage example:
-const debouncedSearch = debounce((query) => {
-  console.log('Searching for:', query);
-}, 300);`,
-    isFavorite: true,
-    createdAt: "3 days ago",
-  },
-  {
-    id: 4,
-    title: "CSS Grid Layout",
-    description: "Responsive grid layout with auto-fit columns",
-    language: "CSS",
-    tags: ["css", "layout", "responsive"],
-    code: `.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-}
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      toast({
+        title: "Copied to clipboard",
+        description: "Code snippet copied to your clipboard.",
+      })
+    } catch (error) {
+      console.error("Error copying to clipboard:", error)
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard.",
+        variant: "destructive",
+      })
+    }
+  }
 
-.grid-item {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}`,
-    isFavorite: false,
-    createdAt: "5 days ago",
-  },
-]
+  const deleteSnippet = async (snippetId: string) => {
+    if (!confirm("Are you sure you want to delete this snippet? This action cannot be undone.")) {
+      return
+    }
 
-export function SnippetGrid({ favoritesOnly = false }: SnippetGridProps) {
-  const snippets = favoritesOnly ? mockSnippets.filter((snippet) => snippet.isFavorite) : mockSnippets
+    try {
+      const { error } = await supabase.from("snippets").delete().eq("id", snippetId)
+
+      if (error) throw error
+
+      // Update local state
+      setSnippets((prev) => prev.filter((snippet) => snippet.id !== snippetId))
+
+      toast({
+        title: "Snippet deleted",
+        description: "Your snippet has been deleted successfully.",
+      })
+    } catch (error) {
+      console.error("Error deleting snippet:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete snippet.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMs = now.getTime() - date.getTime()
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+    if (diffInDays === 0) return "Today"
+    if (diffInDays === 1) return "Yesterday"
+    if (diffInDays < 7) return `${diffInDays} days ago`
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`
+    return date.toLocaleDateString()
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Loading snippets...</p>
+      </div>
+    )
+  }
 
   if (snippets.length === 0) {
     return (
@@ -158,15 +193,15 @@ export function SnippetGrid({ favoritesOnly = false }: SnippetGridProps) {
                       Edit
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => copyToClipboard(snippet.code)}>
                     <Copy className="mr-2 h-4 w-4" />
                     Copy
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toggleFavorite(snippet.id, snippet.is_favorite)}>
                     <Star className="mr-2 h-4 w-4" />
-                    {snippet.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    {snippet.is_favorite ? "Remove from favorites" : "Add to favorites"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem className="text-destructive" onClick={() => deleteSnippet(snippet.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </DropdownMenuItem>
@@ -194,17 +229,18 @@ export function SnippetGrid({ favoritesOnly = false }: SnippetGridProps) {
 
             {/* Actions */}
             <div className="flex items-center justify-between">
-              <span className="text-xs text-muted-foreground">{snippet.createdAt}</span>
+              <span className="text-xs text-muted-foreground">{formatDate(snippet.created_at)}</span>
               <div className="flex items-center space-x-2">
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => copyToClipboard(snippet.code)}>
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className={`h-8 w-8 p-0 ${snippet.isFavorite ? "text-yellow-500" : ""}`}
+                  className={`h-8 w-8 p-0 ${snippet.is_favorite ? "text-yellow-500" : ""}`}
+                  onClick={() => toggleFavorite(snippet.id, snippet.is_favorite)}
                 >
-                  <Star className={`h-4 w-4 ${snippet.isFavorite ? "fill-current" : ""}`} />
+                  <Star className={`h-4 w-4 ${snippet.is_favorite ? "fill-current" : ""}`} />
                 </Button>
               </div>
             </div>

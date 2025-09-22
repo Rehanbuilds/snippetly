@@ -24,7 +24,7 @@ export default async function FavoritesPage() {
           </div>
           <p className="text-muted-foreground">Your starred code snippets</p>
         </div>
-        <SnippetGrid favoritesOnly />
+        <SnippetGrid favoritesOnly userId={data.user.id} />
       </div>
     </DashboardLayout>
   )
