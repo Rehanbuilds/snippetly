@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { SnippetGrid } from "@/components/snippet-grid"
 import { Button } from "@/components/ui/button"
@@ -5,9 +7,16 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Plus } from "lucide-react"
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.getUser()
+
+  if (error || !data?.user) {
+    redirect("/signin")
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout user={data.user}>
       <div className="space-y-6">
         {/* Header with Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
