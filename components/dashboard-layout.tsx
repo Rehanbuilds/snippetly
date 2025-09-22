@@ -34,7 +34,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
     router.push("/")
   }
 
-  const userDisplayName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User"
+  const userDisplayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User"
   const userInitials = userDisplayName
     .split(" ")
     .map((n: string) => n[0])
@@ -78,7 +78,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
                     <p className="font-medium">{userDisplayName}</p>
-                    <p className="w-[200px] truncate text-sm text-muted-foreground">{user.email}</p>
+                    <p className="w-[200px] truncate text-sm text-muted-foreground">{user?.email || ""}</p>
                   </div>
                 </div>
                 <DropdownMenuSeparator />

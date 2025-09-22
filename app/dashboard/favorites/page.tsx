@@ -1,10 +1,21 @@
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/supabase/server"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { SnippetGrid } from "@/components/snippet-grid"
 import { Star } from "lucide-react"
 
-export default function FavoritesPage() {
+export const dynamic = "force-dynamic"
+
+export default async function FavoritesPage() {
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.getUser()
+
+  if (error || !data?.user) {
+    redirect("/signin")
+  }
+
   return (
-    <DashboardLayout>
+    <DashboardLayout user={data.user}>
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
