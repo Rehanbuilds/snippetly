@@ -20,7 +20,7 @@ export default async function SettingsPage() {
           <h1 className="text-2xl font-bold">Settings</h1>
           <p className="text-muted-foreground">Manage your account settings and preferences</p>
         </div>
-        <SettingsForm />
+        <SettingsForm user={data.user} />
       </div>
     </DashboardLayout>
   )

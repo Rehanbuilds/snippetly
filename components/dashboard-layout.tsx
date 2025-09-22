@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Code, Search, Star, Tag, Plus, Settings, LogOut, User, Menu, X } from "lucide-react"
+import { Code, Search, Star, Tag, Plus, Settings, LogOut, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -86,12 +86,6 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                   <Link href="/dashboard/settings">
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard/profile">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
