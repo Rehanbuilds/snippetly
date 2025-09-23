@@ -10,8 +10,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { X, Plus } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 const languages = [
   "JavaScript",
@@ -44,6 +47,21 @@ export function NewSnippetForm() {
   const [code, setCode] = useState("")
   const [tags, setTags] = useState<string[]>([])
   const [newTag, setNewTag] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  const supabase = createClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+  }, [supabase])
 
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -56,10 +74,61 @@ export function NewSnippetForm() {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log({ title, description, language, code, tags })
+
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create snippets.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!title.trim() || !code.trim() || !language) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const { data, error } = await supabase
+        .from("snippets")
+        .insert({
+          title: title.trim(),
+          description: description.trim() || null,
+          code: code.trim(),
+          language: language,
+          tags: tags,
+          user_id: user.id,
+          is_favorite: false,
+        })
+        .select()
+
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: "Snippet created successfully!",
+      })
+
+      router.push("/dashboard")
+    } catch (error) {
+      console.error("Error creating snippet:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create snippet. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -156,15 +225,14 @@ export function NewSnippetForm() {
 
       <div className="flex items-center justify-between">
         <Link href="/dashboard">
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" disabled={loading}>
             Cancel
           </Button>
         </Link>
         <div className="flex gap-2">
-          <Button type="submit" variant="outline">
-            Save as Draft
+          <Button type="submit" disabled={loading || !title.trim() || !code.trim() || !language}>
+            {loading ? "Saving..." : "Save Snippet"}
           </Button>
-          <Button type="submit">Save Snippet</Button>
         </div>
       </div>
     </form>
