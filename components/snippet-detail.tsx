@@ -5,87 +5,164 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Copy, Star, Edit, Trash2, ArrowLeft, Check } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
+
+interface Snippet {
+  id: string
+  title: string
+  description: string | null
+  code: string
+  language: string
+  tags: string[]
+  is_favorite: boolean
+  created_at: string
+  updated_at: string
+  user_id: string
+}
 
 interface SnippetDetailProps {
   snippetId: string
 }
 
-// Mock data - in real app this would come from API/database
-const mockSnippet = {
-  id: 1,
-  title: "useLocalStorage Hook",
-  description:
-    "Custom React hook for managing localStorage with state synchronization. This hook provides a simple interface for storing and retrieving data from localStorage while keeping the component state in sync.",
-  language: "React",
-  tags: ["hooks", "react", "localStorage", "state-management"],
-  code: `import { useState, useEffect } from 'react';
-
-const useLocalStorage = (key, initialValue) => {
-  // State to store our value
-  // Pass initial state function to useState so logic is only executed once
-  const [storedValue, setStoredValue] = useState(() => {
-    if (typeof window === "undefined") {
-      return initialValue;
-    }
-    try {
-      // Get from local storage by key
-      const item = window.localStorage.getItem(key);
-      // Parse stored json or if none return initialValue
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      // If error also return initialValue
-      console.log(error);
-      return initialValue;
-    }
-  });
-
-  // Return a wrapped version of useState's setter function that ...
-  // ... persists the new value to localStorage.
-  const setValue = (value) => {
-    try {
-      // Allow value to be a function so we have the same API as useState
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      // Save state
-      setStoredValue(valueToStore);
-      // Save to local storage
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-    } catch (error) {
-      // A more advanced implementation would handle the error case
-      console.log(error);
-    }
-  };
-
-  return [storedValue, setValue];
-};
-
-export default useLocalStorage;
-
-// Usage example:
-// const [name, setName] = useLocalStorage('name', 'Bob');`,
-  isFavorite: true,
-  createdAt: "2024-01-15T10:30:00Z",
-  updatedAt: "2024-01-16T14:20:00Z",
-}
-
 export function SnippetDetail({ snippetId }: SnippetDetailProps) {
+  const [snippet, setSnippet] = useState<Snippet | null>(null)
+  const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
-  const [isFavorite, setIsFavorite] = useState(mockSnippet.isFavorite)
+  const [user, setUser] = useState<any>(null)
+
+  const supabase = createClient()
+  const router = useRouter()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+  }, [supabase])
+
+  useEffect(() => {
+    const loadSnippet = async () => {
+      try {
+        const { data, error } = await supabase.from("snippets").select("*").eq("id", snippetId).single()
+
+        if (error) throw error
+
+        setSnippet(data)
+      } catch (error) {
+        console.error("Error loading snippet:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load snippet.",
+          variant: "destructive",
+        })
+        router.push("/dashboard")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSnippet()
+  }, [snippetId, supabase, router])
 
   const handleCopy = async () => {
+    if (!snippet) return
+
     try {
-      await navigator.clipboard.writeText(mockSnippet.code)
+      await navigator.clipboard.writeText(snippet.code)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+      toast({
+        title: "Copied to clipboard",
+        description: "Code snippet copied to your clipboard.",
+      })
     } catch (err) {
       console.error("Failed to copy text: ", err)
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard.",
+        variant: "destructive",
+      })
     }
   }
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite)
+  const toggleFavorite = async () => {
+    if (!snippet || !user) return
+
+    try {
+      const { error } = await supabase
+        .from("snippets")
+        .update({ is_favorite: !snippet.is_favorite })
+        .eq("id", snippet.id)
+        .eq("user_id", user.id)
+
+      if (error) throw error
+
+      setSnippet({ ...snippet, is_favorite: !snippet.is_favorite })
+      toast({
+        title: snippet.is_favorite ? "Removed from favorites" : "Added to favorites",
+        description: `Snippet ${snippet.is_favorite ? "removed from" : "added to"} your favorites.`,
+      })
+    } catch (error) {
+      console.error("Error toggling favorite:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!snippet || !user) return
+
+    if (!confirm("Are you sure you want to delete this snippet? This action cannot be undone.")) {
+      return
+    }
+
+    try {
+      const { error } = await supabase.from("snippets").delete().eq("id", snippet.id).eq("user_id", user.id)
+
+      if (error) throw error
+
+      toast({
+        title: "Snippet deleted",
+        description: "Your snippet has been deleted successfully.",
+      })
+
+      router.push("/dashboard")
+    } catch (error) {
+      console.error("Error deleting snippet:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete snippet.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-muted-foreground">Loading snippet...</p>
+      </div>
+    )
+  }
+
+  if (!snippet) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground mb-4">Snippet not found.</p>
+        <Link href="/dashboard">
+          <Button>Back to Dashboard</Button>
+        </Link>
+      </div>
+    )
   }
 
   return (
@@ -102,8 +179,8 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={toggleFavorite}>
-            <Star className={`h-4 w-4 mr-2 ${isFavorite ? "fill-current text-yellow-500" : ""}`} />
-            {isFavorite ? "Favorited" : "Add to Favorites"}
+            <Star className={`h-4 w-4 mr-2 ${snippet.is_favorite ? "fill-current text-yellow-500" : ""}`} />
+            {snippet.is_favorite ? "Favorited" : "Add to Favorites"}
           </Button>
           <Link href={`/dashboard/snippet/${snippetId}/edit`}>
             <Button variant="outline" size="sm">
@@ -111,7 +188,12 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
               Edit
             </Button>
           </Link>
-          <Button variant="outline" size="sm" className="text-destructive hover:text-destructive bg-transparent">
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:text-destructive bg-transparent"
+            onClick={handleDelete}
+          >
             <Trash2 className="h-4 w-4 mr-2" />
             Delete
           </Button>
@@ -123,17 +205,17 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-2">
-              <CardTitle className="text-2xl">{mockSnippet.title}</CardTitle>
-              <p className="text-muted-foreground">{mockSnippet.description}</p>
+              <CardTitle className="text-2xl">{snippet.title}</CardTitle>
+              {snippet.description && <p className="text-muted-foreground">{snippet.description}</p>}
             </div>
           </div>
 
           {/* Tags and Language */}
           <div className="flex flex-wrap gap-2 pt-4">
             <Badge variant="secondary" className="font-medium">
-              {mockSnippet.language}
+              {snippet.language}
             </Badge>
-            {mockSnippet.tags.map((tag) => (
+            {snippet.tags.map((tag) => (
               <Badge key={tag} variant="outline">
                 {tag}
               </Badge>
@@ -165,7 +247,7 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
         <CardContent>
           <div className="bg-muted rounded-lg p-4 overflow-x-auto">
             <pre className="font-mono text-sm leading-relaxed">
-              <code>{mockSnippet.code}</code>
+              <code>{snippet.code}</code>
             </pre>
           </div>
         </CardContent>
@@ -181,7 +263,7 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
             <div>
               <span className="text-muted-foreground">Created:</span>
               <p className="font-medium">
-                {new Date(mockSnippet.createdAt).toLocaleDateString("en-US", {
+                {new Date(snippet.created_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
@@ -193,7 +275,7 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
             <div>
               <span className="text-muted-foreground">Last updated:</span>
               <p className="font-medium">
-                {new Date(mockSnippet.updatedAt).toLocaleDateString("en-US", {
+                {new Date(snippet.updated_at).toLocaleDateString("en-US", {
                   year: "numeric",
                   month: "long",
                   day: "numeric",
