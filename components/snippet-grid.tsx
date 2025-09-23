@@ -3,12 +3,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Copy, Star, Edit, Trash2, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
+import { Edit, Copy, Trash2, Star } from "lucide-react"
 
 interface Snippet {
   id: string
@@ -180,33 +179,31 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
                 </Link>
                 <CardDescription className="text-sm">{snippet.description}</CardDescription>
               </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreHorizontal className="h-4 w-4" />
+              <div className="flex items-center space-x-1">
+                <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit snippet">
+                    <Edit className="h-4 w-4" />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Edit
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => copyToClipboard(snippet.code)}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toggleFavorite(snippet.id, snippet.is_favorite)}>
-                    <Star className="mr-2 h-4 w-4" />
-                    {snippet.is_favorite ? "Remove from favorites" : "Add to favorites"}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive" onClick={() => deleteSnippet(snippet.id)}>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => copyToClipboard(snippet.code)}
+                  title="Copy code"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                  onClick={() => deleteSnippet(snippet.id)}
+                  title="Delete snippet"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -231,14 +228,12 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{formatDate(snippet.created_at)}</span>
               <div className="flex items-center space-x-2">
-                <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => copyToClipboard(snippet.code)}>
-                  <Copy className="h-4 w-4" />
-                </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className={`h-8 w-8 p-0 ${snippet.is_favorite ? "text-yellow-500" : ""}`}
                   onClick={() => toggleFavorite(snippet.id, snippet.is_favorite)}
+                  title={snippet.is_favorite ? "Remove from favorites" : "Add to favorites"}
                 >
                   <Star className={`h-4 w-4 ${snippet.is_favorite ? "fill-current" : ""}`} />
                 </Button>
