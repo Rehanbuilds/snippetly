@@ -4,9 +4,8 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Code, Search, Star, Tag, Plus, Settings, LogOut, Menu, X } from "lucide-react"
+import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -110,28 +109,22 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
             <span className="text-lg font-bold">Snippetly</span>
           </Link>
 
-          <div className="flex items-center gap-2 mr-4">
-            <Link href="/dashboard/settings">
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-            </Link>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-
-          {/* Global Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search all snippets..." className="pl-10" />
-          </div>
-
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Welcome, {userDisplayName}</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard/settings">
+                <Button variant="ghost" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
