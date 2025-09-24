@@ -127,7 +127,7 @@ export default function LandingPage() {
           <p className="text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
             Save, organize, and share code in seconds. The ultimate tool for developers, students, and professionals.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Link href="/signup">
               <Button size="lg" className="text-lg px-8 py-6">
                 Get Started Free
@@ -136,6 +136,21 @@ export default function LandingPage() {
             <Button variant="outline" size="lg" className="text-lg px-8 py-6 bg-transparent">
               View Demo
             </Button>
+          </div>
+
+          <div className="max-w-6xl mx-auto">
+            <div className="relative">
+              <img
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/heropic.PNG-uqKbwKpHQtLxfuIa1xtTidbmLRQ6pc.png"
+                alt="Snippetly Dashboard Preview - Manage and organize your code snippets"
+                className="w-full h-auto rounded-lg border border-gray-200 shadow-2xl shadow-gray-500/20 backdrop-blur-sm"
+                style={{
+                  filter: "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15))",
+                }}
+              />
+              {/* Subtle overlay for better visual integration */}
+              <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-background/10 to-transparent pointer-events-none" />
+            </div>
           </div>
         </div>
       </section>
