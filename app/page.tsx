@@ -3,21 +3,59 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Code, Search, Share, Star, Zap, Users } from "lucide-react"
+import { Code, Search, Share, Star, Zap, Users, Menu, X } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
 
 export default function LandingPage() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" })
+    }
+    setMobileMenuOpen(false)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
+            {/* Logo */}
             <div className="flex items-center">
               <Code className="h-8 w-8 mr-2" />
               <span className="text-xl font-bold">Snippetly</span>
             </div>
-            <div className="flex items-center space-x-4">
+
+            <div className="hidden md:flex items-center space-x-8">
+              <button
+                onClick={() => scrollToSection("hero")}
+                className="text-foreground hover:text-primary transition-colors cursor-pointer"
+              >
+                Home
+              </button>
+              <Link href="/about" className="text-foreground hover:text-primary transition-colors">
+                About
+              </Link>
+              <button
+                onClick={() => scrollToSection("features")}
+                className="text-foreground hover:text-primary transition-colors cursor-pointer"
+              >
+                Features
+              </button>
+              <button
+                onClick={() => scrollToSection("pricing")}
+                className="text-foreground hover:text-primary transition-colors cursor-pointer"
+              >
+                Pricing
+              </button>
+            </div>
+
+            {/* Desktop Auth Buttons */}
+            <div className="hidden md:flex items-center space-x-4">
               <Link href="/signin">
                 <Button variant="ghost">Login</Button>
               </Link>
@@ -25,12 +63,63 @@ export default function LandingPage() {
                 <Button>Sign Up Free</Button>
               </Link>
             </div>
+
+            <div className="md:hidden">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="p-2 rounded-md text-foreground hover:text-primary hover:bg-muted"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
+
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-border">
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <button
+                  onClick={() => scrollToSection("hero")}
+                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                >
+                  Home
+                </button>
+                <Link
+                  href="/about"
+                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  About
+                </Link>
+                <button
+                  onClick={() => scrollToSection("features")}
+                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                >
+                  Features
+                </button>
+                <button
+                  onClick={() => scrollToSection("pricing")}
+                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                >
+                  Pricing
+                </button>
+                <div className="border-t border-border pt-4 mt-4">
+                  <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full mb-2">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full">Sign Up Free</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
             Your personal snippet vault never lose a line of code again
@@ -93,7 +182,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Highlights */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section id="features" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Everything you need to manage code snippets</h2>
@@ -205,7 +294,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
