@@ -141,7 +141,7 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto">
             <div className="relative">
               <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/heropic.PNG-uqKbwKpHQtLxfuIa1xtTidbmLRQ6pc.png"
+                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/design-mode-images/heropic.PNG-WFz2zjreVcvEPoFSXfIqtyCpoaaG0i.png"
                 alt="Snippetly Dashboard Preview - Manage and organize your code snippets"
                 className="w-full h-auto rounded-lg border border-gray-200 shadow-2xl shadow-gray-500/20 backdrop-blur-sm"
                 style={{
@@ -377,6 +377,39 @@ export default function LandingPage() {
                 </Button>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900 text-white">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
+              Ready to organize your code snippets?
+            </h2>
+            <p className="text-xl text-slate-300 text-balance mb-12 max-w-2xl mx-auto">
+              Join thousands of developers who have already transformed their workflow. Start building your personal
+              snippet vault today.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+              <Link href="/signup">
+                <Button size="lg" className="text-lg px-8 py-6 bg-white text-slate-900 hover:bg-slate-100">
+                  Get Started Free
+                </Button>
+              </Link>
+              <Button
+                variant="outline"
+                size="lg"
+                className="text-lg px-8 py-6 border-slate-600 text-white hover:bg-slate-800 bg-transparent"
+              >
+                View Demo
+              </Button>
+            </div>
+
+            {/* Social Proof Stats */}
+            
           </div>
         </div>
       </section>
