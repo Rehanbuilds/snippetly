@@ -32,7 +32,9 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">Your personal snippet vault never lose a line of code again</h1>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
+            Your personal snippet vault never lose a line of code again
+          </h1>
           <p className="text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
             Save, organize, and share code in seconds. The ultimate tool for developers, students, and professionals.
           </p>
@@ -312,17 +314,17 @@ export default function LandingPage() {
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-muted-foreground">
                 <li>
-                  <Link href="#" className="hover:text-foreground">
+                  <Link href="/about" className="hover:text-foreground">
                     About
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-foreground">
+                  <Link href="/blog" className="hover:text-foreground">
                     Blog
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-foreground">
+                  <Link href="/contact" className="hover:text-foreground">
                     Contact
                   </Link>
                 </li>
