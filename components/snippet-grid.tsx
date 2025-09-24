@@ -25,10 +25,20 @@ interface Snippet {
 interface SnippetGridProps {
   favoritesOnly?: boolean
   userId: string
+  searchQuery?: string
+  selectedLanguage?: string
+  selectedTag?: string
 }
 
-export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps) {
+export function SnippetGrid({
+  favoritesOnly = false,
+  userId,
+  searchQuery = "",
+  selectedLanguage = "all",
+  selectedTag = "all",
+}: SnippetGridProps) {
   const [snippets, setSnippets] = useState<Snippet[]>([])
+  const [filteredSnippets, setFilteredSnippets] = useState<Snippet[]>([])
   const [loading, setLoading] = useState(true)
   const [exportModalOpen, setExportModalOpen] = useState(false)
   const [selectedSnippet, setSelectedSnippet] = useState<Snippet | null>(null)
@@ -67,13 +77,32 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
     loadSnippets()
   }, [userId, favoritesOnly, supabase])
 
+  useEffect(() => {
+    let filtered = snippets
+
+    if (searchQuery.trim()) {
+      filtered = filtered.filter((snippet) => snippet.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    }
+
+    if (selectedLanguage && selectedLanguage !== "all") {
+      filtered = filtered.filter((snippet) => snippet.language.toLowerCase() === selectedLanguage.toLowerCase())
+    }
+
+    if (selectedTag && selectedTag !== "all") {
+      filtered = filtered.filter((snippet) =>
+        snippet.tags.some((tag) => tag.toLowerCase() === selectedTag.toLowerCase()),
+      )
+    }
+
+    setFilteredSnippets(filtered)
+  }, [snippets, searchQuery, selectedLanguage, selectedTag])
+
   const toggleFavorite = async (snippetId: string, currentFavorite: boolean) => {
     try {
       const { error } = await supabase.from("snippets").update({ is_favorite: !currentFavorite }).eq("id", snippetId)
 
       if (error) throw error
 
-      // Update local state
       setSnippets((prev) =>
         prev.map((snippet) => (snippet.id === snippetId ? { ...snippet, is_favorite: !currentFavorite } : snippet)),
       )
@@ -119,7 +148,6 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
 
       if (error) throw error
 
-      // Update local state
       setSnippets((prev) => prev.filter((snippet) => snippet.id !== snippetId))
 
       toast({
@@ -167,6 +195,15 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
     )
   }
 
+  if (filteredSnippets.length === 0 && snippets.length > 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground mb-4">No snippets match your current filters.</p>
+        <p className="text-sm text-muted-foreground">Try adjusting your search or filter criteria.</p>
+      </div>
+    )
+  }
+
   if (snippets.length === 0) {
     return (
       <div className="text-center py-12">
@@ -182,8 +219,14 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
 
   return (
     <>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {filteredSnippets.length} of {snippets.length} snippets
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {snippets.map((snippet) => (
+        {filteredSnippets.map((snippet) => (
           <Card key={snippet.id} className="group hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
@@ -230,14 +273,12 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
               </div>
             </CardHeader>
             <CardContent>
-              {/* Code Preview */}
               <Link href={`/dashboard/snippet/${snippet.id}`}>
                 <div className="bg-muted rounded-md p-3 mb-4 font-mono text-sm overflow-hidden cursor-pointer hover:bg-muted/80 transition-colors">
                   <pre className="text-xs leading-relaxed line-clamp-4">{snippet.code}</pre>
                 </div>
               </Link>
 
-              {/* Tags and Language */}
               <div className="flex flex-wrap gap-2 mb-3">
                 <Badge variant="secondary">{snippet.language}</Badge>
                 {snippet.tags.map((tag) => (
@@ -247,7 +288,6 @@ export function SnippetGrid({ favoritesOnly = false, userId }: SnippetGridProps)
                 ))}
               </div>
 
-              {/* Actions */}
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{formatDate(snippet.created_at)}</span>
                 <div className="flex items-center space-x-2">
