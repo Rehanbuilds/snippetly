@@ -227,82 +227,92 @@ export function SnippetGrid({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSnippets.map((snippet) => (
-          <Card key={snippet.id} className="group hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <Link href={`/dashboard/snippet/${snippet.id}`}>
-                    <CardTitle className="text-lg mb-1 hover:text-primary cursor-pointer">{snippet.title}</CardTitle>
-                  </Link>
-                  <CardDescription className="text-sm">{snippet.description}</CardDescription>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit snippet">
-                      <Edit className="h-4 w-4" />
+          <Card key={snippet.id} className="group hover:shadow-md transition-shadow cursor-pointer">
+            <Link href={`/dashboard/snippet/${snippet.id}/edit`} className="block">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-lg mb-1 hover:text-primary">{snippet.title}</CardTitle>
+                    <CardDescription className="text-sm">{snippet.description}</CardDescription>
+                  </div>
+                  <div className="flex items-center space-x-1" onClick={(e) => e.preventDefault()}>
+                    <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit snippet">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        copyToClipboard(snippet.code)
+                      }}
+                      title="Copy code"
+                    >
+                      <Copy className="h-4 w-4" />
                     </Button>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => copyToClipboard(snippet.code)}
-                    title="Copy code"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => openExportModal(snippet)}
-                    title="Export snippet"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                    onClick={() => deleteSnippet(snippet.id)}
-                    title="Delete snippet"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        openExportModal(snippet)
+                      }}
+                      title="Export snippet"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        deleteSnippet(snippet.id)
+                      }}
+                      title="Delete snippet"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Link href={`/dashboard/snippet/${snippet.id}`}>
-                <div className="bg-muted rounded-md p-3 mb-4 font-mono text-sm overflow-hidden cursor-pointer hover:bg-muted/80 transition-colors">
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted rounded-md p-3 mb-4 font-mono text-sm overflow-hidden hover:bg-muted/80 transition-colors">
                   <pre className="text-xs leading-relaxed line-clamp-4">{snippet.code}</pre>
                 </div>
-              </Link>
 
-              <div className="flex flex-wrap gap-2 mb-3">
-                <Badge variant="secondary">{snippet.language}</Badge>
-                {snippet.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{formatDate(snippet.created_at)}</span>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className={`h-8 w-8 p-0 ${snippet.is_favorite ? "text-yellow-500" : ""}`}
-                    onClick={() => toggleFavorite(snippet.id, snippet.is_favorite)}
-                    title={snippet.is_favorite ? "Remove from favorites" : "Add to favorites"}
-                  >
-                    <Star className={`h-4 w-4 ${snippet.is_favorite ? "fill-current" : ""}`} />
-                  </Button>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <Badge variant="secondary">{snippet.language}</Badge>
+                  {snippet.tags.map((tag) => (
+                    <Badge key={tag} variant="outline" className="text-xs">
+                      {tag}
+                    </Badge>
+                  ))}
                 </div>
-              </div>
-            </CardContent>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-muted-foreground">{formatDate(snippet.created_at)}</span>
+                  <div className="flex items-center space-x-2" onClick={(e) => e.preventDefault()}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={`h-8 w-8 p-0 ${snippet.is_favorite ? "text-yellow-500" : ""}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        toggleFavorite(snippet.id, snippet.is_favorite)
+                      }}
+                      title={snippet.is_favorite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      <Star className={`h-4 w-4 ${snippet.is_favorite ? "fill-current" : ""}`} />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Link>
           </Card>
         ))}
       </div>
