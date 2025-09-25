@@ -9,11 +9,7 @@ export async function updateSession(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  console.log("[v0] Middleware - Supabase URL exists:", !!supabaseUrl)
-  console.log("[v0] Middleware - Supabase Anon Key exists:", !!supabaseAnonKey)
-
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.log("[v0] Middleware - Missing Supabase environment variables")
     // If env vars are missing, just continue without auth checks
     return supabaseResponse
   }
@@ -45,18 +41,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  console.log("[v0] Middleware - User exists:", !!user)
-  console.log("[v0] Middleware - Current path:", request.nextUrl.pathname)
-
   if (request.nextUrl.pathname.startsWith("/dashboard") && !user) {
-    console.log("[v0] Middleware - Redirecting to signin")
     const url = request.nextUrl.clone()
     url.pathname = "/signin"
     return NextResponse.redirect(url)
   }
 
   if ((request.nextUrl.pathname.startsWith("/signin") || request.nextUrl.pathname.startsWith("/signup")) && user) {
-    console.log("[v0] Middleware - Redirecting to dashboard")
     const url = request.nextUrl.clone()
     url.pathname = "/dashboard"
     return NextResponse.redirect(url)

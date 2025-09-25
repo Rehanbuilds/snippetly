@@ -15,6 +15,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { UpgradeModal } from "@/components/upgrade-modal"
 
 const languages = [
   "JavaScript",
@@ -49,6 +50,9 @@ export function NewSnippetForm() {
   const [newTag, setNewTag] = useState("")
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [userPlan, setUserPlan] = useState<any>(null)
+  const [snippetCount, setSnippetCount] = useState(0)
 
   const supabase = createClient()
   const router = useRouter()
@@ -59,9 +63,43 @@ export function NewSnippetForm() {
         data: { user },
       } = await supabase.auth.getUser()
       setUser(user)
+
+      if (user) {
+        await loadUserPlan(user.id)
+        await loadSnippetCount(user.id)
+      }
     }
     getUser()
   }, [supabase])
+
+  const loadUserPlan = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("plan_type, plan_status, snippet_limit")
+        .eq("id", userId)
+        .single()
+
+      if (error) throw error
+      setUserPlan(data)
+    } catch (error) {
+      console.error("Error loading user plan:", error)
+    }
+  }
+
+  const loadSnippetCount = async (userId: string) => {
+    try {
+      const { count, error } = await supabase
+        .from("snippets")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+
+      if (error) throw error
+      setSnippetCount(count || 0)
+    } catch (error) {
+      console.error("Error loading snippet count:", error)
+    }
+  }
 
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -86,6 +124,11 @@ export function NewSnippetForm() {
       return
     }
 
+    if (userPlan?.plan_type === "free" && snippetCount >= userPlan?.snippet_limit) {
+      setShowUpgradeModal(true)
+      return
+    }
+
     if (!title.trim() || !code.trim() || !language) {
       toast({
         title: "Error",
@@ -98,20 +141,29 @@ export function NewSnippetForm() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase
-        .from("snippets")
-        .insert({
+      const response = await fetch("/api/snippets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
           code: code.trim(),
           language: language,
           tags: tags,
-          user_id: user.id,
-          is_favorite: false,
-        })
-        .select()
+        }),
+      })
 
-      if (error) throw error
+      const result = await response.json()
+
+      if (!response.ok) {
+        if (result.code === "LIMIT_REACHED") {
+          setShowUpgradeModal(true)
+          return
+        }
+        throw new Error(result.error || "Failed to create snippet")
+      }
 
       toast({
         title: "Success",
@@ -123,7 +175,7 @@ export function NewSnippetForm() {
       console.error("Error creating snippet:", error)
       toast({
         title: "Error",
-        description: "Failed to create snippet. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to create snippet. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -132,109 +184,120 @@ export function NewSnippetForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Snippet Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              placeholder="Enter snippet title..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Describe what this snippet does..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="language">Language *</Label>
-            <Select value={language} onValueChange={setLanguage} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select programming language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang} value={lang.toLowerCase()}>
-                    {lang}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Tags</Label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                  {tag}
-                  <button type="button" onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-            </div>
-            <div className="flex gap-2">
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Snippet Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title *</Label>
               <Input
-                placeholder="Add a tag..."
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                id="title"
+                placeholder="Enter snippet title..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
               />
-              <Button type="button" onClick={addTag} variant="outline" size="sm">
-                <Plus className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Code</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Label htmlFor="code">Code *</Label>
-            <Textarea
-              id="code"
-              placeholder="Paste your code here..."
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              rows={15}
-              className="font-mono text-sm"
-              required
-            />
-          </div>
-        </CardContent>
-      </Card>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe what this snippet does..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
 
-      <div className="flex items-center justify-between">
-        <Link href="/dashboard">
-          <Button type="button" variant="outline" disabled={loading}>
-            Cancel
-          </Button>
-        </Link>
-        <div className="flex gap-2">
-          <Button type="submit" disabled={loading || !title.trim() || !code.trim() || !language}>
-            {loading ? "Saving..." : "Save Snippet"}
-          </Button>
+            <div className="space-y-2">
+              <Label htmlFor="language">Language *</Label>
+              <Select value={language} onValueChange={setLanguage} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select programming language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((lang) => (
+                    <SelectItem key={lang} value={lang.toLowerCase()}>
+                      {lang}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Tags</Label>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <button type="button" onClick={() => removeTag(tag)} className="ml-1 hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add a tag..."
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                />
+                <Button type="button" onClick={addTag} variant="outline" size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Code</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <Label htmlFor="code">Code *</Label>
+              <Textarea
+                id="code"
+                placeholder="Paste your code here..."
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                rows={15}
+                className="font-mono text-sm"
+                required
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center justify-between">
+          <Link href="/dashboard">
+            <Button type="button" variant="outline" disabled={loading}>
+              Cancel
+            </Button>
+          </Link>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={loading || !title.trim() || !code.trim() || !language}>
+              {loading ? "Saving..." : "Save Snippet"}
+            </Button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+
+      {userPlan && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          currentSnippetCount={snippetCount}
+          snippetLimit={userPlan.snippet_limit}
+        />
+      )}
+    </>
   )
 }
