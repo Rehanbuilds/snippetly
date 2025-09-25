@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check, Crown } from "lucide-react"
-import { createPaddleCheckoutUrl } from "@/lib/paddle"
+import { createPaddleCheckoutUrl } from "@/app/actions/paddle"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 
