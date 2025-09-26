@@ -11,6 +11,9 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       return { success: false, error: "Paddle API key not configured" }
     }
 
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
+    console.log("[v0] Using site URL:", siteUrl)
+
     console.log("[v0] Making request to Paddle API...")
 
     // Import Paddle server SDK
@@ -32,8 +35,8 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
           user_id: userId,
           plan_type: "pro",
         },
-        success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard/upgrade/success`,
-        cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard/upgrade/failed`,
+        success_url: `${siteUrl}/dashboard/upgrade/success`,
+        cancel_url: `${siteUrl}/dashboard/upgrade/failed`,
       }),
     })
 
