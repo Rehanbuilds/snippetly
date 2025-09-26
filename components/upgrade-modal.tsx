@@ -45,23 +45,35 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
 
       if (result.success && result.checkoutUrl) {
         console.log("[v0] Redirecting to checkout URL:", result.checkoutUrl)
+
         try {
-          // Try to open in same window first
-          window.location.href = result.checkoutUrl
+          // Close the modal first to prevent UI conflicts
+          onClose()
+
+          // Small delay to ensure modal closes before redirect
+          setTimeout(() => {
+            window.location.href = result.checkoutUrl!
+          }, 100)
         } catch (redirectError) {
-          console.error("[v0] Redirect failed, trying popup:", redirectError)
-          // Fallback to popup if redirect fails
-          const popup = window.open(result.checkoutUrl, "_blank", "width=800,height=600")
-          if (!popup) {
-            throw new Error("Popup blocked. Please allow popups and try again.")
-          }
+          console.error("[v0] Redirect failed:", redirectError)
+          toast({
+            title: "Checkout Ready",
+            description: "Click here to complete your payment",
+            action: (
+              <Button size="sm" onClick={() => window.open(result.checkoutUrl, "_blank")}>
+                Open Checkout
+              </Button>
+            ),
+          })
         }
       } else {
         console.error("[v0] Checkout creation failed:", result.error)
-        throw new Error(result.error || "Failed to create checkout")
+        toast({
+          title: "Payment Error",
+          description: result.error || "Failed to create checkout. Please try again.",
+          variant: "destructive",
+        })
       }
-
-      onClose() // Close modal when redirecting to checkout
     } catch (error) {
       console.error("[v0] Upgrade error:", error)
       toast({
