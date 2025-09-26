@@ -23,12 +23,14 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
   const handleUpgrade = async () => {
     console.log("[v0] Starting upgrade process...")
     setIsLoading(true)
+
     try {
       // Get current user
       const {
         data: { user },
         error,
       } = await supabase.auth.getUser()
+
       if (error || !user) {
         console.error("[v0] User authentication error:", error)
         toast({
@@ -39,41 +41,27 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
         return
       }
 
-      console.log("[v0] User authenticated, calling Paddle checkout...")
-      const result = await createPaddleCheckoutUrl(user.id, user.email!)
-      console.log("[v0] Paddle checkout result:", result)
+      console.log("[v0] User authenticated, creating checkout URL...")
 
-      if (result.success && result.checkoutUrl) {
-        console.log("[v0] Redirecting to checkout URL:", result.checkoutUrl)
+      const result = await createPaddleCheckoutUrl(user.id, user.email || "")
 
-        try {
-          // Close the modal first to prevent UI conflicts
-          onClose()
-
-          // Small delay to ensure modal closes before redirect
-          setTimeout(() => {
-            window.location.href = result.checkoutUrl!
-          }, 100)
-        } catch (redirectError) {
-          console.error("[v0] Redirect failed:", redirectError)
-          toast({
-            title: "Checkout Ready",
-            description: "Click here to complete your payment",
-            action: (
-              <Button size="sm" onClick={() => window.open(result.checkoutUrl, "_blank")}>
-                Open Checkout
-              </Button>
-            ),
-          })
-        }
-      } else {
+      if (!result.success) {
         console.error("[v0] Checkout creation failed:", result.error)
         toast({
-          title: "Payment Error",
-          description: result.error || "Failed to create checkout. Please try again.",
+          title: "Checkout Error",
+          description: result.error || "Failed to create checkout session. Please try again.",
           variant: "destructive",
         })
+        return
       }
+
+      console.log("[v0] Checkout URL created, redirecting...")
+
+      // Close modal before redirecting
+      onClose()
+
+      // Redirect to Paddle checkout
+      window.open(result.checkoutUrl, "_blank")
     } catch (error) {
       console.error("[v0] Upgrade error:", error)
       toast({
