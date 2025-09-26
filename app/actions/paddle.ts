@@ -14,7 +14,7 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
     console.log("[v0] Using site URL:", siteUrl)
 
-    const paddleApiUrl = "https://api.paddle.com/checkout-sessions"
+    const paddleApiUrl = "https://api.paddle.com/transactions"
 
     const requestBody = {
       items: [
@@ -28,11 +28,8 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
         user_id: userId,
         plan_type: "pro",
       },
-      success_url: `${siteUrl}/dashboard/upgrade/success`,
-      cancel_url: `${siteUrl}/dashboard/upgrade/failed`,
-      checkout_settings: {
-        allow_logout: false,
-        display_mode: "inline",
+      checkout: {
+        url: `${siteUrl}/dashboard/upgrade/success`,
       },
     }
 
@@ -83,7 +80,7 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
 
     console.log("[v0] Paddle API success response:", data)
 
-    if (!data || !data.data || !data.data.url) {
+    if (!data || !data.data || !data.data.checkout || !data.data.checkout.url) {
       console.error("[v0] Invalid response structure from Paddle:", data)
       return {
         success: false,
@@ -91,8 +88,8 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       }
     }
 
-    console.log("[v0] Checkout URL created successfully:", data.data.url)
-    return { success: true, checkoutUrl: data.data.url }
+    console.log("[v0] Checkout URL created successfully:", data.data.checkout.url)
+    return { success: true, checkoutUrl: data.data.checkout.url }
   } catch (error) {
     console.error("[v0] Error creating Paddle checkout:", error)
     return {
