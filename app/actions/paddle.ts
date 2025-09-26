@@ -32,7 +32,7 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       cancel_url: `${siteUrl}/dashboard/upgrade/failed`,
       checkout_settings: {
         allow_logout: false,
-        display_mode: "overlay",
+        display_mode: "inline",
       },
     }
 

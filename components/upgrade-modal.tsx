@@ -60,8 +60,7 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
       // Close modal before redirecting
       onClose()
 
-      // Redirect to Paddle checkout
-      window.open(result.checkoutUrl, "_blank")
+      window.location.href = result.checkoutUrl
     } catch (error) {
       console.error("[v0] Upgrade error:", error)
       toast({
