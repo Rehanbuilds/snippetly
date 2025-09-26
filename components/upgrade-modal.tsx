@@ -21,6 +21,7 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
   const supabase = createClient()
 
   const handleUpgrade = async () => {
+    console.log("[v0] Starting upgrade process...")
     setIsLoading(true)
     try {
       // Get current user
@@ -29,6 +30,7 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
         error,
       } = await supabase.auth.getUser()
       if (error || !user) {
+        console.error("[v0] User authentication error:", error)
         toast({
           title: "Error",
           description: "Please sign in to upgrade your plan.",
@@ -37,21 +39,34 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
         return
       }
 
+      console.log("[v0] User authenticated, calling Paddle checkout...")
       const result = await createPaddleCheckoutUrl(user.id, user.email!)
+      console.log("[v0] Paddle checkout result:", result)
 
       if (result.success && result.checkoutUrl) {
-        // Redirect to Paddle checkout
-        window.location.href = result.checkoutUrl
+        console.log("[v0] Redirecting to checkout URL:", result.checkoutUrl)
+        try {
+          // Try to open in same window first
+          window.location.href = result.checkoutUrl
+        } catch (redirectError) {
+          console.error("[v0] Redirect failed, trying popup:", redirectError)
+          // Fallback to popup if redirect fails
+          const popup = window.open(result.checkoutUrl, "_blank", "width=800,height=600")
+          if (!popup) {
+            throw new Error("Popup blocked. Please allow popups and try again.")
+          }
+        }
       } else {
+        console.error("[v0] Checkout creation failed:", result.error)
         throw new Error(result.error || "Failed to create checkout")
       }
 
       onClose() // Close modal when redirecting to checkout
     } catch (error) {
-      console.error("Upgrade error:", error)
+      console.error("[v0] Upgrade error:", error)
       toast({
         title: "Error",
-        description: "Failed to open checkout. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to open checkout. Please try again.",
         variant: "destructive",
       })
     } finally {

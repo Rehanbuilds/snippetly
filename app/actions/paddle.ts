@@ -2,7 +2,17 @@
 
 // Server action to create Paddle checkout URL
 export async function createPaddleCheckoutUrl(userId: string, userEmail: string) {
+  console.log("[v0] Starting Paddle checkout creation for user:", userId, userEmail)
+
   try {
+    // Check if API key exists
+    if (!process.env.PADDLE_API_KEY) {
+      console.error("[v0] PADDLE_API_KEY is not set")
+      return { success: false, error: "Paddle API key not configured" }
+    }
+
+    console.log("[v0] Making request to Paddle API...")
+
     // Import Paddle server SDK
     const response = await fetch("https://api.paddle.com/checkout-sessions", {
       method: "POST",
@@ -27,14 +37,26 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       }),
     })
 
+    console.log("[v0] Paddle API response status:", response.status)
+
     if (!response.ok) {
-      throw new Error(`Paddle API error: ${response.statusText}`)
+      const errorText = await response.text()
+      console.error("[v0] Paddle API error response:", errorText)
+      throw new Error(`Paddle API error: ${response.status} ${response.statusText} - ${errorText}`)
     }
 
     const data = await response.json()
+    console.log("[v0] Paddle API success response:", data)
+
+    if (!data.data || !data.data.url) {
+      console.error("[v0] Invalid response structure from Paddle:", data)
+      return { success: false, error: "Invalid response from Paddle API" }
+    }
+
+    console.log("[v0] Checkout URL created successfully:", data.data.url)
     return { success: true, checkoutUrl: data.data.url }
   } catch (error) {
-    console.error("Error creating Paddle checkout:", error)
-    return { success: false, error: "Failed to create checkout session" }
+    console.error("[v0] Error creating Paddle checkout:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Failed to create checkout session" }
   }
 }
