@@ -7,11 +7,16 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
   try {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
 
-    // Your Paddle price ID - make sure this exists in your Paddle dashboard
-    const priceId = "pri_01k5zjvykxzy0qfww05j76351c"
+    const priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID || "pri_01k5zjvykxzy0qfww05j76351c"
 
-    // Paddle uses a different URL format for hosted checkouts
-    // The correct format is: https://checkout.paddle.com/checkout/product/{price_id}
+    if (!priceId) {
+      throw new Error(
+        "Paddle price ID not configured. Please add NEXT_PUBLIC_PADDLE_PRICE_ID to your environment variables.",
+      )
+    }
+
+    console.log("[v0] Using price ID:", priceId)
+
     const checkoutParams = new URLSearchParams({
       customer_email: userEmail,
       "custom_data[user_id]": userId,
@@ -21,7 +26,7 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
     })
 
     // Use the correct Paddle checkout URL format
-    const checkoutUrl = `https://checkout.paddle.com/checkout/product/${priceId}?${checkoutParams.toString()}`
+    const checkoutUrl = `https://buy.paddle.com/product/${priceId}?${checkoutParams.toString()}`
 
     console.log("[v0] Checkout URL created successfully:", checkoutUrl)
     return { success: true, checkoutUrl }
