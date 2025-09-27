@@ -19,7 +19,9 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
     const requestBody = {
       items: [
         {
-          price_id: "pri_01k5zjvykxzy0qfww05j76351c", // Replace with your actual Paddle price ID
+          price: {
+            id: "pri_01k5zjvykxzy0qfww05j76351c", // Replace with your actual Paddle price ID
+          },
           quantity: 1,
         },
       ],
@@ -31,9 +33,11 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       checkout: {
         url: `${siteUrl}/dashboard/upgrade/success`,
       },
+      collection_mode: "automatic",
     }
 
     console.log("[v0] Request body:", JSON.stringify(requestBody, null, 2))
+    console.log("[v0] API Key (first 10 chars):", process.env.PADDLE_API_KEY?.substring(0, 10))
     console.log("[v0] Making request to Paddle API...")
 
     const response = await fetch(paddleApiUrl, {
@@ -41,6 +45,7 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       headers: {
         Authorization: `Bearer ${process.env.PADDLE_API_KEY}`,
         "Content-Type": "application/json",
+        "Paddle-Version": "1",
       },
       body: JSON.stringify(requestBody),
     })
@@ -60,6 +65,8 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
         const errorData = JSON.parse(responseText)
         if (errorData.error && errorData.error.detail) {
           errorMessage = errorData.error.detail
+        } else if (errorData.error && errorData.error.code) {
+          errorMessage = `${errorData.error.code}: ${errorData.error.detail || errorData.error.message || "Unknown error"}`
         } else if (errorData.errors && errorData.errors.length > 0) {
           errorMessage = errorData.errors[0].detail || errorData.errors[0].message
         }
