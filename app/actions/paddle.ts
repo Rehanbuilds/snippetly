@@ -5,16 +5,14 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
   console.log("[v0] Starting Paddle checkout creation for user:", userId, userEmail)
 
   try {
-    // This approach doesn't require special API permissions and works with basic Paddle setup
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
 
-    // Create checkout URL using Paddle's hosted checkout with query parameters
-    // This is the recommended approach for simple checkouts
-    const priceId = "pri_01k5zjvykxzy0qfww05j76351c" // Your Paddle price ID
+    // Your Paddle price ID - make sure this exists in your Paddle dashboard
+    const priceId = "pri_01k5zjvykxzy0qfww05j76351c"
 
+    // Paddle uses a different URL format for hosted checkouts
+    // The correct format is: https://checkout.paddle.com/checkout/product/{price_id}
     const checkoutParams = new URLSearchParams({
-      "items[0][price_id]": priceId,
-      "items[0][quantity]": "1",
       customer_email: userEmail,
       "custom_data[user_id]": userId,
       "custom_data[plan_type]": "pro",
@@ -22,8 +20,8 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       cancel_url: `${siteUrl}/dashboard`,
     })
 
-    // Use Paddle's hosted checkout URL format
-    const checkoutUrl = `https://buy.paddle.com/checkout?${checkoutParams.toString()}`
+    // Use the correct Paddle checkout URL format
+    const checkoutUrl = `https://checkout.paddle.com/checkout/product/${priceId}?${checkoutParams.toString()}`
 
     console.log("[v0] Checkout URL created successfully:", checkoutUrl)
     return { success: true, checkoutUrl }
