@@ -14,14 +14,12 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
     console.log("[v0] Using site URL:", siteUrl)
 
-    const paddleApiUrl = "https://api.paddle.com/checkout"
+    const paddleApiUrl = "https://api.paddle.com/transactions"
 
     const requestBody = {
       items: [
         {
-          price: {
-            id: "pri_01k5zjvykxzy0qfww05j76351c", // Replace with your actual Paddle price ID
-          },
+          price_id: "pri_01k5zjvykxzy0qfww05j76351c", // Replace with your actual Paddle price ID
           quantity: 1,
         },
       ],
@@ -87,16 +85,20 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
 
     console.log("[v0] Paddle API success response:", data)
 
-    if (!data || !data.data || !data.data.checkout || !data.data.checkout.url) {
+    if (!data || !data.data || !data.data.id) {
       console.error("[v0] Invalid response structure from Paddle:", data)
       return {
         success: false,
-        error: "Invalid response from Paddle API - missing checkout URL",
+        error: "Invalid response from Paddle API - missing transaction ID",
       }
     }
 
-    console.log("[v0] Checkout URL created successfully:", data.data.checkout.url)
-    return { success: true, checkoutUrl: data.data.checkout.url }
+    // Create checkout URL using the transaction ID
+    // You'll need to replace 'your-hosted-checkout-id' with your actual hosted checkout ID from Paddle dashboard
+    const checkoutUrl = `https://buy.paddle.com/checkout?txn=${data.data.id}`
+
+    console.log("[v0] Checkout URL created successfully:", checkoutUrl)
+    return { success: true, checkoutUrl }
   } catch (error) {
     console.error("[v0] Error creating Paddle checkout:", error)
     return {
