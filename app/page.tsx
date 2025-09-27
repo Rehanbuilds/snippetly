@@ -141,7 +141,7 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto">
             <div className="relative">
               <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/design-mode-images/heropic.PNG-WFz2zjreVcvEPoFSXfIqtyCpoaaG0i.png"
+                src="/images/design-mode/heropic.PNG(1).png"
                 alt="Snippetly Dashboard Preview - Manage and organize your code snippets"
                 className="w-full h-auto rounded-lg border border-gray-200 shadow-2xl shadow-gray-500/20 backdrop-blur-sm"
                 style={{

@@ -14,7 +14,7 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
     console.log("[v0] Using site URL:", siteUrl)
 
-    const paddleApiUrl = "https://api.paddle.com/transactions"
+    const paddleApiUrl = "https://api.paddle.com/checkout"
 
     const requestBody = {
       items: [
