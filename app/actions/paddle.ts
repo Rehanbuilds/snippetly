@@ -1,21 +1,12 @@
 "use server"
 
-// Server action to create Paddle checkout URL
 export async function createPaddleCheckoutUrl(userId: string, userEmail: string) {
-  console.log("[v0] Starting Paddle checkout creation for user:", userId, userEmail)
+  console.log("[v0] Creating direct Paddle checkout for user:", userId, userEmail)
 
   try {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
 
-    const priceId = process.env.NEXT_PUBLIC_PADDLE_PRICE_ID || "pri_01k5zjvykxzy0qfww05j76351c"
-
-    if (!priceId) {
-      throw new Error(
-        "Paddle price ID not configured. Please add NEXT_PUBLIC_PADDLE_PRICE_ID to your environment variables.",
-      )
-    }
-
-    console.log("[v0] Using price ID:", priceId)
+    const hostedCheckoutUrl = "https://pay.paddle.io/hsc_01k67f4hx53vfjgte0qgxfrqz9_67x2pq5w3fhfx5e547ymtbhcjst78qzq"
 
     const checkoutParams = new URLSearchParams({
       customer_email: userEmail,
@@ -25,10 +16,9 @@ export async function createPaddleCheckoutUrl(userId: string, userEmail: string)
       cancel_url: `${siteUrl}/dashboard`,
     })
 
-    // Use the correct Paddle checkout URL format
-    const checkoutUrl = `https://buy.paddle.com/product/${priceId}?${checkoutParams.toString()}`
+    const checkoutUrl = `${hostedCheckoutUrl}?${checkoutParams.toString()}`
 
-    console.log("[v0] Checkout URL created successfully:", checkoutUrl)
+    console.log("[v0] Direct checkout URL created successfully:", checkoutUrl)
     return { success: true, checkoutUrl }
   } catch (error) {
     console.error("[v0] Error creating Paddle checkout:", error)
