@@ -139,17 +139,20 @@ export default function LandingPage() {
           </div>
 
           <div className="max-w-6xl mx-auto">
-            <div className="relative">
+            <div className="relative group">
               <img
-                src="/modern-dashboard-interface-showing-code-snippets-o.jpg"
+                src="/images/snippetly-dashboard.png"
                 alt="Snippetly Dashboard Preview - Manage and organize your code snippets"
-                className="w-full h-auto rounded-lg border border-gray-200 shadow-2xl shadow-gray-500/20 backdrop-blur-sm"
+                className="w-full h-auto rounded-2xl border border-white/20 shadow-2xl shadow-black/25 backdrop-blur-sm transition-transform duration-300 group-hover:scale-[1.02]"
                 style={{
                   filter: "drop-shadow(0 25px 50px rgba(0, 0, 0, 0.15))",
+                  backdropFilter: "blur(10px)",
                 }}
               />
-              {/* Subtle overlay for better visual integration */}
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-background/10 to-transparent pointer-events-none" />
+              {/* Subtle gradient overlay for depth */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-background/5 to-transparent pointer-events-none" />
+              {/* Transparent border effect */}
+              <div className="absolute inset-0 rounded-2xl border border-white/10 pointer-events-none" />
             </div>
           </div>
         </div>
@@ -381,13 +384,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-900">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center">
-            <Card className="bg-black border-gray-800 text-white p-12 rounded-2xl">
+            <Card className="bg-black border-gray-800 text-white p-16 rounded-2xl shadow-2xl">
               <CardContent className="p-0">
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6 text-white">
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-8 text-white">
                   Ready to organize your code snippets?
                 </h2>
                 <p className="text-xl text-slate-300 text-balance mb-12 max-w-2xl mx-auto">
