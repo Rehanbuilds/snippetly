@@ -109,21 +109,22 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
             <span className="text-lg font-bold">Snippetly</span>
           </Link>
 
-          <div className="ml-auto flex items-center gap-4">
+          <div className="ml-auto flex items-center gap-2 md:gap-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Welcome, {userDisplayName}</span>
+              <span className="hidden sm:inline">Welcome, {userDisplayName}</span>
+              <span className="sm:hidden truncate max-w-20">Hi, {userDisplayName.split(" ")[0]}</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
               <Link href="/dashboard/settings">
                 <Button variant="ghost" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
+                  <Settings className="h-4 w-4" />
+                  <span className="hidden md:inline md:ml-2">Settings</span>
                 </Button>
               </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
+                <LogOut className="h-4 w-4" />
+                <span className="hidden md:inline md:ml-2">Logout</span>
               </Button>
             </div>
           </div>
