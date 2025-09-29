@@ -9,6 +9,7 @@ import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
+import { SnippetlyLogo } from "@/components/snippetly-logo"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -104,10 +105,9 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           </Button>
 
           {/* Logo */}
-          <Link href="/dashboard" className="flex items-center mr-4 md:mr-8">
-            <Code className="h-6 w-6 mr-2" />
-            <span className="text-lg font-bold">Snippetly</span>
-          </Link>
+          <div className="mr-4 md:mr-8">
+            <SnippetlyLogo href="/dashboard" />
+          </div>
 
           <div className="ml-auto flex items-center gap-2 md:gap-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">

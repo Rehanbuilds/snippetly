@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Code, Search, Share, Star, Zap, Users, Menu, X, ChevronDown } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { SnippetlyLogo } from "@/components/snippetly-logo"
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -58,10 +59,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex items-center">
-              <Code className="h-8 w-8 mr-2" />
-              <span className="text-xl font-bold">Snippetly</span>
-            </div>
+            <SnippetlyLogo href="/" />
 
             <div className="hidden md:flex items-center space-x-8">
               <button
@@ -500,9 +498,8 @@ export default function LandingPage() {
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center mb-4">
-                <Code className="h-6 w-6 mr-2" />
-                <span className="text-lg font-bold">Snippetly</span>
+              <div className="mb-4">
+                <SnippetlyLogo />
               </div>
               <p className="text-muted-foreground mb-4">Your personal snippet vault for better code management.</p>
               <div className="flex items-center space-x-3">

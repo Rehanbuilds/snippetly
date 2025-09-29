@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Code, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { SnippetlyLogo } from "@/components/snippetly-logo"
 
 export default function PrivacyPolicyPage() {
   return (
@@ -10,10 +11,7 @@ export default function PrivacyPolicyPage() {
       <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Code className="h-8 w-8 mr-2" />
-              <span className="text-xl font-bold">Snippetly</span>
-            </div>
+            <SnippetlyLogo href="/" />
             <Link href="/">
               <Button variant="ghost">
                 <ArrowLeft className="h-4 w-4 mr-2" />

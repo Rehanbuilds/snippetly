@@ -2,17 +2,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Code } from "lucide-react"
 import Link from "next/link"
+import { SnippetlyLogo } from "@/components/snippetly-logo"
 
 export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="flex items-center justify-center mb-8">
-          <Code className="h-8 w-8 mr-2" />
-          <span className="text-2xl font-bold">Snippetly</span>
+          <SnippetlyLogo size="lg" />
         </div>
 
         <Card>

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Code, Search, Share, Star, Zap, Users, Heart, Target, Lightbulb } from "lucide-react"
 import Link from "next/link"
+import { SnippetlyLogo } from "@/components/snippetly-logo"
 
 export default function AboutPage() {
   return (
@@ -10,12 +11,7 @@ export default function AboutPage() {
       <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center">
-                <Code className="h-8 w-8 mr-2" />
-                <span className="text-xl font-bold">Snippetly</span>
-              </Link>
-            </div>
+            <SnippetlyLogo href="/" />
             <div className="flex items-center space-x-4">
               <Link href="/signin">
                 <Button variant="ghost">Login</Button>
@@ -283,9 +279,8 @@ export default function AboutPage() {
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center mb-4">
-                <Code className="h-6 w-6 mr-2" />
-                <span className="text-lg font-bold">Snippetly</span>
+              <div className="mb-4">
+                <SnippetlyLogo />
               </div>
               <p className="text-muted-foreground mb-4">Your personal snippet vault for better code management.</p>
               <div className="flex items-center space-x-3">
