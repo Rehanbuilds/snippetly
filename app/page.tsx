@@ -273,7 +273,12 @@ export default function LandingPage() {
               </CardHeader>
             </Card>
 
-            <Card>
+            <Card className="relative">
+              <div className="absolute top-4 right-4">
+                <Badge variant="secondary" className="text-xs">
+                  Coming Soon
+                </Badge>
+              </div>
               <CardHeader>
                 <Share className="h-10 w-10 mb-4 text-primary" />
                 <CardTitle>Share & Collaborate</CardTitle>
@@ -390,7 +395,7 @@ export default function LandingPage() {
                 <CardTitle className="text-2xl">Pro</CardTitle>
                 <CardDescription>For power users and teams</CardDescription>
                 <div className="text-3xl font-bold">
-                  $9<span className="text-lg font-normal text-muted-foreground">/month</span>
+                  $9<span className="text-lg font-normal text-muted-foreground"> one time</span>
                 </div>
               </CardHeader>
               <CardContent>
@@ -401,16 +406,16 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center">
                     <Share className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Team collaboration</span>
+                    <span>Team collaboration (coming soon)</span>
                   </li>
                   <li className="flex items-center">
                     <Zap className="h-4 w-4 mr-3 text-green-600" />
                     <span>Advanced features</span>
                   </li>
                 </ul>
-                <Button className="w-full bg-transparent" variant="outline">
-                  Coming Soon
-                </Button>
+                <Link href="/signup">
+                  <Button className="w-full bg-black text-white hover:bg-gray-800">Get Started</Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
