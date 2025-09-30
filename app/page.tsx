@@ -152,19 +152,19 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
             Your personal snippet vault never lose a line of code again
           </h1>
-          <p className="text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
             Save, organize, and share code in seconds. The ultimate tool for developers, students, and professionals.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 mb-12">
             <Link href="/signup">
-              <Button size="lg" className="text-lg px-8 py-6">
+              <Button size="lg" className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6">
                 Get Started Free
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6 bg-transparent">
+            <Button variant="outline" size="lg" className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6 bg-transparent">
               View Demo
             </Button>
           </div>
@@ -554,26 +554,29 @@ export default function LandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center">
-            <Card className="bg-black border-gray-800 text-white p-16 rounded-2xl shadow-2xl">
+            <Card className="bg-black border-gray-800 text-white p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
               <CardContent className="p-0">
-                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-balance mb-8 text-white">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-balance mb-8 text-white">
                   Ready to organize your code snippets?
                 </h2>
-                <p className="text-xl text-slate-300 text-balance mb-12 max-w-2xl mx-auto">
+                <p className="text-base sm:text-xl text-slate-300 text-balance mb-12 max-w-2xl mx-auto">
                   Join thousands of developers who have already transformed their workflow. Start building your personal
                   snippet vault today.
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/signup">
-                    <Button size="lg" className="text-lg px-8 py-6 bg-white text-slate-900 hover:bg-slate-100">
+                    <Button
+                      size="lg"
+                      className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6 bg-white text-slate-900 hover:bg-slate-100"
+                    >
                       Get Started Free
                     </Button>
                   </Link>
                   <Button
                     variant="outline"
                     size="lg"
-                    className="text-lg px-8 py-6 border-slate-600 text-white hover:bg-slate-800 bg-transparent"
+                    className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6 border-slate-600 text-white hover:bg-slate-800 bg-transparent"
                   >
                     View Demo
                   </Button>
