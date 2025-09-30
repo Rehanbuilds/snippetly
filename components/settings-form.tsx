@@ -9,8 +9,8 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
-import { User, Lock, Palette, Bell, Trash2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { User, Palette, Bell, Trash2 } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
@@ -34,16 +34,22 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [displayName, setDisplayName] = useState("")
   const [bio, setBio] = useState("")
   const [email, setEmail] = useState(user?.email || "")
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
   const [darkMode, setDarkMode] = useState(false)
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [loading, setLoading] = useState(false)
   const [profileLoading, setProfileLoading] = useState(true)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [currentPassword, setCurrentPassword] = useState("")
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const router = useRouter()
   const supabase = createClient()
+
+  const createdAtLabel = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString("en-US", { day: "2-digit", month: "long", year: "numeric" })
+    : "—"
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -214,6 +220,64 @@ export function SettingsForm({ user }: SettingsFormProps) {
     }
   }
 
+  const handleChangePhotoClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file", description: "Please select an image file.", variant: "destructive" })
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max size is 2MB.", variant: "destructive" })
+      return
+    }
+    try {
+      setAvatarUploading(true)
+      const ext = file.name.split(".").pop() || "jpg"
+      const path = `${user.id}/${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
+        cacheControl: "3600",
+        upsert: true,
+        contentType: file.type,
+      })
+      if (uploadError) throw uploadError
+
+      const { data: publicData } = supabase.storage.from("avatars").getPublicUrl(path)
+      const publicUrl = publicData?.publicUrl
+      if (!publicUrl) {
+        throw new Error("Failed to get public URL.")
+      }
+
+      // Update profiles table with new avatar_url
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", user.id)
+      if (profileError) throw profileError
+
+      // Update local state
+      setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev))
+
+      toast({ title: "Photo updated", description: "Your profile photo has been updated." })
+      router.refresh()
+    } catch (error: any) {
+      console.error("[v0] Avatar upload error:", error?.message || error)
+      toast({
+        title: "Upload failed",
+        description: "Could not upload your photo. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setAvatarUploading(false)
+      // clear input value so the same file can be re-selected if needed
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
   if (profileLoading) {
     return <div className="flex items-center justify-center p-8">Loading profile...</div>
   }
@@ -238,8 +302,21 @@ export function SettingsForm({ user }: SettingsFormProps) {
                 <AvatarFallback className="text-lg">{userInitials}</AvatarFallback>
               </Avatar>
               <div>
-                <Button type="button" variant="outline" size="sm">
-                  Change Photo
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarFileChange}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleChangePhotoClick}
+                  disabled={avatarUploading}
+                >
+                  {avatarUploading ? "Uploading..." : "Change Photo"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-1">JPG, PNG or GIF. Max size 2MB.</p>
               </div>
@@ -274,6 +351,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="createdAt">Account Created</Label>
+              <Input id="createdAt" value={createdAtLabel} readOnly />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
@@ -287,50 +369,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
             <div className="flex justify-end">
               <Button type="submit" disabled={loading}>
                 {loading ? "Saving..." : "Save Changes"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Password Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Lock className="h-5 w-5" />
-            Change Password
-          </CardTitle>
-          <CardDescription>Update your password to keep your account secure</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={6}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button type="submit" disabled={loading}>
-                {loading ? "Updating..." : "Update Password"}
               </Button>
             </div>
           </form>
