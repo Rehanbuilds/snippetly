@@ -7,10 +7,16 @@ import { Suspense } from "react"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Snippetly - Your Personal Snippet Vault",
+  title: {
+    default: "Snippetly – Save, Organize & Share Code Snippets",
+    template: "%s | Snippetly",
+  },
   description:
-    "Save, organize, and share code snippets in seconds. The ultimate tool for developers, students, and professionals.",
+    "Snippetly helps developers and teams capture, organize, and share code snippets instantly. Build your personal snippet vault with tags, search, and sharing for faster workflows and better collaboration.",
   generator: "v0.app",
+  verification: {
+    google: "x9BTAQ3mXrilyVOaXnRDOpRr7Giu6EDXKCaLjGQB6WM",
+  },
 }
 
 export default function RootLayout({
