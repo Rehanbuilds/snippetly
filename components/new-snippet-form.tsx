@@ -38,6 +38,16 @@ const languages = [
   "Shell",
   "Bash",
   "PowerShell",
+  "Node.js",
+  "Next.js",
+  "Express.js",
+  "NestJS",
+  "Vue.js",
+  "Angular",
+  "Svelte",
+  "Deno",
+  "GraphQL",
+  "JSON",
   "Other",
 ]
 
