@@ -441,7 +441,7 @@ export default function LandingPage() {
 
                   <div className="mt-6 flex items-center gap-3 justify-center md:justify-start">
                     <a
-                      href="#"
+                      href="https://x.com/MRehan_5"
                       aria-label="X (Twitter) - Builder profile"
                       className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors"
                       target="_blank"
@@ -457,7 +457,7 @@ export default function LandingPage() {
                       </svg>
                     </a>
                     <a
-                      href="#"
+                      href="https://github.com/Rehanbuilds"
                       aria-label="GitHub - Builder profile"
                       className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors"
                       target="_blank"
@@ -477,7 +477,7 @@ export default function LandingPage() {
                       </svg>
                     </a>
                     <a
-                      href="#"
+                      href="https://www.linkedin.com/in/muhammad-rehan-575908378"
                       aria-label="LinkedIn - Builder profile"
                       className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors"
                       target="_blank"
@@ -598,7 +598,7 @@ export default function LandingPage() {
               <p className="text-muted-foreground mb-4">Your personal snippet vault for better code management.</p>
               <div className="flex items-center space-x-3">
                 <a
-                  href="https://twitter.com/snippetly"
+                  href="https://x.com/MRehan_5"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-400 transition-colors"
@@ -614,7 +614,7 @@ export default function LandingPage() {
                   </svg>
                 </a>
                 <a
-                  href="https://github.com/snippetly"
+                  href="https://github.com/Rehanbuilds"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-400 transition-colors"
