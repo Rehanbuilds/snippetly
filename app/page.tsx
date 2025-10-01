@@ -215,15 +215,24 @@ export default function LandingPage() {
               </ul>
             </div>
             <div className="bg-card p-6 rounded-lg border">
-              <div className="bg-muted p-4 rounded font-mono text-sm">
-                <div className="text-muted-foreground mb-2">// Before Snippetly</div>
-                <div className="text-destructive">❌ Lost in scattered files</div>
-                <div className="text-destructive">❌ No organization system</div>
-                <div className="text-destructive">❌ Hard to share with team</div>
-                <div className="text-muted-foreground mt-4 mb-2">// After Snippetly</div>
-                <div className="text-green-600">✅ Centralized snippet vault</div>
-                <div className="text-green-600">✅ Smart tagging & search</div>
-                <div className="text-green-600">✅ Easy sharing & collaboration</div>
+              <div className="bg-muted rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  </div>
+                </div>
+                <div className="bg-background rounded p-4 font-mono text-sm">
+                  <div className="text-muted-foreground mb-2">// Before Snippetly</div>
+                  <div className="text-destructive">❌ Lost in scattered files</div>
+                  <div className="text-destructive">❌ No organization system</div>
+                  <div className="text-destructive">❌ Hard to share with team</div>
+                  <div className="text-muted-foreground mt-4 mb-2">// After Snippetly</div>
+                  <div className="text-green-600">✅ Centralized snippet vault</div>
+                  <div className="text-green-600">✅ Smart tagging & search</div>
+                  <div className="text-green-600">✅ Easy sharing & collaboration</div>
+                </div>
               </div>
             </div>
           </div>
@@ -429,6 +438,13 @@ export default function LandingPage() {
 
           <div className="bg-card rounded-lg border p-8 max-w-4xl mx-auto">
             <div className="bg-muted rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+              </div>
               <div className="grid md:grid-cols-2 gap-10 items-center">
                 <div className="text-center md:text-left">
                   <h3 className="text-2xl font-semibold">Mr Rehan</h3>
