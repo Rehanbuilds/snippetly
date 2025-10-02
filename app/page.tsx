@@ -8,16 +8,6 @@ import Link from "next/link"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
 
-const SectionTag = ({ label }: { label: string }) => (
-  <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-background border border-border text-xs font-medium text-foreground shadow-sm backdrop-blur-sm">
-    <span
-      className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.7)] animate-pulse"
-      aria-hidden="true"
-    />
-    {label}
-  </span>
-)
-
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -162,7 +152,6 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
-          <SectionTag label="Hero" />
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
             Your personal snippet vault never lose a line of code again
           </h1>
@@ -203,7 +192,6 @@ export default function LandingPage() {
       {/* Problem & Solution */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
-          <SectionTag label="Problem & Solution" />
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-6">Stop losing your code snippets</h2>
@@ -255,9 +243,6 @@ export default function LandingPage() {
       <section id="features" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <div className="mb-2 flex justify-center">
-              <SectionTag label="Feature" />
-            </div>
             <h2 className="text-3xl font-bold mb-4">Everything you need to manage code snippets</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to make your development workflow more efficient
@@ -331,9 +316,6 @@ export default function LandingPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <div className="mb-2 flex justify-center">
-              <SectionTag label="Demo video" />
-            </div>
             <h2 className="text-3xl font-bold mb-4">See Snippetly in action</h2>
             <p className="text-lg text-muted-foreground">A clean, intuitive interface designed for developers</p>
           </div>
@@ -377,9 +359,6 @@ export default function LandingPage() {
       {/* Pricing */}
       <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="mb-2 flex justify-center">
-            <SectionTag label="Pricing" />
-          </div>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
             <p className="text-lg text-muted-foreground">Start free, upgrade when you need more</p>
@@ -454,13 +433,7 @@ export default function LandingPage() {
       <section id="builder" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="mb-10 text-center">
-            <div className="mb-2 flex justify-center">
-              <SectionTag label="Founder" />
-            </div>
-            <div className="mb-2 flex justify-center">
-              <SectionTag label="Builder behind this Product" />
-            </div>
-            <h2 className="text-3xl font-bold text-balance">Mr Rehan</h2>
+            <h2 className="text-3xl font-bold text-balance">Builder behind this Product.</h2>
           </div>
 
           <div className="bg-card rounded-lg border p-8 max-w-4xl mx-auto">
@@ -558,9 +531,6 @@ export default function LandingPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <div className="mb-2 flex justify-center">
-              <SectionTag label="FAQs" />
-            </div>
             <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Everything you need to know about Snippetly
@@ -599,7 +569,6 @@ export default function LandingPage() {
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto">
-          <SectionTag label="CTA Section" />
           <div className="max-w-4xl mx-auto text-center">
             <Card className="bg-black border-gray-800 text-white p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
               <CardContent className="p-0">
@@ -637,7 +606,6 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <SectionTag label="Footer" />
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="mb-4">
