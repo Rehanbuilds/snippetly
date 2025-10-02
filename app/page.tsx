@@ -614,10 +614,10 @@ export default function LandingPage() {
               <p className="text-muted-foreground mb-4">Your personal snippet vault for better code management.</p>
               <div className="flex items-center space-x-3">
                 <a
-                  href="https://x.com/MRehan_5"
+                  href="https://x.com/snippetly_xyz"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-400 transition-colors"
+                  className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors"
                   aria-label="Follow us on X (Twitter)"
                 >
                   <svg
@@ -633,7 +633,7 @@ export default function LandingPage() {
                   href="https://github.com/Rehanbuilds"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 hover:border-gray-400 transition-colors"
+                  className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors"
                   aria-label="View our GitHub repository"
                 >
                   <svg
@@ -647,6 +647,22 @@ export default function LandingPage() {
                       d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
                       clipRule="evenodd"
                     />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/muhammad-rehan-575908378"
+                  aria-label="LinkedIn - Builder profile"
+                  className="flex items-center justify-center w-10 h-10 rounded-lg border-2 border-gray-300 hover:border-gray-400 transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg
+                    className="w-5 h-5 text-gray-600 hover:text-gray-800"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.98 2.12 4.98 3.5zM.5 8.5h4V24h-4V8.5zm7 0h3.84v2.11h.05c.53-1 1.83-2.11 3.76-2.11 4.02 0 4.76 2.65 4.76 6.1V24h-4v-7.5c0-1.79-.03-4.1-2.5-4.1-2.5 0-2.88 1.95-2.88 3.97V24h-4V8.5z" />
                   </svg>
                 </a>
               </div>
