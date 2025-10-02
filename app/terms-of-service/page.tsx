@@ -127,23 +127,19 @@ export default function TermsOfServicePage() {
               <CardContent className="prose prose-gray max-w-none">
                 <h4 className="font-semibold">Free Plan</h4>
                 <ul>
-                  <li>Up to 100 code snippets</li>
+                  <li>Up to 50 code snippets</li>
                   <li>Full search and organization features</li>
                   <li>Basic support</li>
                 </ul>
 
-                <h4 className="font-semibold mt-6">Pro Plan (Coming Soon)</h4>
+                <h4 className="font-semibold mt-6">Pro Plan</h4>
                 <ul>
                   <li>Unlimited code snippets</li>
-                  <li>Team collaboration features</li>
-                  <li>Advanced sharing options</li>
-                  <li>Priority support</li>
-                  <li>$9/month subscription</li>
+                  <li>One-time payment</li>
                 </ul>
 
                 <p className="mt-4">
-                  Pricing is subject to change with 30 days notice. Current users will be grandfathered into existing
-                  pricing for 12 months after any price changes.
+                  One-time pricing with no recurring charges. Pricing may change for future purchases.
                 </p>
               </CardContent>
             </Card>
@@ -156,36 +152,8 @@ export default function TermsOfServicePage() {
                 <h4 className="font-semibold">Free Plan</h4>
                 <p>The free plan requires no payment and therefore no refunds are applicable.</p>
 
-                <h4 className="font-semibold mt-6">Pro Plan Refunds</h4>
-                <p>
-                  We offer a 30-day money-back guarantee for Pro plan subscriptions. You may request a full refund
-                  within 30 days of your initial subscription or renewal for any reason.
-                </p>
-
-                <h4 className="font-semibold mt-6">Refund Process</h4>
-                <ul>
-                  <li>Refund requests must be submitted within 30 days of payment</li>
-                  <li>Contact support@snippetly.com with your refund request</li>
-                  <li>Include your account email and reason for refund (optional)</li>
-                  <li>Refunds are processed within 5-10 business days</li>
-                  <li>Refunds are issued to the original payment method</li>
-                </ul>
-
-                <h4 className="font-semibold mt-6">Refund Exceptions</h4>
-                <p>Refunds may be denied in cases of:</p>
-                <ul>
-                  <li>Violation of our Terms of Service or Acceptable Use Policy</li>
-                  <li>Fraudulent or abusive refund requests</li>
-                  <li>Requests made after the 30-day refund period</li>
-                  <li>Accounts that have been suspended or terminated for policy violations</li>
-                </ul>
-
-                <h4 className="font-semibold mt-6">Subscription Cancellation</h4>
-                <p>
-                  You may cancel your Pro subscription at any time through your account settings. Cancellation will take
-                  effect at the end of your current billing period, and you will retain Pro features until that date. No
-                  partial refunds are provided for mid-cycle cancellations unless within the 30-day refund window.
-                </p>
+                <h4 className="font-semibold mt-6">Pro Plan</h4>
+                <p>We currently do not support refunds for the one-time Pro plan.</p>
               </CardContent>
             </Card>
 
@@ -278,10 +246,30 @@ export default function TermsOfServicePage() {
               <CardContent className="prose prose-gray max-w-none">
                 <p>If you have any questions about these Terms of Service, please contact us:</p>
                 <ul>
-                  <li>Email: support@snippetly.com</li>
-                  <li>Legal inquiries: legal@snippetly.com</li>
-                  <li>Website: snippetly.com/contact</li>
+                  <li>
+                    Website:{" "}
+                    <Link
+                      href="https://snippetly.xyz/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      snippetly.xyz/contact
+                    </Link>
+                  </li>
                 </ul>
+                <div className="mt-4">
+                  <Button asChild>
+                    <Link
+                      href="https://x.com/snippetly_xyz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="DM us on X (Twitter)"
+                    >
+                      DM us on X
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

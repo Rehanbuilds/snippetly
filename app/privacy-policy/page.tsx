@@ -209,9 +209,30 @@ export default function PrivacyPolicyPage() {
               <CardContent className="prose prose-gray max-w-none">
                 <p>If you have any questions about this Privacy Policy or our data practices, please contact us:</p>
                 <ul>
-                  <li>Email: privacy@snippetly.com</li>
-                  <li>Website: snippetly.com/contact</li>
+                  <li>
+                    Website:{" "}
+                    <Link
+                      href="https://snippetly.xyz/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      snippetly.xyz/contact
+                    </Link>
+                  </li>
                 </ul>
+                <div className="mt-4">
+                  <Button asChild>
+                    <Link
+                      href="https://x.com/snippetly_xyz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="DM us on X (Twitter)"
+                    >
+                      DM us on X
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
