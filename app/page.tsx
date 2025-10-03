@@ -83,6 +83,12 @@ export default function LandingPage() {
               >
                 Pricing
               </button>
+              <button
+                onClick={() => scrollToSection("demo")}
+                className="text-foreground hover:text-primary transition-colors cursor-pointer"
+              >
+                Demo
+              </button>
             </div>
 
             {/* Desktop Auth Buttons */}
@@ -133,6 +139,12 @@ export default function LandingPage() {
                 >
                   Pricing
                 </button>
+                <button
+                  onClick={() => scrollToSection("demo")}
+                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                >
+                  Demo
+                </button>
                 <div className="border-t border-border pt-4 mt-4">
                   <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full mb-2">
@@ -164,7 +176,12 @@ export default function LandingPage() {
                 Get Started Free
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6 bg-transparent">
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6 bg-transparent"
+              onClick={() => scrollToSection("demo")}
+            >
               View Demo
             </Button>
           </div>
@@ -313,44 +330,28 @@ export default function LandingPage() {
       </section>
 
       {/* Screenshots/Preview */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
+      
+
+      {/* Demo Video Section */}
+      <section id="demo" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">See Snippetly in action</h2>
-            <p className="text-lg text-muted-foreground">A clean, intuitive interface designed for developers</p>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-4">Watch the demo
+See Snippetly in Action</h2>
+            <p className="text-lg text-muted-foreground">A quick tour of Snippetly</p>
           </div>
 
-          <div className="bg-card rounded-lg border p-8 max-w-4xl mx-auto">
-            <div className="bg-muted rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                </div>
-                <Badge variant="secondary">Dashboard Preview</Badge>
-              </div>
-              <div className="bg-background rounded p-4 font-mono text-sm">
-                <div className="text-muted-foreground mb-2">// React Hook Example</div>
-                <div>
-                  <span className="text-blue-600">const</span>{" "}
-                  <span>useLocalStorage = (key, initialValue) =&gt; {"{"}</span>
-                </div>
-                <div className="ml-4">
-                  <div>
-                    <span className="text-blue-600">const</span>{" "}
-                    <span>[storedValue, setStoredValue] = useState(() =&gt; {"{"}</span>
-                  </div>
-                  <div className="ml-4 text-muted-foreground">// Implementation...</div>
-                  <div>{"})"}</div>
-                </div>
-                <div>{"};"}</div>
-                <div className="mt-4 flex items-center space-x-2">
-                  <Badge variant="outline">React</Badge>
-                  <Badge variant="outline">Hooks</Badge>
-                  <Badge variant="outline">localStorage</Badge>
-                </div>
-              </div>
+          <div className="bg-card rounded-lg border p-3 sm:p-6 max-w-5xl mx-auto">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/LX2XMDmVL58?si=Sixj0xv5Rd-e2Z7n"
+                title="YouTube video player"
+                frameBorder={0}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
             </div>
           </div>
         </div>
@@ -593,6 +594,7 @@ export default function LandingPage() {
                     variant="outline"
                     size="lg"
                     className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6 border-slate-600 text-white hover:bg-slate-800 bg-transparent"
+                    onClick={() => scrollToSection("demo")}
                   >
                     View Demo
                   </Button>
