@@ -164,22 +164,42 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
-          {/* Startup Fame badge above main tagline */}
-          <a
-            href="https://startupfa.me/s/snippetly?utm_source=www.snippetly.xyz"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block mb-4"
-            aria-label="Featured on Startup Fame"
-          >
-            <img
-              src="https://startupfa.me/badges/featured-badge.webp"
-              alt="Featured on Startup Fame"
-              className="h-10 sm:h-12 w-auto"
-              width={171}
-              height={54}
-            />
-          </a>
+          {/* Badges above main tagline */}
+          {/* Group Startup Fame and Product Hunt badges in a responsive row */}
+          <div className="mb-4 flex items-center justify-center gap-2 flex-nowrap">
+            {/* Startup Fame badge */}
+            <a
+              href="https://startupfa.me/s/snippetly?utm_source=www.snippetly.xyz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block"
+              aria-label="Featured on Startup Fame"
+            >
+              <img
+                src="https://startupfa.me/badges/featured-badge.webp"
+                alt="Featured on Startup Fame"
+                className="h-8 sm:h-10 md:h-12 w-auto"
+                width={171}
+                height={54}
+              />
+            </a>
+            {/* Product Hunt badge */}
+            <a
+              href="https://www.producthunt.com/products/snippetly?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-snippetly"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block"
+              aria-label="Featured on Product Hunt"
+            >
+              <img
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1022584&theme=light&t=1759504559022"
+                alt="Snippetly - Your snippet vault. Save, organize & share code snippets | Product Hunt"
+                className="h-8 sm:h-10 md:h-12 w-auto"
+                width={250}
+                height={54}
+              />
+            </a>
+          </div>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
             Your personal snippet vault never lose a line of code again
           </h1>
