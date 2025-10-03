@@ -320,20 +320,111 @@ export default function LandingPage() {
             <p className="text-lg text-muted-foreground">A clean, intuitive interface designed for developers</p>
           </div>
 
-          <div className="max-w-4xl mx-auto">
-            <div className="rounded-lg border overflow-hidden bg-background">
-              <div className="relative w-full aspect-video">
-                <iframe
-                  className="absolute inset-0 w-full h-full"
-                  src="https://www.youtube.com/embed/LX2XMDmVL58?si=7C4ZCgypTYEUSSiA"
-                  title="YouTube video player - Snippetly Demo"
-                  frameBorder={0}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                />
+          <div className="bg-card rounded-lg border p-8 max-w-4xl mx-auto">
+            <div className="bg-muted rounded-lg p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <Badge variant="secondary">Dashboard Preview</Badge>
+              </div>
+              <div className="bg-background rounded p-4 font-mono text-sm">
+                <div className="text-muted-foreground mb-2">// React Hook Example</div>
+                <div>
+                  <span className="text-blue-600">const</span>{" "}
+                  <span>useLocalStorage = (key, initialValue) =&gt; {"{"}</span>
+                </div>
+                <div className="ml-4">
+                  <div>
+                    <span className="text-blue-600">const</span>{" "}
+                    <span>[storedValue, setStoredValue] = useState(() =&gt; {"{"}</span>
+                  </div>
+                  <div className="ml-4 text-muted-foreground">// Implementation...</div>
+                  <div>{"})"}</div>
+                </div>
+                <div>{"};"}</div>
+                <div className="mt-4 flex items-center space-x-2">
+                  <Badge variant="outline">React</Badge>
+                  <Badge variant="outline">Hooks</Badge>
+                  <Badge variant="outline">localStorage</Badge>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
+            <p className="text-lg text-muted-foreground">Start free, upgrade when you need more</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <Card className="relative">
+              <CardHeader>
+                <CardTitle className="text-2xl">Free</CardTitle>
+                <CardDescription>Perfect for getting started</CardDescription>
+                <div className="text-3xl font-bold">
+                  $0<span className="text-lg font-normal text-muted-foreground">/month</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Up to 50 snippets</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Search className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Full search functionality</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Star className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Tags and favorites</span>
+                  </li>
+                </ul>
+                <Link href="/signup">
+                  <Button className="w-full">Get Started Free</Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            <Card className="relative border-primary">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl">Pro</CardTitle>
+                <CardDescription>For power users and teams</CardDescription>
+                <div className="text-3xl font-bold">
+                  $9<span className="text-lg font-normal text-muted-foreground"> one time</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Unlimited snippets</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Share className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Team collaboration (coming soon)</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Zap className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Advanced features</span>
+                  </li>
+                </ul>
+                <Link href="/signup">
+                  <Button className="w-full bg-black text-white hover:bg-gray-800">Get Started</Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
