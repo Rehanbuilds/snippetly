@@ -164,6 +164,22 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto text-center">
+          {/* Startup Fame badge above main tagline */}
+          <a
+            href="https://startupfa.me/s/snippetly?utm_source=www.snippetly.xyz"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mb-4"
+            aria-label="Featured on Startup Fame"
+          >
+            <img
+              src="https://startupfa.me/badges/featured-badge.webp"
+              alt="Featured on Startup Fame"
+              className="h-10 sm:h-12 w-auto"
+              width={171}
+              height={54}
+            />
+          </a>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-balance mb-6">
             Your personal snippet vault never lose a line of code again
           </h1>
@@ -330,14 +346,12 @@ export default function LandingPage() {
       </section>
 
       {/* Screenshots/Preview */}
-      
 
       {/* Demo Video Section */}
       <section id="demo" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Watch the demo
-See Snippetly in Action</h2>
+            <h2 className="text-3xl font-bold mb-4">Watch the demo See Snippetly in Action</h2>
             <p className="text-lg text-muted-foreground">A quick tour of Snippetly</p>
           </div>
 
