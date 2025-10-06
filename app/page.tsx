@@ -790,6 +790,19 @@ export default function LandingPage() {
                   className="h-[54px] w-auto"
                 />
               </a>
+
+              <a
+                href="https://starterbest.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Featured on Starter Best"
+              >
+                <img
+                  src="https://starterbest.com/badages-awards.svg"
+                  alt="Featured on Starter Best"
+                  className="h-[54px] w-auto"
+                />
+              </a>
             </div>
           </div>
 
