@@ -816,6 +816,19 @@ export default function LandingPage() {
                   className="h-[54px] w-auto"
                 />
               </a>
+
+              <a
+                href="https://launchscroll.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Featured on Launch Scroll"
+              >
+                <img
+                  src="https://launchscroll.com/assets/images/badge.png"
+                  alt="Launch Scroll"
+                  className="h-[54px] w-auto"
+                />
+              </a>
             </div>
           </div>
 
