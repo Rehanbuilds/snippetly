@@ -764,18 +764,33 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex items-center justify-center">
-            <a
-              href="https://toolfame.com/item/snippetly"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Featured on Toolfame"
-            >
-              <img
-                src="https://toolfame.com/badge-dark.svg"
-                alt="Featured on toolfame.com"
-                className="h-[54px] w-auto"
-              />
-            </a>
+            <div className="flex items-center justify-center gap-4 flex-nowrap">
+              <a
+                href="https://toolfame.com/item/snippetly"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Featured on Toolfame"
+              >
+                <img
+                  src="https://toolfame.com/badge-dark.svg"
+                  alt="Featured on toolfame.com"
+                  className="h-[54px] w-auto"
+                />
+              </a>
+
+              <a
+                href="https://fazier.com/launches/www.snippetly.xyz"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Featured on Fazier"
+              >
+                <img
+                  src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light"
+                  alt="Fazier badge"
+                  className="h-[54px] w-auto"
+                />
+              </a>
+            </div>
           </div>
 
           <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">
