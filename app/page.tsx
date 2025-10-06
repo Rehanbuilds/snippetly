@@ -764,7 +764,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex items-center justify-center">
-            <div className="flex items-center justify-center gap-4 flex-nowrap">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <a
                 href="https://toolfame.com/item/snippetly"
                 target="_blank"
@@ -803,6 +803,8 @@ export default function LandingPage() {
                   className="h-[54px] w-auto"
                 />
               </a>
+
+              <span className="w-full sm:hidden" aria-hidden="true" />
 
               <a
                 href="https://twelve.tools"
