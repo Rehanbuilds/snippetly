@@ -471,7 +471,7 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-balance">Builder behind this Product.</h2>
           </div>
 
-          <div className="bg-card rounded-lg border p-8 max-w-4xl mx-auto">
+          <div className="bg-card rounded-lg border p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
             <div className="bg-muted rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
@@ -761,6 +761,21 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
+          </div>
+
+          <div className="mt-8 flex items-center justify-center">
+            <a
+              href="https://toolfame.com/item/snippetly"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Featured on Toolfame"
+            >
+              <img
+                src="https://toolfame.com/badge-dark.svg"
+                alt="Featured on toolfame.com"
+                className="h-[54px] w-auto"
+              />
+            </a>
           </div>
 
           <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground">

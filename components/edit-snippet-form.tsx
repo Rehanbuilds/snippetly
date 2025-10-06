@@ -15,7 +15,6 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
-import { CodeEditor } from "@/components/code-editor"
 
 const languages = [
   "JavaScript",
@@ -237,15 +236,15 @@ export function EditSnippetForm({ snippet }: EditSnippetFormProps) {
         <CardContent>
           <div className="space-y-2">
             <Label htmlFor="code">Code *</Label>
-            <div className="rounded-lg border bg-muted/30 p-1">
-              <CodeEditor
-                language={language}
-                value={code}
-                onChange={(val) => setCode(val)}
-                height="360px"
-                className="font-mono text-sm"
-              />
-            </div>
+            <Textarea
+              id="code"
+              placeholder="Paste your code here..."
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              rows={15}
+              className="font-mono text-sm"
+              required
+            />
           </div>
         </CardContent>
       </Card>
