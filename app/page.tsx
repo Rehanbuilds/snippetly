@@ -376,7 +376,7 @@ export default function LandingPage() {
           </div>
 
           <div className="bg-card rounded-lg border p-3 sm:p-6 max-w-5xl mx-auto">
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/20 shadow-2xl shadow-black/20 bg-background/40 backdrop-blur-sm">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden">
               <iframe
                 className="absolute inset-0 w-full h-full"
                 src="https://www.youtube.com/embed/LX2XMDmVL58?si=Sixj0xv5Rd-e2Z7n"
@@ -764,7 +764,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex items-center justify-center">
-            <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 flex-nowrap">
               <a
                 href="https://toolfame.com/item/snippetly"
                 target="_blank"
@@ -800,34 +800,6 @@ export default function LandingPage() {
                 <img
                   src="https://starterbest.com/badages-awards.svg"
                   alt="Featured on Starter Best"
-                  className="h-[54px] w-auto"
-                />
-              </a>
-
-              <span className="w-full sm:hidden" aria-hidden="true" />
-
-              <a
-                href="https://twelve.tools"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Featured on Twelve Tools"
-              >
-                <img
-                  src="https://twelve.tools/badge0-white.svg"
-                  alt="Featured on Twelve Tools"
-                  className="h-[54px] w-auto"
-                />
-              </a>
-
-              <a
-                href="https://launchscroll.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Featured on Launch Scroll"
-              >
-                <img
-                  src="https://launchscroll.com/assets/images/badge.png"
-                  alt="Launch Scroll"
                   className="h-[54px] w-auto"
                 />
               </a>
