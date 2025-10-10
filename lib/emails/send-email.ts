@@ -1,5 +1,3 @@
-"use server"
-
 import { getResend, EMAIL_FROM } from "@/lib/resend"
 import { WelcomeEmail } from "./templates/welcome-email"
 import { ProUpgradeEmail } from "./templates/pro-upgrade-email"
@@ -8,7 +6,6 @@ export async function sendWelcomeEmail(to: string, userName: string, dashboardUr
   console.log("[v0 Resend] Attempting to send welcome email to:", to)
   console.log("[v0 Resend] From address:", EMAIL_FROM)
   console.log("[v0 Resend] API Key exists:", !!process.env.RESEND_API_KEY)
-  console.log("[v0 Resend] API Key value (first 10 chars):", process.env.RESEND_API_KEY?.substring(0, 10))
 
   try {
     const resend = getResend()
@@ -23,15 +20,15 @@ export async function sendWelcomeEmail(to: string, userName: string, dashboardUr
 
     if (error) {
       console.error("[v0 Resend] Error sending welcome email:", error)
-      return { success: false, error: error.message }
+      return { success: false as const, error: error.message }
     }
 
     console.log("[v0 Resend] Welcome email sent successfully:", data?.id)
-    return { success: true, data }
+    return { success: true as const, data }
   } catch (error) {
     console.error("[v0 Resend] Failed to send welcome email:", error)
     return {
-      success: false,
+      success: false as const,
       error: error instanceof Error ? error.message : "Failed to send email",
     }
   }
@@ -55,21 +52,20 @@ export async function sendProUpgradeEmail(
 
     if (error) {
       console.error("[v0 Resend] Error sending Pro upgrade email:", error)
-      return { success: false, error: error.message }
+      return { success: false as const, error: error.message }
     }
 
     console.log("[v0 Resend] Pro upgrade email sent successfully:", data?.id)
-    return { success: true, data }
+    return { success: true as const, data }
   } catch (error) {
     console.error("[v0 Resend] Failed to send Pro upgrade email:", error)
     return {
-      success: false,
+      success: false as const,
       error: error instanceof Error ? error.message : "Failed to send email",
     }
   }
 }
 
-// Generic email sender for custom use cases
 export async function sendCustomEmail(to: string, subject: string, html: string) {
   try {
     const resend = getResend()
@@ -83,15 +79,15 @@ export async function sendCustomEmail(to: string, subject: string, html: string)
 
     if (error) {
       console.error("[v0 Resend] Error sending custom email:", error)
-      return { success: false, error: error.message }
+      return { success: false as const, error: error.message }
     }
 
     console.log("[v0 Resend] Custom email sent successfully:", data?.id)
-    return { success: true, data }
+    return { success: true as const, data }
   } catch (error) {
     console.error("[v0 Resend] Failed to send custom email:", error)
     return {
-      success: false,
+      success: false as const,
       error: error instanceof Error ? error.message : "Failed to send email",
     }
   }
