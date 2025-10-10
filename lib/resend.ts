@@ -6,6 +6,5 @@ if (!process.env.RESEND_API_KEY) {
 
 export const resend = new Resend(process.env.RESEND_API_KEY)
 
-// Email sender configuration
-export const EMAIL_FROM = "Snippetly <noreply@snippetly.xyz>"
-export const SUPPORT_EMAIL = "support@snippetly.xyz"
+export const EMAIL_FROM = "Snippetly <hello@snippetly.xyz>"
+export const SUPPORT_EMAIL = "hello@snippetly.xyz"

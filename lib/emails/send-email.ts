@@ -5,6 +5,10 @@ import { WelcomeEmail } from "./templates/welcome-email"
 import { ProUpgradeEmail } from "./templates/pro-upgrade-email"
 
 export async function sendWelcomeEmail(to: string, userName: string, dashboardUrl = "https://snippetly.xyz/dashboard") {
+  console.log("[Resend] Attempting to send welcome email to:", to)
+  console.log("[Resend] From address:", EMAIL_FROM)
+  console.log("[Resend] API Key exists:", !!process.env.RESEND_API_KEY)
+
   try {
     const { data, error } = await resend.emails.send({
       from: EMAIL_FROM,
@@ -22,7 +26,7 @@ export async function sendWelcomeEmail(to: string, userName: string, dashboardUr
     return { success: true, data }
   } catch (error) {
     console.error("[Resend] Failed to send welcome email:", error)
-    return { success: false, error: "Failed to send email" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to send email" }
   }
 }
 
@@ -72,6 +76,6 @@ export async function sendCustomEmail(to: string, subject: string, html: string)
     return { success: true, data }
   } catch (error) {
     console.error("[Resend] Failed to send custom email:", error)
-    return { success: false, error: "Failed to send email" }
+    return { success: false, error: error instanceof Error ? error.message : "Failed to send email" }
   }
 }

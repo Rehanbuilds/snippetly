@@ -3,11 +3,14 @@
 import { sendWelcomeEmail as sendWelcome, sendProUpgradeEmail as sendProUpgrade } from "@/lib/emails/send-email"
 
 export async function sendWelcomeEmailAction(email: string, name: string) {
-  console.log("[v0] sendWelcomeEmailAction called with:", { email, name })
+  console.log("[v0] sendWelcomeEmailAction called")
+  console.log("[v0] Email:", email)
+  console.log("[v0] Name:", name)
+  console.log("[v0] Environment check - RESEND_API_KEY exists:", !!process.env.RESEND_API_KEY)
 
   try {
     const result = await sendWelcome(email, name)
-    console.log("[v0] sendWelcomeEmailAction result:", result)
+    console.log("[v0] sendWelcomeEmailAction result:", JSON.stringify(result, null, 2))
     return result
   } catch (error) {
     console.error("[v0] sendWelcomeEmailAction error:", error)
