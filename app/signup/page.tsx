@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
+import { sendWelcomeEmail } from "@/lib/emails/send-email"
 
 export default function SignUpPage() {
   const [name, setName] = useState("")
@@ -45,6 +46,14 @@ export default function SignUpPage() {
         },
       })
       if (error) throw error
+
+      try {
+        await sendWelcomeEmail(email, name)
+      } catch (emailError) {
+        // Log error but don't block signup flow
+        console.error("[v0] Failed to send welcome email:", emailError)
+      }
+
       router.push("/signup-success")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")

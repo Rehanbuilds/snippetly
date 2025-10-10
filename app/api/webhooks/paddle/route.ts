@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { updateUserPlan } from "@/lib/supabase/plans"
+import { sendProUpgradeEmail } from "@/lib/emails/send-email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,6 +63,21 @@ async function handleTransactionCompleted(transaction: any) {
       status: "completed",
       plan_type: "pro",
     })
+
+    try {
+      // Fetch user's email and name from auth and profiles
+      const {
+        data: { user },
+      } = await supabase.auth.admin.getUserById(userId)
+      const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", userId).single()
+
+      if (user?.email) {
+        await sendProUpgradeEmail(user.email, profile?.full_name || "there")
+      }
+    } catch (emailError) {
+      // Log error but don't block webhook processing
+      console.error("[v0] Failed to send Pro upgrade email:", emailError)
+    }
 
     console.log(`Successfully upgraded user ${userId} to Pro plan`)
   } catch (error) {
