@@ -11,7 +11,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
-import { sendWelcomeEmail } from "@/lib/emails/send-email"
+import { sendWelcomeEmailAction } from "@/app/actions/email"
 
 export default function SignUpPage() {
   const [name, setName] = useState("")
@@ -35,6 +35,8 @@ export default function SignUpPage() {
     }
 
     try {
+      console.log("[v0] Starting signup for:", email)
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -47,15 +49,21 @@ export default function SignUpPage() {
       })
       if (error) throw error
 
+      console.log("[v0] Signup successful, sending welcome email...")
       try {
-        await sendWelcomeEmail(email, name)
+        const emailResult = await sendWelcomeEmailAction(email, name)
+        console.log("[v0] Welcome email result:", emailResult)
+
+        if (!emailResult.success) {
+          console.error("[v0] Welcome email failed:", emailResult.error)
+        }
       } catch (emailError) {
-        // Log error but don't block signup flow
         console.error("[v0] Failed to send welcome email:", emailError)
       }
 
       router.push("/signup-success")
     } catch (error: unknown) {
+      console.error("[v0] Signup error:", error)
       setError(error instanceof Error ? error.message : "An error occurred")
     } finally {
       setIsLoading(false)

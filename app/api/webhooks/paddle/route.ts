@@ -65,17 +65,28 @@ async function handleTransactionCompleted(transaction: any) {
     })
 
     try {
+      console.log("[v0] Fetching user data for Pro upgrade email, userId:", userId)
+
       // Fetch user's email and name from auth and profiles
       const {
         data: { user },
       } = await supabase.auth.admin.getUserById(userId)
       const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", userId).single()
 
+      console.log("[v0] User data fetched:", { email: user?.email, name: profile?.full_name })
+
       if (user?.email) {
-        await sendProUpgradeEmail(user.email, profile?.full_name || "there")
+        console.log("[v0] Sending Pro upgrade email to:", user.email)
+        const emailResult = await sendProUpgradeEmail(
+          user.email,
+          profile?.full_name || "there",
+          transaction.id, // Pass transaction ID
+        )
+        console.log("[v0] Pro upgrade email result:", emailResult)
+      } else {
+        console.error("[v0] No email found for user:", userId)
       }
     } catch (emailError) {
-      // Log error but don't block webhook processing
       console.error("[v0] Failed to send Pro upgrade email:", emailError)
     }
 
