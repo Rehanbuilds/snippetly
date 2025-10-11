@@ -245,6 +245,12 @@ export default function LandingPage() {
       {/* Problem & Solution */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
+              <span className="text-sm font-medium">Problem & Solution</span>
+            </div>
+          </div>
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-3xl font-bold mb-6">Stop losing your code snippets</h2>
@@ -295,6 +301,12 @@ export default function LandingPage() {
       {/* Features Highlights */}
       <section id="features" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
+              <span className="text-sm font-medium">Features</span>
+            </div>
+          </div>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Everything you need to manage code snippets</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -370,13 +382,19 @@ export default function LandingPage() {
       {/* Demo Video Section */}
       <section id="demo" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
+              <span className="text-sm font-medium">Demo Video</span>
+            </div>
+          </div>
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-4">Watch the demo See Snippetly in Action</h2>
             <p className="text-lg text-muted-foreground">A quick tour of Snippetly</p>
           </div>
 
           <div className="bg-card rounded-lg border p-3 sm:p-6 max-w-5xl mx-auto">
-            <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/20 shadow-2xl shadow-black/20 bg-background/40 backdrop-blur-sm">
               <iframe
                 className="absolute inset-0 w-full h-full"
                 src="https://www.youtube.com/embed/LX2XMDmVL58?si=Sixj0xv5Rd-e2Z7n"
@@ -394,6 +412,12 @@ export default function LandingPage() {
       {/* Pricing */}
       <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
+              <span className="text-sm font-medium">Pricing</span>
+            </div>
+          </div>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
             <p className="text-lg text-muted-foreground">Start free, upgrade when you need more</p>
@@ -468,6 +492,12 @@ export default function LandingPage() {
       <section id="builder" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="mb-10 text-center">
+            <div className="flex justify-center mb-4">
+              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm text-sm font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-foreground"></span>
+                Founder
+              </span>
+            </div>
             <h2 className="text-3xl font-bold text-balance">Builder behind this Product.</h2>
           </div>
 
@@ -565,6 +595,12 @@ export default function LandingPage() {
       {/* FAQ Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
+          <div className="flex justify-center mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
+              <span className="text-sm font-medium">FAQs</span>
+            </div>
+          </div>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
