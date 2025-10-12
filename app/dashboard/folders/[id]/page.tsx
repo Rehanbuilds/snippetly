@@ -28,7 +28,7 @@ export default async function FolderDetailPage({ params }: { params: { id: strin
     notFound()
   }
 
-  const { data: snippets } = await supabase
+  const { data: snippets, error: snippetsError } = await supabase
     .from("snippets")
     .select("*")
     .eq("user_id", user.id)
@@ -36,8 +36,12 @@ export default async function FolderDetailPage({ params }: { params: { id: strin
     .order("created_at", { ascending: false })
 
   console.log("[v0] Folder ID:", params.id)
+  console.log("[v0] User ID:", user.id)
+  console.log("[v0] Snippets query error:", snippetsError)
   console.log("[v0] Snippets found:", snippets?.length || 0)
-  console.log("[v0] Snippets data:", snippets)
+  if (snippets && snippets.length > 0) {
+    console.log("[v0] First snippet folder_id:", snippets[0].folder_id)
+  }
 
   return (
     <DashboardLayout user={user}>
