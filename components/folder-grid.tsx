@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Folder, Trash2 } from "lucide-react"
+import { Folder, Trash2, Edit } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -91,9 +91,8 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
               <Trash2 className="h-4 w-4" />
             </Button>
 
-            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 pr-12">
-              {/* Folder icon and info */}
-              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 pr-12">
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
                 <div
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: folder.color || "#3b82f6" }}
@@ -118,13 +117,28 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
                 </div>
               </div>
 
-              <Link href={`/dashboard/folders/${folder.id}`} className="flex-shrink-0">
-                <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm bg-transparent">
-                  <Folder className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">View</span>
-                  <span className="sm:hidden">View</span>
-                </Button>
-              </Link>
+              <div className="flex items-center gap-2 w-full sm:w-auto sm:flex-shrink-0">
+                <Link href={`/dashboard/folders/${folder.id}/edit`} className="flex-1 sm:flex-initial">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 sm:h-9 text-xs sm:text-sm w-full sm:w-auto bg-transparent"
+                  >
+                    <Edit className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    Edit
+                  </Button>
+                </Link>
+                <Link href={`/dashboard/folders/${folder.id}`} className="flex-1 sm:flex-initial">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 sm:h-9 text-xs sm:text-sm w-full sm:w-auto bg-transparent"
+                  >
+                    <Folder className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                    View
+                  </Button>
+                </Link>
+              </div>
             </div>
           </Card>
         ))}
