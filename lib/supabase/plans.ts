@@ -54,3 +54,72 @@ export async function canUserCreateSnippet(userId: string) {
   if (plan.plan_type === "pro") return true
   return snippetCount < plan.snippet_limit
 }
+
+export async function getUserFolderCount(userId: string) {
+  const supabase = await createClient()
+
+  const { count, error } = await supabase
+    .from("folders")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId)
+
+  if (error) throw error
+  return count || 0
+}
+
+export async function getFolderSnippetCount(folderId: string) {
+  const supabase = await createClient()
+
+  const { count, error } = await supabase
+    .from("snippets")
+    .select("*", { count: "exact", head: true })
+    .eq("folder_id", folderId)
+
+  if (error) throw error
+  return count || 0
+}
+
+export async function canUserCreateFolder(userId: string) {
+  const FREE_FOLDER_LIMIT = 5
+  const [plan, folderCount] = await Promise.all([getUserPlan(userId), getUserFolderCount(userId)])
+
+  if (plan.plan_type === "pro") return { canCreate: true, limit: 999999, current: folderCount }
+  return {
+    canCreate: folderCount < FREE_FOLDER_LIMIT,
+    limit: FREE_FOLDER_LIMIT,
+    current: folderCount,
+  }
+}
+
+export async function canAddSnippetsToFolder(folderId: string, snippetsToAdd: number, userId: string) {
+  const FREE_SNIPPETS_PER_FOLDER_LIMIT = 10
+  const [plan, currentCount] = await Promise.all([getUserPlan(userId), getFolderSnippetCount(folderId)])
+
+  if (plan.plan_type === "pro")
+    return {
+      canAdd: true,
+      limit: 999999,
+      current: currentCount,
+    }
+
+  const newTotal = currentCount + snippetsToAdd
+  return {
+    canAdd: newTotal <= FREE_SNIPPETS_PER_FOLDER_LIMIT,
+    limit: FREE_SNIPPETS_PER_FOLDER_LIMIT,
+    current: currentCount,
+    wouldBe: newTotal,
+  }
+}
+
+export const PLAN_LIMITS = {
+  FREE: {
+    FOLDERS: 5,
+    SNIPPETS_PER_FOLDER: 10,
+    TOTAL_SNIPPETS: 50,
+  },
+  PRO: {
+    FOLDERS: 999999,
+    SNIPPETS_PER_FOLDER: 999999,
+    TOTAL_SNIPPETS: 999999,
+  },
+}
