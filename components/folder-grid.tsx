@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Folder, Plus, MoreVertical, Edit, Trash2 } from "lucide-react"
+import { Folder, Plus, MoreVertical, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -77,11 +77,11 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {/* Create New Folder Card */}
         <Link href="/dashboard/folders/new">
           <Card className="h-full border-dashed border-2 hover:border-primary hover:bg-accent/50 transition-colors cursor-pointer">
-            <CardContent className="flex flex-col items-center justify-center h-48 p-6">
+            <CardContent className="flex flex-col items-center justify-center h-40 sm:h-48 p-6">
               <div className="rounded-full bg-primary/10 p-4 mb-4">
                 <Plus className="h-8 w-8 text-primary" />
               </div>
@@ -90,20 +90,19 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
           </Card>
         </Link>
 
-        {/* Folder Cards */}
         {folders.map((folder) => (
-          <Card key={folder.id} className="h-full hover:shadow-lg transition-shadow">
+          <Card key={folder.id} className="h-full hover:shadow-lg transition-all hover:scale-[1.02]">
             <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
+              <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: folder.color || "#3b82f6" }}
                   >
-                    <Folder className="h-5 w-5 text-white" />
+                    <Folder className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <CardTitle className="text-lg truncate">{folder.name}</CardTitle>
+                    <CardTitle className="text-base sm:text-lg truncate">{folder.name}</CardTitle>
                     <CardDescription className="text-xs mt-1">
                       {getSnippetCount(folder)} snippet{getSnippetCount(folder) !== 1 ? "s" : ""}
                     </CardDescription>
@@ -111,15 +110,21 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 flex-shrink-0">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/folders/${folder.id}`} className="cursor-pointer">
+                        <Folder className="h-4 w-4 mr-2" />
+                        View Snippets
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href={`/dashboard/folders/${folder.id}/edit`} className="cursor-pointer">
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add More Snippets
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -130,18 +135,19 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
                       }}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      Delete
+                      Delete Folder
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               {folder.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{folder.description}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">{folder.description}</p>
               )}
-              <Link href={`/dashboard/folders/${folder.id}`}>
+              <Link href={`/dashboard/folders/${folder.id}`} className="block">
                 <Button variant="outline" size="sm" className="w-full bg-transparent">
+                  <Folder className="h-4 w-4 mr-2" />
                   View Snippets
                 </Button>
               </Link>
@@ -151,12 +157,14 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
       </div>
 
       {folders.length === 0 && (
-        <div className="text-center py-12">
-          <Folder className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-medium mb-2">No folders yet</h3>
-          <p className="text-muted-foreground mb-4">Create your first folder to organize your snippets</p>
+        <div className="text-center py-16 sm:py-20">
+          <Folder className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg sm:text-xl font-medium mb-2">No folders yet</h3>
+          <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+            Create your first folder to organize your snippets
+          </p>
           <Link href="/dashboard/folders/new">
-            <Button>
+            <Button size="lg">
               <Plus className="h-4 w-4 mr-2" />
               Create Folder
             </Button>
