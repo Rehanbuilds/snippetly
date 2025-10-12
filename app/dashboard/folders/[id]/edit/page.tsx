@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect, notFound } from "next/navigation"
+import { DashboardLayout } from "@/components/dashboard-layout"
 import { EditFolderForm } from "@/components/edit-folder-form"
 
 export default async function EditFolderPage({ params }: { params: { id: string } }) {
@@ -31,13 +32,17 @@ export default async function EditFolderPage({ params }: { params: { id: string 
     .order("created_at", { ascending: false })
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Edit Folder</h1>
-        <p className="text-muted-foreground mt-2">Update folder details and manage snippets</p>
-      </div>
+    <DashboardLayout user={user}>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Edit Folder</h1>
+            <p className="text-sm sm:text-base text-muted-foreground mt-2">Update folder details and manage snippets</p>
+          </div>
 
-      <EditFolderForm folder={folder} snippets={snippets || []} userId={user.id} />
-    </div>
+          <EditFolderForm folder={folder} snippets={snippets || []} userId={user.id} />
+        </div>
+      </div>
+    </DashboardLayout>
   )
 }
