@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
 import { sendWelcomeEmailAction } from "@/app/actions/email"
+import { validateEmail } from "@/lib/email-validator"
 
 export default function SignUpPage() {
   const [name, setName] = useState("")
@@ -19,17 +20,48 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
+  const [emailError, setEmailError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value
+    setEmail(newEmail)
+
+    if (emailError) {
+      setEmailError(null)
+    }
+
+    if (newEmail.includes("@") && newEmail.length > 5) {
+      const validation = validateEmail(newEmail)
+      if (!validation.isValid) {
+        setEmailError(validation.error || "Invalid email")
+      }
+    }
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+    setEmailError(null)
+
+    const emailValidation = validateEmail(email)
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.error || "Invalid email address")
+      setIsLoading(false)
+      return
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match")
+      setIsLoading(false)
+      return
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long")
       setIsLoading(false)
       return
     }
@@ -103,15 +135,22 @@ export default function SignUpPage() {
                   placeholder="Enter your email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  className={emailError ? "border-red-500 focus-visible:ring-red-500" : ""}
                 />
+                {emailError && <p className="text-sm text-red-500 mt-1">{emailError}</p>}
+                {!emailError && email.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Use Gmail, Outlook, Yahoo, or your organization email
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Create a password"
+                  placeholder="Create a password (min. 8 characters)"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -129,7 +168,7 @@ export default function SignUpPage() {
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading || !!emailError}>
                 {isLoading ? "Creating account..." : "Create Account"}
               </Button>
             </form>
