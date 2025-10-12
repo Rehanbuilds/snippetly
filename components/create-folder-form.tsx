@@ -63,6 +63,9 @@ export function CreateFolderForm({ snippets, userId }: CreateFolderFormProps) {
     setIsSubmitting(true)
 
     try {
+      console.log("[v0] Creating folder with name:", name)
+      console.log("[v0] Selected snippets to add:", selectedSnippets)
+
       // Create folder
       const { data: folder, error: folderError } = await supabase
         .from("folders")
@@ -77,15 +80,25 @@ export function CreateFolderForm({ snippets, userId }: CreateFolderFormProps) {
 
       if (folderError) throw folderError
 
+      console.log("[v0] Folder created with ID:", folder.id)
+
       // Update selected snippets with folder_id
       if (selectedSnippets.length > 0) {
-        const { error: updateError } = await supabase
+        console.log("[v0] Updating snippets with folder_id:", folder.id)
+
+        const { data: updatedSnippets, error: updateError } = await supabase
           .from("snippets")
           .update({ folder_id: folder.id })
           .in("id", selectedSnippets)
           .eq("user_id", userId)
+          .select()
 
-        if (updateError) throw updateError
+        if (updateError) {
+          console.error("[v0] Error updating snippets:", updateError)
+          throw updateError
+        }
+
+        console.log("[v0] Successfully updated snippets:", updatedSnippets)
       }
 
       toast({
@@ -96,7 +109,7 @@ export function CreateFolderForm({ snippets, userId }: CreateFolderFormProps) {
       router.push("/dashboard/folders")
       router.refresh()
     } catch (error) {
-      console.error("Error creating folder:", error)
+      console.error("[v0] Error creating folder:", error)
       toast({
         title: "Error",
         description: "Failed to create folder. Please try again.",
