@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X } from "lucide-react"
+import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X, Folder } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -38,6 +38,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
     favorites: 0,
     tags: {},
   })
+  const [folderCount, setFolderCount] = useState(0)
   const router = useRouter()
   const supabase = createClient()
 
@@ -68,6 +69,13 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
 
           setSnippetCounts({ total, favorites, tags: tagCounts })
         }
+
+        const { count } = await supabase
+          .from("folders")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+
+        setFolderCount(count || 0)
       } catch (error) {
         console.error("Error loading dashboard data:", error)
       }
@@ -172,6 +180,16 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                   Favorites
                   <Badge variant="secondary" className="ml-auto">
                     {snippetCounts.favorites}
+                  </Badge>
+                </Button>
+              </Link>
+              {/* Folders navigation item */}
+              <Link href="/dashboard/folders" onClick={() => setSidebarOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start">
+                  <Folder className="h-4 w-4 mr-2" />
+                  Folders
+                  <Badge variant="secondary" className="ml-auto">
+                    {folderCount}
                   </Badge>
                 </Button>
               </Link>
