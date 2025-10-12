@@ -1,14 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Folder, Plus, MoreVertical, Trash2 } from "lucide-react"
+import { Folder, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,81 +76,56 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {/* Create New Folder Card */}
-        <Link href="/dashboard/folders/new">
-          <Card className="h-full border-dashed border-2 hover:border-primary hover:bg-accent/50 transition-colors cursor-pointer">
-            <CardContent className="flex flex-col items-center justify-center h-40 sm:h-48 p-6">
-              <div className="rounded-full bg-primary/10 p-4 mb-4">
-                <Plus className="h-8 w-8 text-primary" />
-              </div>
-              <p className="text-sm font-medium">Create New Folder</p>
-            </CardContent>
-          </Card>
-        </Link>
-
+      <div className="space-y-3 sm:space-y-4">
         {folders.map((folder) => (
-          <Card key={folder.id} className="h-full hover:shadow-lg transition-all hover:scale-[1.02]">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: folder.color || "#3b82f6" }}
-                  >
-                    <Folder className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base sm:text-lg truncate">{folder.name}</CardTitle>
-                    <CardDescription className="text-xs mt-1">
+          <Card key={folder.id} className="relative hover:shadow-md transition-all group">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => {
+                setFolderToDelete(folder.id)
+                setDeleteDialogOpen(true)
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+
+            <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 pr-12">
+              {/* Folder icon and info */}
+              <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                <div
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: folder.color || "#3b82f6" }}
+                >
+                  <Folder className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-sm sm:text-base truncate">{folder.name}</h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       {getSnippetCount(folder)} snippet{getSnippetCount(folder) !== 1 ? "s" : ""}
-                    </CardDescription>
+                    </p>
+                    {folder.description && (
+                      <>
+                        <span className="text-muted-foreground hidden sm:inline">•</span>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate hidden sm:block">
+                          {folder.description}
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 flex-shrink-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/folders/${folder.id}`} className="cursor-pointer">
-                        <Folder className="h-4 w-4 mr-2" />
-                        View Snippets
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href={`/dashboard/folders/${folder.id}/edit`} className="cursor-pointer">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add More Snippets
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-destructive cursor-pointer"
-                      onClick={() => {
-                        setFolderToDelete(folder.id)
-                        setDeleteDialogOpen(true)
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Delete Folder
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {folder.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem]">{folder.description}</p>
-              )}
-              <Link href={`/dashboard/folders/${folder.id}`} className="block">
-                <Button variant="outline" size="sm" className="w-full bg-transparent">
-                  <Folder className="h-4 w-4 mr-2" />
-                  View Snippets
+
+              <Link href={`/dashboard/folders/${folder.id}`} className="flex-shrink-0">
+                <Button variant="outline" size="sm" className="h-8 sm:h-9 text-xs sm:text-sm bg-transparent">
+                  <Folder className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">View</span>
+                  <span className="sm:hidden">View</span>
                 </Button>
               </Link>
-            </CardContent>
+            </div>
           </Card>
         ))}
       </div>
@@ -160,15 +134,9 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
         <div className="text-center py-16 sm:py-20">
           <Folder className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg sm:text-xl font-medium mb-2">No folders yet</h3>
-          <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+          <p className="text-muted-foreground mb-6 text-sm sm:text-base px-4">
             Create your first folder to organize your snippets
           </p>
-          <Link href="/dashboard/folders/new">
-            <Button size="lg">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Folder
-            </Button>
-          </Link>
         </div>
       )}
 
