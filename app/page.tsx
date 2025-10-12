@@ -439,6 +439,14 @@ export default function LandingPage() {
                     <span>Up to 50 snippets</span>
                   </li>
                   <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Up to 5 folders</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>10 snippets per folder</span>
+                  </li>
+                  <li className="flex items-center">
                     <Search className="h-4 w-4 mr-3 text-green-600" />
                     <span>Full search functionality</span>
                   </li>
@@ -461,7 +469,7 @@ export default function LandingPage() {
                 <CardTitle className="text-2xl">Pro</CardTitle>
                 <CardDescription>For power users and teams</CardDescription>
                 <div className="text-3xl font-bold">
-                  $9<span className="text-lg font-normal text-muted-foreground"> one time</span>
+                  $29<span className="text-lg font-normal text-muted-foreground"> one time</span>
                 </div>
               </CardHeader>
               <CardContent>
@@ -469,6 +477,10 @@ export default function LandingPage() {
                   <li className="flex items-center">
                     <Code className="h-4 w-4 mr-3 text-green-600" />
                     <span>Unlimited snippets</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Unlimited folders</span>
                   </li>
                   <li className="flex items-center">
                     <Share className="h-4 w-4 mr-3 text-green-600" />

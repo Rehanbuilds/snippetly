@@ -113,7 +113,7 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
               <Badge variant="secondary">One-time payment</Badge>
             </div>
             <div className="text-3xl font-bold mb-4">
-              $9 <span className="text-sm font-normal text-muted-foreground">forever</span>
+              $29 <span className="text-sm font-normal text-muted-foreground">forever</span>
             </div>
 
             <ul className="space-y-2 mb-4">
