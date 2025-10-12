@@ -24,10 +24,11 @@ interface Snippet {
 
 interface SnippetGridProps {
   favoritesOnly?: boolean
-  userId: string
+  userId?: string
   searchQuery?: string
   selectedLanguage?: string
   selectedTag?: string
+  snippets?: Snippet[]
 }
 
 export function SnippetGrid({
@@ -36,15 +37,28 @@ export function SnippetGrid({
   searchQuery = "",
   selectedLanguage = "all",
   selectedTag = "all",
+  snippets: initialSnippets,
 }: SnippetGridProps) {
-  const [snippets, setSnippets] = useState<Snippet[]>([])
+  const [snippets, setSnippets] = useState<Snippet[]>(initialSnippets || [])
   const [filteredSnippets, setFilteredSnippets] = useState<Snippet[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!initialSnippets)
   const [exportModalOpen, setExportModalOpen] = useState(false)
   const [selectedSnippet, setSelectedSnippet] = useState<Snippet | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
+    if (initialSnippets) {
+      setSnippets(initialSnippets)
+      setLoading(false)
+      return
+    }
+
+    if (!userId) {
+      console.error("[v0] SnippetGrid: userId is required when snippets are not provided")
+      setLoading(false)
+      return
+    }
+
     const loadSnippets = async () => {
       try {
         let query = supabase
@@ -63,7 +77,7 @@ export function SnippetGrid({
 
         setSnippets(data || [])
       } catch (error) {
-        console.error("Error loading snippets:", error)
+        console.error("[v0] Error loading snippets:", error)
         toast({
           title: "Error",
           description: "Failed to load snippets.",
@@ -75,7 +89,7 @@ export function SnippetGrid({
     }
 
     loadSnippets()
-  }, [userId, favoritesOnly, supabase])
+  }, [userId, favoritesOnly, supabase, initialSnippets])
 
   useEffect(() => {
     let filtered = snippets

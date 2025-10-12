@@ -35,12 +35,24 @@ export default async function FolderDetailPage({ params }: { params: { id: strin
     .eq("folder_id", params.id)
     .order("created_at", { ascending: false })
 
+  if (snippetsError) {
+    console.error("[v0] Snippets query error details:", {
+      message: snippetsError.message,
+      details: snippetsError.details,
+      hint: snippetsError.hint,
+      code: snippetsError.code,
+    })
+  }
+
   console.log("[v0] Folder ID:", params.id)
   console.log("[v0] User ID:", user.id)
-  console.log("[v0] Snippets query error:", snippetsError)
   console.log("[v0] Snippets found:", snippets?.length || 0)
   if (snippets && snippets.length > 0) {
     console.log("[v0] First snippet folder_id:", snippets[0].folder_id)
+    console.log(
+      "[v0] Sample snippet IDs:",
+      snippets.slice(0, 3).map((s) => s.id),
+    )
   }
 
   return (
@@ -87,7 +99,7 @@ export default async function FolderDetailPage({ params }: { params: { id: strin
             </Link>
           </div>
         ) : (
-          <SnippetGrid snippets={snippets} />
+          <SnippetGrid snippets={snippets} userId={user.id} />
         )}
       </div>
     </DashboardLayout>
