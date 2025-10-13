@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import { Edit, Copy, Trash2, Star, Download } from "lucide-react"
 import { ExportModal } from "./export-modal"
+import { ViewSnippetModal } from "./view-snippet-modal"
 
 interface Snippet {
   id: string
@@ -43,6 +44,7 @@ export function SnippetGrid({
   const [filteredSnippets, setFilteredSnippets] = useState<Snippet[]>([])
   const [loading, setLoading] = useState(!initialSnippets)
   const [exportModalOpen, setExportModalOpen] = useState(false)
+  const [viewModalOpen, setViewModalOpen] = useState(false)
   const [selectedSnippet, setSelectedSnippet] = useState<Snippet | null>(null)
   const supabase = createClient()
 
@@ -188,6 +190,16 @@ export function SnippetGrid({
     setSelectedSnippet(null)
   }
 
+  const openViewModal = (snippet: Snippet) => {
+    setSelectedSnippet(snippet)
+    setViewModalOpen(true)
+  }
+
+  const closeViewModal = () => {
+    setViewModalOpen(false)
+    setSelectedSnippet(null)
+  }
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
@@ -242,7 +254,7 @@ export function SnippetGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSnippets.map((snippet) => (
           <Card key={snippet.id} className="group hover:shadow-md transition-shadow cursor-pointer">
-            <Link href={`/dashboard/snippet/${snippet.id}/edit`} className="block">
+            <div onClick={() => openViewModal(snippet)} className="block">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -326,12 +338,25 @@ export function SnippetGrid({
                   </div>
                 </div>
               </CardContent>
-            </Link>
+            </div>
           </Card>
         ))}
       </div>
 
-      {selectedSnippet && <ExportModal snippet={selectedSnippet} isOpen={exportModalOpen} onClose={closeExportModal} />}
+      {selectedSnippet && (
+        <>
+          <ViewSnippetModal
+            snippet={selectedSnippet}
+            isOpen={viewModalOpen}
+            onClose={closeViewModal}
+            onCopy={copyToClipboard}
+            onDelete={deleteSnippet}
+            onToggleFavorite={toggleFavorite}
+            onExport={openExportModal}
+          />
+          <ExportModal snippet={selectedSnippet} isOpen={exportModalOpen} onClose={closeExportModal} />
+        </>
+      )}
     </>
   )
 }
