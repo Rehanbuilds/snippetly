@@ -5,7 +5,7 @@ export async function getUserPlan(userId: string) {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("plan_type, plan_status, snippet_limit, paddle_customer_id")
+    .select("plan_type, plan_status, snippet_limit, folder_limit, paddle_customer_id")
     .eq("id", userId)
     .single()
 
@@ -29,6 +29,7 @@ export async function updateUserPlan(
     .update({
       ...planData,
       snippet_limit: planData.plan_type === "pro" ? 999999 : 50,
+      folder_limit: planData.plan_type === "pro" ? 999999 : 5,
       plan_updated_at: new Date().toISOString(),
     })
     .eq("id", userId)
@@ -80,13 +81,12 @@ export async function getFolderSnippetCount(folderId: string) {
 }
 
 export async function canUserCreateFolder(userId: string) {
-  const FREE_FOLDER_LIMIT = 5
   const [plan, folderCount] = await Promise.all([getUserPlan(userId), getUserFolderCount(userId)])
 
-  if (plan.plan_type === "pro") return { canCreate: true, limit: 999999, current: folderCount }
+  if (plan.plan_type === "pro") return { canCreate: true, limit: plan.folder_limit || 999999, current: folderCount }
   return {
-    canCreate: folderCount < FREE_FOLDER_LIMIT,
-    limit: FREE_FOLDER_LIMIT,
+    canCreate: folderCount < (plan.folder_limit || 5),
+    limit: plan.folder_limit || 5,
     current: folderCount,
   }
 }
