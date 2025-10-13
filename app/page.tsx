@@ -812,7 +812,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex items-center justify-center">
-            <div className="flex items-center justify-center gap-4 flex-nowrap">
+            <div className="flex items-center justify-center gap-4 flex-wrap">
               <a
                 href="https://toolfame.com/item/snippetly"
                 target="_blank"
@@ -848,6 +848,32 @@ export default function LandingPage() {
                 <img
                   src="https://starterbest.com/badages-awards.svg"
                   alt="Featured on Starter Best"
+                  className="h-[54px] w-auto"
+                />
+              </a>
+
+              <a
+                href="https://peerlist.io/rehanbuilds/project/snippetly--save-organize--share-code"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Featured on Peerlist"
+              >
+                <img
+                  src="https://peerlist.io/api/v1/projects/embed/PRJH7B8JER7LNKQKA3JGK7EBQN6MGQ?showUpvote=false&theme=light"
+                  alt="Snippetly – Save, Organize & Share Code"
+                  className="h-[72px] w-auto"
+                />
+              </a>
+
+              <a
+                href="https://www.aidirectori.es"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Featured on AI Directories"
+              >
+                <img
+                  src="https://cdn.aidirectori.es/ai-tools/badges/dark-mode.png"
+                  alt="AI Directories Badge"
                   className="h-[54px] w-auto"
                 />
               </a>
