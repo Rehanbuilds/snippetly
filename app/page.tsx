@@ -247,7 +247,7 @@ export default function LandingPage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm text-sm font-medium">
               <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
               <span className="text-sm font-medium">Problem & Solution</span>
             </div>
@@ -341,7 +341,7 @@ export default function LandingPage() {
                 <Star className="h-10 w-10 mb-4 text-primary" />
                 <CardTitle>Organize</CardTitle>
                 <CardDescription>
-                  Tag snippets, mark favorites, and filter by language for perfect organization
+                  Tag snippets, mark favorites, organize in folders, and filter by language for perfect organization
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -429,9 +429,7 @@ export default function LandingPage() {
               <CardHeader>
                 <CardTitle className="text-2xl">Free</CardTitle>
                 <CardDescription>Perfect for getting started</CardDescription>
-                <div className="text-3xl font-bold">
-                  $0<span className="text-lg font-normal text-muted-foreground">/month</span>
-                </div>
+                <div className="text-3xl font-bold">$0</div>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 mb-6">
@@ -475,6 +473,10 @@ export default function LandingPage() {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 mb-6">
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span className="font-medium">Everything in Free</span>
+                  </li>
                   <li className="flex items-center">
                     <Code className="h-4 w-4 mr-3 text-green-600" />
                     <span>Unlimited snippets</span>
