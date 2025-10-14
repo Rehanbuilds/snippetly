@@ -176,7 +176,7 @@ export default function LandingPage() {
               aria-label="Featured on Startup Fame"
             >
               <img
-                src="https://startupfa.me/badges/featured-badge.webp"
+                src="/images/design-mode/featured-badge.webp"
                 alt="Featured on Startup Fame"
                 className="h-8 sm:h-10 md:h-12 w-auto"
                 width={171}
@@ -204,7 +204,7 @@ export default function LandingPage() {
             Your personal snippet vault never lose a line of code again
           </h1>
           <p className="text-base sm:text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
-            Save, organize, and share code in seconds. The ultimate tool for developers, students, and professionals.
+            Save, organize, and share code in seconds. The ultimate code management tool for developers, students, and professionals.
           </p>
           <div className="flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 mb-12">
             <Link href="/signup">
@@ -812,7 +812,7 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex items-center justify-center">
-            <div className="flex items-center justify-center gap-4 flex-wrap">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap max-w-2xl">
               <a
                 href="https://toolfame.com/item/snippetly"
                 target="_blank"
@@ -822,7 +822,7 @@ export default function LandingPage() {
                 <img
                   src="https://toolfame.com/badge-dark.svg"
                   alt="Featured on toolfame.com"
-                  className="h-[54px] w-auto"
+                  className="h-10 sm:h-12 md:h-[54px] w-auto"
                 />
               </a>
 
@@ -835,7 +835,7 @@ export default function LandingPage() {
                 <img
                   src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=light"
                   alt="Fazier badge"
-                  className="h-[54px] w-auto"
+                  className="h-10 sm:h-12 md:h-[54px] w-auto"
                 />
               </a>
 
@@ -848,7 +848,7 @@ export default function LandingPage() {
                 <img
                   src="https://starterbest.com/badages-awards.svg"
                   alt="Featured on Starter Best"
-                  className="h-[54px] w-auto"
+                  className="h-10 sm:h-12 md:h-[54px] w-auto"
                 />
               </a>
 
@@ -861,7 +861,7 @@ export default function LandingPage() {
                 <img
                   src="https://peerlist.io/api/v1/projects/embed/PRJH7B8JER7LNKQKA3JGK7EBQN6MGQ?showUpvote=false&theme=light"
                   alt="Snippetly – Save, Organize & Share Code"
-                  className="h-[72px] w-auto"
+                  className="h-12 sm:h-14 md:h-[72px] w-auto"
                 />
               </a>
 
@@ -872,9 +872,9 @@ export default function LandingPage() {
                 aria-label="Featured on AI Directories"
               >
                 <img
-                  src="https://cdn.aidirectori.es/ai-tools/badges/dark-mode.png"
+                  src="/images/design-mode/dark-mode.png"
                   alt="AI Directories Badge"
-                  className="h-[54px] w-auto"
+                  className="h-10 sm:h-12 md:h-[54px] w-auto"
                 />
               </a>
             </div>
