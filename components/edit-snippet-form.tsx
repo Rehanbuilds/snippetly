@@ -33,6 +33,8 @@ const languages = [
   "HTML",
   "CSS",
   "SCSS",
+  "Tailwind CSS",
+  "Bootstrap",
   "SQL",
   "Shell",
   "Bash",
@@ -47,6 +49,11 @@ const languages = [
   "Deno",
   "GraphQL",
   "JSON",
+  "Django",
+  "Flask",
+  "Laravel",
+  "Docker",
+  "Markdown",
   "Other",
 ]
 
