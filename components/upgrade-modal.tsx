@@ -138,6 +138,12 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
               {isLoading ? "Opening Checkout..." : "Upgrade Now"}
             </Button>
           </div>
+
+          <div className="text-center">
+            <p className="text-xs text-red-600 font-medium">
+              ⚠️ Use same email for payment that you used for creating Snippetly account
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
