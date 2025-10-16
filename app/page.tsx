@@ -55,109 +55,113 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <SnippetlyLogo href="/" />
+      <nav className="sticky top-0 z-50 bg-transparent">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+          <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border border-gray-200 dark:border-gray-800 rounded-full shadow-lg">
+            <div className="flex justify-between items-center h-16 px-4 sm:px-6">
+              {/* Logo */}
+              <SnippetlyLogo href="/" />
 
-            <div className="hidden md:flex items-center space-x-8">
-              <button
-                onClick={() => scrollToSection("hero")}
-                className="text-foreground hover:text-primary transition-colors cursor-pointer"
-              >
-                Home
-              </button>
-              <Link href="/about" className="text-foreground hover:text-primary transition-colors">
-                About
-              </Link>
-              <button
-                onClick={() => scrollToSection("features")}
-                className="text-foreground hover:text-primary transition-colors cursor-pointer"
-              >
-                Features
-              </button>
-              <button
-                onClick={() => scrollToSection("pricing")}
-                className="text-foreground hover:text-primary transition-colors cursor-pointer"
-              >
-                Pricing
-              </button>
-              <button
-                onClick={() => scrollToSection("demo")}
-                className="text-foreground hover:text-primary transition-colors cursor-pointer"
-              >
-                Demo
-              </button>
-            </div>
-
-            {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Link href="/signin">
-                <Button variant="ghost">Login</Button>
-              </Link>
-              <Link href="/signup">
-                <Button>Sign Up Free</Button>
-              </Link>
-            </div>
-
-            <div className="md:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-md text-foreground hover:text-primary hover:bg-muted"
-              >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
-            </div>
-          </div>
-
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-border">
-              <div className="px-2 pt-2 pb-3 space-y-1">
+              <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
                 <button
                   onClick={() => scrollToSection("hero")}
-                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm"
                 >
                   Home
                 </button>
-                <Link
-                  href="/about"
-                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link href="/about" className="text-foreground hover:text-primary transition-colors text-sm">
                   About
                 </Link>
                 <button
                   onClick={() => scrollToSection("features")}
-                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm"
                 >
                   Features
                 </button>
                 <button
                   onClick={() => scrollToSection("pricing")}
-                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm"
                 >
                   Pricing
                 </button>
                 <button
                   onClick={() => scrollToSection("demo")}
-                  className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm"
                 >
                   Demo
                 </button>
-                <div className="border-t border-border pt-4 mt-4">
-                  <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full mb-2">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full">Sign Up Free</Button>
-                  </Link>
-                </div>
+              </div>
+
+              {/* Desktop Auth Buttons */}
+              <div className="hidden md:flex items-center space-x-3">
+                <Link href="/signin">
+                  <Button variant="ghost" size="sm">
+                    Login
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button size="sm">Sign Up Free</Button>
+                </Link>
+              </div>
+
+              <div className="md:hidden">
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 rounded-md text-foreground hover:text-primary hover:bg-muted"
+                >
+                  {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
               </div>
             </div>
-          )}
+
+            {mobileMenuOpen && (
+              <div className="md:hidden border-t border-border rounded-b-3xl overflow-hidden">
+                <div className="px-4 pt-2 pb-3 space-y-1">
+                  <button
+                    onClick={() => scrollToSection("hero")}
+                    className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  >
+                    Home
+                  </button>
+                  <Link
+                    href="/about"
+                    className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    About
+                  </Link>
+                  <button
+                    onClick={() => scrollToSection("features")}
+                    className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  >
+                    Features
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("pricing")}
+                    className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  >
+                    Pricing
+                  </button>
+                  <button
+                    onClick={() => scrollToSection("demo")}
+                    className="block px-3 py-2 text-base font-medium text-foreground hover:text-primary hover:bg-muted rounded-md w-full text-left"
+                  >
+                    Demo
+                  </button>
+                  <div className="border-t border-border pt-4 mt-4">
+                    <Link href="/signin" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full mb-2">
+                        Login
+                      </Button>
+                    </Link>
+                    <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full">Sign Up Free</Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -200,7 +204,7 @@ export default function LandingPage() {
               />
             </a>
           </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl text-balance mb-6 font-semibold leading-tight md:text-6xl">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl text-balance mb-6 font-semibold leading-tight md:text-6xl leading-[0.70rem]">
             Your Supercharged
             <br />
             Code{" "}
