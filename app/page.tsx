@@ -438,10 +438,16 @@ export default function LandingPage() {
               <CardHeader>
                 <CardTitle className="text-2xl">Free</CardTitle>
                 <CardDescription>Perfect for getting started</CardDescription>
-                <div className="text-3xl font-bold">$0</div>
+                <div className="font-bold text-4xl">$0</div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3 mb-6">
+                <Link href="/signup">
+                  <Button className="w-full mb-6">Get Started Free</Button>
+                </Link>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                  What's Included
+                </h3>
+                <ul className="space-y-3">
                   <li className="flex items-center">
                     <Code className="h-4 w-4 mr-3 text-green-600" />
                     <span>Up to 50 snippets</span>
@@ -463,9 +469,6 @@ export default function LandingPage() {
                     <span>Tags and favorites</span>
                   </li>
                 </ul>
-                <Link href="/signup">
-                  <Button className="w-full">Get Started Free</Button>
-                </Link>
               </CardContent>
             </Card>
 
@@ -476,12 +479,21 @@ export default function LandingPage() {
               <CardHeader>
                 <CardTitle className="text-2xl">Pro</CardTitle>
                 <CardDescription>For power users and teams</CardDescription>
-                <div className="text-3xl font-bold">
+                <div className="font-bold text-4xl">
                   $29<span className="text-lg font-normal text-muted-foreground"> one time</span>
                 </div>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-3 mb-6">
+                <Link href="/signup">
+                  <Button className="w-full mb-6 bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white hover:from-gray-600 hover:via-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group">
+                    <span className="relative z-10">Get Started</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                  </Button>
+                </Link>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                  What's Included
+                </h3>
+                <ul className="space-y-3">
                   <li className="flex items-center">
                     <Code className="h-4 w-4 mr-3 text-green-600" />
                     <span className="font-medium">Everything in Free</span>
@@ -503,9 +515,6 @@ export default function LandingPage() {
                     <span>Advanced features</span>
                   </li>
                 </ul>
-                <Link href="/signup">
-                  <Button className="w-full bg-black text-white hover:bg-gray-800">Get Started</Button>
-                </Link>
               </CardContent>
             </Card>
           </div>
