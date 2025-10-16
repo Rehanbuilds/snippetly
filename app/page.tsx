@@ -200,12 +200,12 @@ export default function LandingPage() {
               />
             </a>
           </div>
-          <h1 className="text-2xl sm:text-4xl lg:text-6xl text-balance mb-6 font-semibold leading-tight md:text-6xl leading-[1.70rem]">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl text-balance mb-6 font-semibold leading-tight md:text-6xl">
             Your Supercharged
             <br />
             Code Memory Partner
           </h1>
-          <p className="text-base sm:text-xl text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
             Save, organize, and share code in seconds. The ultimate code management tool for developers, students, and
             professionals.
           </p>
