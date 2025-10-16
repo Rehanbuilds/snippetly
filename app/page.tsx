@@ -259,7 +259,7 @@ export default function LandingPage() {
           </div>
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Stop losing your code snippets</h2>
+              <h2 className="text-3xl mb-6 font-semibold">Stop losing your code snippets</h2>
               <p className="text-lg text-muted-foreground mb-6">
                 Tired of searching through old projects, scattered files, and bookmarks to find that perfect piece of
                 code? We've all been there - spending more time looking for snippets than actually coding.
@@ -314,7 +314,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Everything you need to manage code snippets</h2>
+            <h2 className="text-3xl mb-4 font-semibold">Everything you need to manage code snippets</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to make your development workflow more efficient
             </p>
@@ -395,7 +395,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Watch the demo See Snippetly in Action</h2>
+            <h2 className="text-3xl mb-4 font-semibold">Watch the demo See Snippetly in Action</h2>
             <p className="text-lg text-muted-foreground">A quick tour of Snippetly</p>
           </div>
 
@@ -425,7 +425,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Simple, transparent pricing</h2>
+            <h2 className="text-3xl mb-4 font-semibold">Simple, transparent pricing</h2>
             <p className="text-lg text-muted-foreground">Start free, upgrade when you need more</p>
           </div>
 
@@ -518,7 +518,7 @@ export default function LandingPage() {
                 Founder
               </span>
             </div>
-            <h2 className="text-3xl font-bold text-balance">Builder behind this Product.</h2>
+            <h2 className="text-3xl text-balance font-semibold">Builder behind this Product.</h2>
           </div>
 
           <div className="bg-card rounded-lg border p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
@@ -622,7 +622,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
+            <h2 className="text-3xl mb-4 font-semibold">Frequently Asked Questions</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Everything you need to know about Snippetly
             </p>
@@ -663,7 +663,7 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto text-center">
             <Card className="bg-black border-gray-800 text-white p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
               <CardContent className="p-0">
-                <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-balance mb-8 text-white">
+                <h2 className="text-3xl sm:text-5xl lg:text-6xl text-balance mb-8 text-white font-semibold">
                   Ready to organize your code snippets?
                 </h2>
                 <p className="text-base sm:text-xl text-slate-300 text-balance mb-12 max-w-2xl mx-auto">
