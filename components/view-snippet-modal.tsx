@@ -29,6 +29,53 @@ interface ViewSnippetModalProps {
   onExport: (snippet: Snippet) => void
 }
 
+const getLanguageForHighlighter = (language: string): string => {
+  const languageMap: Record<string, string> = {
+    JavaScript: "javascript",
+    TypeScript: "typescript",
+    React: "jsx",
+    Python: "python",
+    Java: "java",
+    "C++": "cpp",
+    "C#": "csharp",
+    PHP: "php",
+    Ruby: "ruby",
+    Go: "go",
+    Rust: "rust",
+    Swift: "swift",
+    Kotlin: "kotlin",
+    HTML: "html",
+    CSS: "css",
+    SCSS: "scss",
+    "Tailwind CSS": "css",
+    Bootstrap: "css",
+    SQL: "sql",
+    Shell: "bash",
+    Bash: "bash",
+    PowerShell: "powershell",
+    "Node.js": "javascript",
+    "Next.js": "jsx",
+    "Express.js": "javascript",
+    NestJS: "typescript",
+    "Vue.js": "javascript",
+    Angular: "typescript",
+    "React Native": "jsx",
+    Django: "python",
+    Flask: "python",
+    Laravel: "php",
+    Docker: "dockerfile",
+    Markdown: "markdown",
+    PostgreSQL: "sql",
+    MySQL: "sql",
+    MongoDB: "javascript",
+    Redis: "bash",
+    GraphQL: "graphql",
+    JSON: "json",
+  }
+
+  return languageMap[language] || "text"
+}
+
 export function ViewSnippetModal({
   snippet,
   isOpen,
@@ -57,6 +104,8 @@ export function ViewSnippetModal({
       day: "numeric",
     })
   }
+
+  const codeLines = snippet.code.split("\n")
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -125,10 +174,32 @@ export function ViewSnippetModal({
         </DialogHeader>
 
         <ScrollArea className="flex-1 px-4 md:px-6 py-3 md:py-4 overflow-auto">
-          <div className="bg-muted rounded-lg p-3 md:p-4 min-h-[300px]">
-            <pre className="font-mono text-xs md:text-sm leading-relaxed whitespace-pre-wrap break-words overflow-x-auto">
-              {snippet.code}
-            </pre>
+          <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
+            <div className="bg-muted/50 px-4 py-2 border-b border-border flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">{snippet.language}</span>
+              <Button variant="ghost" size="sm" onClick={() => onCopy(snippet.code)} className="h-7 text-xs">
+                <Copy className="h-3 w-3 mr-1.5" />
+                Copy
+              </Button>
+            </div>
+            <div className="relative">
+              <div className="flex">
+                {/* Line numbers */}
+                <div className="select-none bg-muted/30 px-3 py-4 text-right border-r border-border">
+                  {codeLines.map((_, index) => (
+                    <div key={index} className="text-xs leading-6 text-muted-foreground/60">
+                      {index + 1}
+                    </div>
+                  ))}
+                </div>
+                {/* Code content */}
+                <pre className="flex-1 p-4 overflow-x-auto">
+                  <code className="font-mono text-xs md:text-sm leading-6 text-foreground whitespace-pre">
+                    {snippet.code}
+                  </code>
+                </pre>
+              </div>
+            </div>
           </div>
         </ScrollArea>
       </DialogContent>
