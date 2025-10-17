@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Folder, Trash2, Edit } from "lucide-react"
+import { Folder, Trash2, Edit, Star } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -25,6 +25,7 @@ interface FolderWithCount {
   description: string | null
   color: string
   created_at: string
+  is_favorite?: boolean
   snippets: { count: number }[]
 }
 
@@ -37,9 +38,43 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [folderToDelete, setFolderToDelete] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [localFolders, setLocalFolders] = useState(folders)
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
+
+  const toggleFavorite = async (folderId: string, currentFavorite: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("folders")
+        .update({ is_favorite: !currentFavorite })
+        .eq("id", folderId)
+        .eq("user_id", userId)
+
+      if (error) throw error
+
+      // Update local state
+      setLocalFolders((prev) =>
+        prev.map((folder) => (folder.id === folderId ? { ...folder, is_favorite: !currentFavorite } : folder)),
+      )
+
+      toast({
+        title: !currentFavorite ? "Added to favorites" : "Removed from favorites",
+        description: !currentFavorite
+          ? "Folder has been added to your favorites."
+          : "Folder has been removed from your favorites.",
+      })
+
+      router.refresh()
+    } catch (error) {
+      console.error("Error toggling favorite:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update favorite status. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
 
   const handleDelete = async () => {
     if (!folderToDelete) return
@@ -77,21 +112,35 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
   return (
     <>
       <div className="space-y-3 sm:space-y-4">
-        {folders.map((folder) => (
+        {localFolders.map((folder) => (
           <Card key={folder.id} className="relative hover:shadow-md transition-all group">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="absolute top-2 right-2 h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => {
-                setFolderToDelete(folder.id)
-                setDeleteDialogOpen(true)
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-yellow-500/10"
+                onClick={() => toggleFavorite(folder.id, folder.is_favorite || false)}
+              >
+                <Star
+                  className={`h-4 w-4 ${
+                    folder.is_favorite ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground"
+                  }`}
+                />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 hover:text-destructive"
+                onClick={() => {
+                  setFolderToDelete(folder.id)
+                  setDeleteDialogOpen(true)
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 pr-12">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-3 sm:p-4 pr-20">
               <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0 w-full sm:w-auto">
                 <div
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -144,7 +193,7 @@ export function FolderGrid({ folders, userId }: FolderGridProps) {
         ))}
       </div>
 
-      {folders.length === 0 && (
+      {localFolders.length === 0 && (
         <div className="text-center py-16 sm:py-20">
           <Folder className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg sm:text-xl font-medium mb-2">No folders yet</h3>

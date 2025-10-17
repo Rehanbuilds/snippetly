@@ -60,7 +60,8 @@ export default function FoldersPage() {
         .from("folders")
         .select(`
           *,
-          snippets:snippets(count)
+          snippets:snippets(count),
+          is_favorite
         `)
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
