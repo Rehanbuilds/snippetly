@@ -143,6 +143,9 @@ importers:
       next-themes:
         specifier: latest
         version: 0.4.6(react-dom@18.0.0(react@18.0.0))(react@18.0.0)
+      prismjs:
+        specifier: latest
+        version: 1.30.0
       react:
         specifier: ^18
         version: 18.0.0

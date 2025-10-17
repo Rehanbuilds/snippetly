@@ -6,6 +6,32 @@ import { Badge } from "@/components/ui/badge"
 import { Copy, Edit, Download, Trash2, Star, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useEffect, useRef } from "react"
+import Prism from "prismjs"
+import "prismjs/themes/prism-tomorrow.css"
+import "prismjs/components/prism-javascript"
+import "prismjs/components/prism-typescript"
+import "prismjs/components/prism-jsx"
+import "prismjs/components/prism-tsx"
+import "prismjs/components/prism-python"
+import "prismjs/components/prism-java"
+import "prismjs/components/prism-cpp"
+import "prismjs/components/prism-csharp"
+import "prismjs/components/prism-php"
+import "prismjs/components/prism-ruby"
+import "prismjs/components/prism-go"
+import "prismjs/components/prism-rust"
+import "prismjs/components/prism-swift"
+import "prismjs/components/prism-kotlin"
+import "prismjs/components/prism-css"
+import "prismjs/components/prism-scss"
+import "prismjs/components/prism-sql"
+import "prismjs/components/prism-bash"
+import "prismjs/components/prism-powershell"
+import "prismjs/components/prism-graphql"
+import "prismjs/components/prism-json"
+import "prismjs/components/prism-markdown"
+import "prismjs/components/prism-docker"
 
 interface Snippet {
   id: string
@@ -86,16 +112,13 @@ export function ViewSnippetModal({
   onExport,
 }: ViewSnippetModalProps) {
   const router = useRouter()
+  const codeRef = useRef<HTMLElement>(null)
 
-  const handleEdit = () => {
-    onClose()
-    router.push(`/dashboard/snippet/${snippet.id}/edit`)
-  }
-
-  const handleDelete = () => {
-    onDelete(snippet.id)
-    onClose()
-  }
+  useEffect(() => {
+    if (codeRef.current && isOpen) {
+      Prism.highlightElement(codeRef.current)
+    }
+  }, [snippet.code, snippet.language, isOpen])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -106,6 +129,7 @@ export function ViewSnippetModal({
   }
 
   const codeLines = snippet.code.split("\n")
+  const languageClass = `language-${getLanguageForHighlighter(snippet.language)}`
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -156,14 +180,22 @@ export function ViewSnippetModal({
                 <Download className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 Export
               </Button>
-              <Button variant="default" size="sm" onClick={handleEdit} className="text-xs md:text-sm">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => router.push(`/dashboard/snippet/${snippet.id}/edit`)}
+                className="text-xs md:text-sm"
+              >
                 <Edit className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 Edit
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleDelete}
+                onClick={() => {
+                  onDelete(snippet.id)
+                  onClose()
+                }}
                 className="text-xs md:text-sm text-destructive hover:text-destructive"
               >
                 <Trash2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
@@ -193,8 +225,8 @@ export function ViewSnippetModal({
                   ))}
                 </div>
                 {/* Code content */}
-                <pre className="flex-1 p-4 overflow-x-auto">
-                  <code className="font-mono text-xs md:text-sm leading-6 text-foreground whitespace-pre">
+                <pre className="flex-1 p-4 overflow-x-auto !bg-transparent !m-0">
+                  <code ref={codeRef} className={`${languageClass} !bg-transparent text-xs md:text-sm leading-6`}>
                     {snippet.code}
                   </code>
                 </pre>
