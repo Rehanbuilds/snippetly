@@ -56,13 +56,13 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-transparent">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-6 pt-2">
           <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border border-gray-200 dark:border-gray-800 rounded-full shadow-lg">
-            <div className="flex justify-between items-center h-16 px-4 sm:px-6">
+            <div className="flex justify-between items-center h-12 px-3 sm:px-4">
               {/* Logo */}
               <SnippetlyLogo href="/" />
 
-              <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
+              <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
                 <button
                   onClick={() => scrollToSection("hero")}
                   className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm"
@@ -93,7 +93,7 @@ export default function LandingPage() {
               </div>
 
               {/* Desktop Auth Buttons */}
-              <div className="hidden md:flex items-center space-x-3">
+              <div className="hidden md:flex items-center space-x-2">
                 <Link href="/signin">
                   <Button variant="ghost" size="sm">
                     Login
@@ -485,7 +485,10 @@ export default function LandingPage() {
               </CardHeader>
               <CardContent>
                 <Link href="/signup">
-                  <Button className="w-full mb-6 bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white hover:from-gray-600 hover:via-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group">
+                  <Button
+                    size="lg"
+                    className="w-full mb-6 bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white hover:from-gray-600 hover:via-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+                  >
                     <span className="relative z-10">Get Started</span>
                     <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                   </Button>
