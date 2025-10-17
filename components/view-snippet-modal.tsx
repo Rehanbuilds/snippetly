@@ -88,48 +88,90 @@ export function ViewSnippetModal({
 }: ViewSnippetModalProps) {
   const router = useRouter()
   const codeRef = useRef<HTMLElement>(null)
-  const [prismLoaded, setPrismLoaded] = useState(false)
+  const [highlighted, setHighlighted] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== "undefined" && !prismLoaded) {
-      import("prismjs").then(() => {
-        import("prismjs/themes/prism-tomorrow.css")
-        import("prismjs/components/prism-javascript")
-        import("prismjs/components/prism-typescript")
-        import("prismjs/components/prism-jsx")
-        import("prismjs/components/prism-tsx")
-        import("prismjs/components/prism-python")
-        import("prismjs/components/prism-java")
-        import("prismjs/components/prism-cpp")
-        import("prismjs/components/prism-csharp")
-        import("prismjs/components/prism-php")
-        import("prismjs/components/prism-ruby")
-        import("prismjs/components/prism-go")
-        import("prismjs/components/prism-rust")
-        import("prismjs/components/prism-swift")
-        import("prismjs/components/prism-kotlin")
-        import("prismjs/components/prism-css")
-        import("prismjs/components/prism-scss")
-        import("prismjs/components/prism-sql")
-        import("prismjs/components/prism-bash")
-        import("prismjs/components/prism-powershell")
-        import("prismjs/components/prism-graphql")
-        import("prismjs/components/prism-json")
-        import("prismjs/components/prism-markdown")
-        import("prismjs/components/prism-docker")
-        setPrismLoaded(true)
-      })
-    }
-  }, [prismLoaded])
+    if (!isOpen || !codeRef.current) return
 
-  useEffect(() => {
-    if (codeRef.current && isOpen && prismLoaded && typeof window !== "undefined") {
-      const Prism = (window as any).Prism
-      if (Prism) {
-        Prism.highlightElement(codeRef.current)
+    let mounted = true
+
+    const loadPrismAndHighlight = async () => {
+      try {
+        // Dynamically import Prism
+        const Prism = (await import("prismjs")).default
+
+        // Import theme
+        await import("prismjs/themes/prism-tomorrow.css")
+
+        // Import language components based on the snippet language
+        const lang = getLanguageForHighlighter(snippet.language)
+
+        try {
+          if (lang === "javascript" || lang === "jsx") {
+            await import("prismjs/components/prism-javascript")
+            if (lang === "jsx") await import("prismjs/components/prism-jsx")
+          } else if (lang === "typescript" || lang === "tsx") {
+            await import("prismjs/components/prism-typescript")
+            if (lang === "tsx") await import("prismjs/components/prism-tsx")
+          } else if (lang === "python") {
+            await import("prismjs/components/prism-python")
+          } else if (lang === "java") {
+            await import("prismjs/components/prism-java")
+          } else if (lang === "cpp") {
+            await import("prismjs/components/prism-cpp")
+          } else if (lang === "csharp") {
+            await import("prismjs/components/prism-csharp")
+          } else if (lang === "php") {
+            await import("prismjs/components/prism-php")
+          } else if (lang === "ruby") {
+            await import("prismjs/components/prism-ruby")
+          } else if (lang === "go") {
+            await import("prismjs/components/prism-go")
+          } else if (lang === "rust") {
+            await import("prismjs/components/prism-rust")
+          } else if (lang === "swift") {
+            await import("prismjs/components/prism-swift")
+          } else if (lang === "kotlin") {
+            await import("prismjs/components/prism-kotlin")
+          } else if (lang === "css" || lang === "scss") {
+            await import("prismjs/components/prism-css")
+            if (lang === "scss") await import("prismjs/components/prism-scss")
+          } else if (lang === "sql") {
+            await import("prismjs/components/prism-sql")
+          } else if (lang === "bash") {
+            await import("prismjs/components/prism-bash")
+          } else if (lang === "powershell") {
+            await import("prismjs/components/prism-powershell")
+          } else if (lang === "graphql") {
+            await import("prismjs/components/prism-graphql")
+          } else if (lang === "json") {
+            await import("prismjs/components/prism-json")
+          } else if (lang === "markdown") {
+            await import("prismjs/components/prism-markdown")
+          } else if (lang === "dockerfile") {
+            await import("prismjs/components/prism-docker")
+          }
+        } catch (langError) {
+          console.log("[v0] Language component not available:", lang)
+        }
+
+        // Apply highlighting
+        if (mounted && codeRef.current) {
+          Prism.highlightElement(codeRef.current)
+          setHighlighted(true)
+          console.log("[v0] Syntax highlighting applied for:", snippet.language)
+        }
+      } catch (error) {
+        console.error("[v0] Error loading Prism:", error)
       }
     }
-  }, [snippet.code, snippet.language, isOpen, prismLoaded])
+
+    loadPrismAndHighlight()
+
+    return () => {
+      mounted = false
+    }
+  }, [snippet.code, snippet.language, isOpen])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
