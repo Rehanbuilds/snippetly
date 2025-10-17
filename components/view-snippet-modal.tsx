@@ -6,32 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Copy, Edit, Download, Trash2, Star, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useEffect, useRef } from "react"
-import Prism from "prismjs"
-import "prismjs/themes/prism-tomorrow.css"
-import "prismjs/components/prism-javascript"
-import "prismjs/components/prism-typescript"
-import "prismjs/components/prism-jsx"
-import "prismjs/components/prism-tsx"
-import "prismjs/components/prism-python"
-import "prismjs/components/prism-java"
-import "prismjs/components/prism-cpp"
-import "prismjs/components/prism-csharp"
-import "prismjs/components/prism-php"
-import "prismjs/components/prism-ruby"
-import "prismjs/components/prism-go"
-import "prismjs/components/prism-rust"
-import "prismjs/components/prism-swift"
-import "prismjs/components/prism-kotlin"
-import "prismjs/components/prism-css"
-import "prismjs/components/prism-scss"
-import "prismjs/components/prism-sql"
-import "prismjs/components/prism-bash"
-import "prismjs/components/prism-powershell"
-import "prismjs/components/prism-graphql"
-import "prismjs/components/prism-json"
-import "prismjs/components/prism-markdown"
-import "prismjs/components/prism-docker"
+import { useEffect, useRef, useState } from "react"
 
 interface Snippet {
   id: string
@@ -113,12 +88,48 @@ export function ViewSnippetModal({
 }: ViewSnippetModalProps) {
   const router = useRouter()
   const codeRef = useRef<HTMLElement>(null)
+  const [prismLoaded, setPrismLoaded] = useState(false)
 
   useEffect(() => {
-    if (codeRef.current && isOpen) {
-      Prism.highlightElement(codeRef.current)
+    if (typeof window !== "undefined" && !prismLoaded) {
+      import("prismjs").then(() => {
+        import("prismjs/themes/prism-tomorrow.css")
+        import("prismjs/components/prism-javascript")
+        import("prismjs/components/prism-typescript")
+        import("prismjs/components/prism-jsx")
+        import("prismjs/components/prism-tsx")
+        import("prismjs/components/prism-python")
+        import("prismjs/components/prism-java")
+        import("prismjs/components/prism-cpp")
+        import("prismjs/components/prism-csharp")
+        import("prismjs/components/prism-php")
+        import("prismjs/components/prism-ruby")
+        import("prismjs/components/prism-go")
+        import("prismjs/components/prism-rust")
+        import("prismjs/components/prism-swift")
+        import("prismjs/components/prism-kotlin")
+        import("prismjs/components/prism-css")
+        import("prismjs/components/prism-scss")
+        import("prismjs/components/prism-sql")
+        import("prismjs/components/prism-bash")
+        import("prismjs/components/prism-powershell")
+        import("prismjs/components/prism-graphql")
+        import("prismjs/components/prism-json")
+        import("prismjs/components/prism-markdown")
+        import("prismjs/components/prism-docker")
+        setPrismLoaded(true)
+      })
     }
-  }, [snippet.code, snippet.language, isOpen])
+  }, [prismLoaded])
+
+  useEffect(() => {
+    if (codeRef.current && isOpen && prismLoaded && typeof window !== "undefined") {
+      const Prism = (window as any).Prism
+      if (Prism) {
+        Prism.highlightElement(codeRef.current)
+      }
+    }
+  }, [snippet.code, snippet.language, isOpen, prismLoaded])
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
