@@ -166,7 +166,17 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" className="py-20 px-4 sm:px-6 lg:px-8">
+      <section
+        id="hero"
+        className="py-20 px-4 sm:px-6 lg:px-8 relative"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(156, 163, 175, 0.1) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(156, 163, 175, 0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: "100px 100px",
+        }}
+      >
         <div className="container mx-auto text-center">
           {/* Badges above main tagline */}
           {/* Group Startup Fame and Product Hunt badges in a responsive row */}
@@ -582,8 +592,8 @@ export default function LandingPage() {
                     >
                       <svg
                         className="w-5 h-5 text-gray-600 hover:text-gray-800"
-                        viewBox="0 0 24 24"
                         fill="currentColor"
+                        viewBox="0 0 24 24"
                         aria-hidden="true"
                       >
                         <path
