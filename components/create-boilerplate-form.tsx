@@ -11,11 +11,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus, Upload, FileText } from "lucide-react"
+import { X, Plus, Upload, FileText, Check } from "lucide-react"
 import { toast } from "sonner"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const languages = [
@@ -75,15 +72,10 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   } | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [inputMode, setInputMode] = useState<"code" | "file">("code")
-  const [languagePopoverOpen, setLanguagePopoverOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-  const toggleLanguage = (value: string) => {
-    // Find the actual language from the array (case-insensitive match)
-    const language = languages.find((lang) => lang.toLowerCase() === value.toLowerCase())
-    if (!language) return
-
+  const toggleLanguage = (language: string) => {
     setSelectedLanguages((prev) => (prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]))
   }
 
@@ -218,65 +210,30 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
             <Label>
               Languages <span className="text-destructive">*</span>
             </Label>
-            <Popover open={languagePopoverOpen} onOpenChange={setLanguagePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={languagePopoverOpen}
-                  className="w-full justify-between bg-transparent"
-                >
-                  {selectedLanguages.length > 0
-                    ? `${selectedLanguages.length} language${selectedLanguages.length > 1 ? "s" : ""} selected`
-                    : "Select languages..."}
-                  <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                <Command>
-                  <CommandInput placeholder="Search languages..." className="h-9" />
-                  <CommandList className="max-h-[300px]">
-                    <CommandEmpty>No language found.</CommandEmpty>
-                    <CommandGroup>
-                      {languages.map((language) => {
-                        const isSelected = selectedLanguages.includes(language)
-                        return (
-                          <CommandItem
-                            key={language}
-                            value={language}
-                            onSelect={(value) => {
-                              toggleLanguage(value)
-                            }}
-                            className="cursor-pointer"
-                          >
-                            <Plus
-                              className={cn(
-                                "mr-2 h-4 w-4 shrink-0",
-                                isSelected ? "opacity-100 text-primary" : "opacity-50",
-                              )}
-                            />
-                            <span className={cn(isSelected && "font-medium")}>{language}</span>
-                            {isSelected && <Check className="ml-auto h-4 w-4 text-primary" />}
-                          </CommandItem>
-                        )
-                      })}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            {selectedLanguages.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {selectedLanguages.map((language) => (
-                  <Badge key={language} variant="secondary" className="gap-1">
+            <p className="text-sm text-muted-foreground mb-3">Click on languages to select (multiple allowed)</p>
+            <div className="flex flex-wrap gap-2 p-4 border rounded-lg bg-muted/30 max-h-[300px] overflow-y-auto">
+              {languages.map((language) => {
+                const isSelected = selectedLanguages.includes(language)
+                return (
+                  <Badge
+                    key={language}
+                    variant={isSelected ? "default" : "outline"}
+                    className={cn(
+                      "cursor-pointer transition-all hover:scale-105",
+                      isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                    )}
+                    onClick={() => toggleLanguage(language)}
+                  >
+                    {isSelected ? <Check className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
                     {language}
-                    <button type="button" onClick={() => removeLanguage(language)} className="hover:text-destructive">
-                      <X className="h-3 w-3" />
-                    </button>
                   </Badge>
-                ))}
-              </div>
+                )
+              })}
+            </div>
+            {selectedLanguages.length > 0 && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Selected: {selectedLanguages.length} language{selectedLanguages.length > 1 ? "s" : ""}
+              </p>
             )}
           </div>
 
