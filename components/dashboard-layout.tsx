@@ -39,6 +39,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
     tags: {},
   })
   const [folderCount, setFolderCount] = useState(0)
+  const [boilerplateCount, setBoilerplateCount] = useState(0)
   const router = useRouter()
   const supabase = createClient()
 
@@ -76,6 +77,13 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           .eq("user_id", user.id)
 
         setFolderCount(count || 0)
+
+        const { count: boilerplateCountData } = await supabase
+          .from("boilerplates")
+          .select("*", { count: "exact", head: true })
+          .eq("user_id", user.id)
+
+        setBoilerplateCount(boilerplateCountData || 0)
       } catch (error) {
         console.error("Error loading dashboard data:", error)
       }
@@ -190,6 +198,16 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
                   Folders
                   <Badge variant="secondary" className="ml-auto">
                     {folderCount}
+                  </Badge>
+                </Button>
+              </Link>
+              {/* Boilerplates navigation item */}
+              <Link href="/dashboard/boilerplates" onClick={() => setSidebarOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start">
+                  <Code className="h-4 w-4 mr-2" />
+                  Boilerplates
+                  <Badge variant="secondary" className="ml-auto">
+                    {boilerplateCount}
                   </Badge>
                 </Button>
               </Link>
