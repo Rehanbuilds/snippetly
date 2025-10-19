@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X, Upload, File, Trash2 } from "lucide-react"
+import { X, Upload, File, Trash2, Plus } from "lucide-react"
 import { toast } from "sonner"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const languages = [
   "JavaScript",
@@ -60,7 +63,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [code, setCode] = useState("")
-  const [language, setLanguage] = useState("")
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -72,8 +75,17 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   } | null>(null)
   const [isUploading, setIsUploading] = useState(false)
   const [inputMode, setInputMode] = useState<"code" | "file">("code")
+  const [languagePopoverOpen, setLanguagePopoverOpen] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+
+  const toggleLanguage = (language: string) => {
+    setSelectedLanguages((prev) => (prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]))
+  }
+
+  const removeLanguage = (language: string) => {
+    setSelectedLanguages((prev) => prev.filter((l) => l !== language))
+  }
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -132,8 +144,8 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!title.trim() || !code.trim() || !language) {
-      toast.error("Please fill in all required fields")
+    if (!title.trim() || !code.trim() || selectedLanguages.length === 0) {
+      toast.error("Please fill in all required fields and select at least one language")
       return
     }
 
@@ -146,7 +158,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
           title: title.trim(),
           description: description.trim() || null,
           code: code.trim(),
-          language,
+          language: selectedLanguages,
           tags,
           user_id: userId,
           file_url: uploadedFile?.url || null,
@@ -199,21 +211,57 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="language">
-              Language <span className="text-destructive">*</span>
+            <Label>
+              Languages <span className="text-destructive">*</span>
             </Label>
-            <Select value={language} onValueChange={setLanguage} required>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang} value={lang}>
-                    {lang}
-                  </SelectItem>
+            <Popover open={languagePopoverOpen} onOpenChange={setLanguagePopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={languagePopoverOpen}
+                  className="w-full justify-between bg-transparent"
+                >
+                  {selectedLanguages.length > 0
+                    ? `${selectedLanguages.length} language${selectedLanguages.length > 1 ? "s" : ""} selected`
+                    : "Select languages..."}
+                  <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search languages..." />
+                  <CommandList>
+                    <CommandEmpty>No language found.</CommandEmpty>
+                    <CommandGroup>
+                      {languages.map((language) => (
+                        <CommandItem key={language} value={language} onSelect={() => toggleLanguage(language)}>
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedLanguages.includes(language) ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                          {language}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {selectedLanguages.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {selectedLanguages.map((language) => (
+                  <Badge key={language} variant="secondary" className="gap-1">
+                    {language}
+                    <button type="button" onClick={() => removeLanguage(language)} className="hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

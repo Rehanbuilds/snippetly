@@ -18,7 +18,7 @@ interface Boilerplate {
   title: string
   description: string | null
   code: string
-  language: string
+  language: string | string[] // Support both string and array for backward compatibility
   tags: string[]
   is_favorite: boolean
   created_at: string
@@ -125,98 +125,109 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {boilerplates.map((boilerplate) => (
-          <Card
-            key={boilerplate.id}
-            className="hover:shadow-lg transition-shadow cursor-pointer group"
-            onClick={() => setViewingBoilerplate(boilerplate)}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg mb-1 truncate">{boilerplate.title}</h3>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {boilerplate.language}
-                    </Badge>
-                    {boilerplate.file_url && (
+        {boilerplates.map((boilerplate) => {
+          const languages = Array.isArray(boilerplate.language) ? boilerplate.language : [boilerplate.language]
+
+          return (
+            <Card
+              key={boilerplate.id}
+              className="hover:shadow-lg transition-shadow cursor-pointer group"
+              onClick={() => setViewingBoilerplate(boilerplate)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg mb-1 truncate">{boilerplate.title}</h3>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {languages.slice(0, 2).map((lang) => (
+                        <Badge key={lang} variant="secondary" className="text-xs">
+                          {lang}
+                        </Badge>
+                      ))}
+                      {languages.length > 2 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{languages.length - 2}
+                        </Badge>
+                      )}
+                      {boilerplate.file_url && (
+                        <Badge variant="outline" className="text-xs">
+                          <File className="h-3 w-3 mr-1" />
+                          File
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={(e) => handleToggleFavorite(boilerplate.id, boilerplate.is_favorite, e)}
+                  >
+                    <Star className={`h-4 w-4 ${boilerplate.is_favorite ? "fill-yellow-400 text-yellow-400" : ""}`} />
+                  </Button>
+                </div>
+
+                {boilerplate.description && (
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{boilerplate.description}</p>
+                )}
+
+                <div className="bg-muted rounded-md p-3 mb-3">
+                  <pre className="text-xs font-mono overflow-hidden line-clamp-4">{boilerplate.code}</pre>
+                </div>
+
+                {boilerplate.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {boilerplate.tags.slice(0, 3).map((tag) => (
+                      <Badge key={tag} variant="outline" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                    {boilerplate.tags.length > 3 && (
                       <Badge variant="outline" className="text-xs">
-                        <File className="h-3 w-3 mr-1" />
-                        File
+                        +{boilerplate.tags.length - 3}
                       </Badge>
                     )}
                   </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => handleToggleFavorite(boilerplate.id, boilerplate.is_favorite, e)}
-                >
-                  <Star className={`h-4 w-4 ${boilerplate.is_favorite ? "fill-yellow-400 text-yellow-400" : ""}`} />
-                </Button>
-              </div>
+                )}
 
-              {boilerplate.description && (
-                <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{boilerplate.description}</p>
-              )}
-
-              <div className="bg-muted rounded-md p-3 mb-3">
-                <pre className="text-xs font-mono overflow-hidden line-clamp-4">{boilerplate.code}</pre>
-              </div>
-
-              {boilerplate.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {boilerplate.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                  {boilerplate.tags.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{boilerplate.tags.length - 3}
-                    </Badge>
-                  )}
-                </div>
-              )}
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 bg-transparent"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setViewingBoilerplate(boilerplate)
-                  }}
-                >
-                  <Eye className="h-3 w-3 mr-1" />
-                  View
-                </Button>
-                {boilerplate.file_url && boilerplate.file_name && (
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={(e) => handleDownload(boilerplate.file_url!, boilerplate.file_name!, e)}
+                    className="flex-1 bg-transparent"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setViewingBoilerplate(boilerplate)
+                    }}
                   >
-                    <Download className="h-3 w-3" />
+                    <Eye className="h-3 w-3 mr-1" />
+                    View
                   </Button>
-                )}
-                <Button variant="outline" size="sm" onClick={(e) => handleCopy(boilerplate.code, e)}>
-                  <Copy className="h-3 w-3" />
-                </Button>
-                <Link href={`/dashboard/boilerplates/${boilerplate.id}/edit`} onClick={(e) => e.stopPropagation()}>
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-3 w-3" />
+                  {boilerplate.file_url && boilerplate.file_name && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => handleDownload(boilerplate.file_url!, boilerplate.file_name!, e)}
+                    >
+                      <Download className="h-3 w-3" />
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={(e) => handleCopy(boilerplate.code, e)}>
+                    <Copy className="h-3 w-3" />
                   </Button>
-                </Link>
-                <Button variant="outline" size="sm" onClick={(e) => handleDelete(boilerplate.id, e)}>
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                  <Link href={`/dashboard/boilerplates/${boilerplate.id}/edit`} onClick={(e) => e.stopPropagation()}>
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  </Link>
+                  <Button variant="outline" size="sm" onClick={(e) => handleDelete(boilerplate.id, e)}>
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
       </div>
 
       {viewingBoilerplate && (

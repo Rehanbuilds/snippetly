@@ -8,11 +8,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { Loader2, Upload, X, File } from "lucide-react"
+import { Loader2, Upload, X, File, Plus, Check } from "lucide-react"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
 
 const languages = [
   "JavaScript",
@@ -56,7 +59,7 @@ interface Boilerplate {
   title: string
   description: string | null
   code: string | null
-  language: string
+  language: string | string[]
   tags: string[] | null
   file_url: string | null
   file_name: string | null
@@ -74,12 +77,15 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [inputMode, setInputMode] = useState<"code" | "file">(boilerplate.file_url ? "file" : "code")
+  const [languagePopoverOpen, setLanguagePopoverOpen] = useState(false)
+
+  const initialLanguages = Array.isArray(boilerplate.language) ? boilerplate.language : [boilerplate.language]
 
   const [formData, setFormData] = useState({
     title: boilerplate.title,
     description: boilerplate.description || "",
     code: boilerplate.code || "",
-    language: boilerplate.language,
+    selectedLanguages: initialLanguages,
     tags: boilerplate.tags?.join(", ") || "",
   })
 
@@ -99,15 +105,31 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
       : null,
   )
 
+  const toggleLanguage = (language: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedLanguages: prev.selectedLanguages.includes(language)
+        ? prev.selectedLanguages.filter((l) => l !== language)
+        : [...prev.selectedLanguages, language],
+    }))
+  }
+
+  const removeLanguage = (language: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      selectedLanguages: prev.selectedLanguages.filter((l) => l !== language),
+    }))
+  }
+
   const handleFileUpload = async (file: File) => {
     setIsUploading(true)
     try {
-      const formData = new FormData()
-      formData.append("file", file)
+      const formDataUpload = new FormData()
+      formDataUpload.append("file", file)
 
       const response = await fetch("/api/boilerplates/upload", {
         method: "POST",
-        body: formData,
+        body: formDataUpload,
       })
 
       if (!response.ok) {
@@ -137,6 +159,12 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (formData.selectedLanguages.length === 0) {
+      toast.error("Please select at least one language")
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
@@ -149,7 +177,7 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
         title: formData.title,
         description: formData.description || null,
         code: formData.code,
-        language: formData.language,
+        language: formData.selectedLanguages,
         tags: tagsArray,
       }
 
@@ -217,19 +245,57 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="language">Language *</Label>
-            <Select value={formData.language} onValueChange={(value) => setFormData({ ...formData, language: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang} value={lang}>
-                    {lang}
-                  </SelectItem>
+            <Label>
+              Languages <span className="text-destructive">*</span>
+            </Label>
+            <Popover open={languagePopoverOpen} onOpenChange={setLanguagePopoverOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={languagePopoverOpen}
+                  className="w-full justify-between bg-transparent"
+                >
+                  {formData.selectedLanguages.length > 0
+                    ? `${formData.selectedLanguages.length} language${formData.selectedLanguages.length > 1 ? "s" : ""} selected`
+                    : "Select languages..."}
+                  <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search languages..." />
+                  <CommandList>
+                    <CommandEmpty>No language found.</CommandEmpty>
+                    <CommandGroup>
+                      {languages.map((language) => (
+                        <CommandItem key={language} value={language} onSelect={() => toggleLanguage(language)}>
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              formData.selectedLanguages.includes(language) ? "opacity-100" : "opacity-0",
+                            )}
+                          />
+                          {language}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            {formData.selectedLanguages.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.selectedLanguages.map((language) => (
+                  <Badge key={language} variant="secondary" className="gap-1">
+                    {language}
+                    <button type="button" onClick={() => removeLanguage(language)} className="hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
