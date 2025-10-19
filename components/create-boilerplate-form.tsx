@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X } from "lucide-react"
+import { X, Upload, File, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 const languages = [
@@ -64,6 +64,14 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<{
+    url: string
+    filename: string
+    size: number
+    type: string
+  } | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [inputMode, setInputMode] = useState<"code" | "file">("code")
   const router = useRouter()
   const supabase = createClient()
 
@@ -76,6 +84,49 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove))
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/boilerplates/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Upload failed")
+      }
+
+      const data = await response.json()
+      setUploadedFile(data)
+
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const content = event.target?.result as string
+        setCode(content)
+      }
+      reader.readAsText(file)
+
+      toast.success("File uploaded successfully!")
+    } catch (error) {
+      console.error("[v0] File upload error:", error)
+      toast.error("Failed to upload file")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null)
+    setCode("")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,6 +149,10 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
           language,
           tags,
           user_id: userId,
+          file_url: uploadedFile?.url || null,
+          file_name: uploadedFile?.filename || null,
+          file_size: uploadedFile?.size || null,
+          file_type: uploadedFile?.type || null,
         })
         .select()
         .single()
@@ -162,19 +217,77 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="code">
-              Code <span className="text-destructive">*</span>
-            </Label>
-            <Textarea
-              id="code"
-              placeholder="Paste your boilerplate code here..."
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              rows={15}
-              className="font-mono text-sm"
-              required
-            />
+            <Label>Input Method</Label>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={inputMode === "code" ? "default" : "outline"}
+                onClick={() => setInputMode("code")}
+                className="flex-1"
+              >
+                Type Code
+              </Button>
+              <Button
+                type="button"
+                variant={inputMode === "file" ? "default" : "outline"}
+                onClick={() => setInputMode("file")}
+                className="flex-1"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload File
+              </Button>
+            </div>
           </div>
+
+          {inputMode === "code" ? (
+            <div className="space-y-2">
+              <Label htmlFor="code">
+                Code <span className="text-destructive">*</span>
+              </Label>
+              <Textarea
+                id="code"
+                placeholder="Paste your boilerplate code here..."
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                rows={15}
+                className="font-mono text-sm"
+                required
+              />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="file">
+                Upload File <span className="text-destructive">*</span>
+              </Label>
+              {!uploadedFile ? (
+                <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-4">Upload your boilerplate code file (any format)</p>
+                  <Input
+                    id="file"
+                    type="file"
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                    className="max-w-xs mx-auto"
+                  />
+                  {isUploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
+                </div>
+              ) : (
+                <div className="border rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <File className="h-8 w-8 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">{uploadedFile.filename}</p>
+                      <p className="text-sm text-muted-foreground">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
+                    </div>
+                  </div>
+                  <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFile}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>

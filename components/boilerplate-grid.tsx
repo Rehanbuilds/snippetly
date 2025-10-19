@@ -6,12 +6,12 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Edit, Trash2, Star, Copy } from "lucide-react"
+import { Eye, Edit, Trash2, Star, Copy, Download, File } from "lucide-react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { ViewSnippetModal } from "@/components/view-snippet-modal"
+import { ViewBoilerplateModal } from "@/components/view-boilerplate-modal"
 
 interface Boilerplate {
   id: string
@@ -22,6 +22,10 @@ interface Boilerplate {
   tags: string[]
   is_favorite: boolean
   created_at: string
+  file_url?: string | null
+  file_name?: string | null
+  file_size?: number | null
+  file_type?: string | null
 }
 
 interface BoilerplateGridProps {
@@ -81,6 +85,28 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
     }
   }
 
+  const handleDownload = async (fileUrl: string, fileName: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    try {
+      const response = await fetch(fileUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = fileName
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      toast.success("File downloaded successfully!")
+    } catch (error) {
+      console.error("[v0] Download error:", error)
+      toast.error("Failed to download file")
+    }
+  }
+
   if (boilerplates.length === 0) {
     return (
       <div className="text-center py-12">
@@ -109,9 +135,17 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-lg mb-1 truncate">{boilerplate.title}</h3>
-                  <Badge variant="secondary" className="text-xs">
-                    {boilerplate.language}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs">
+                      {boilerplate.language}
+                    </Badge>
+                    {boilerplate.file_url && (
+                      <Badge variant="outline" className="text-xs">
+                        <File className="h-3 w-3 mr-1" />
+                        File
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
@@ -159,6 +193,15 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
                   <Eye className="h-3 w-3 mr-1" />
                   View
                 </Button>
+                {boilerplate.file_url && boilerplate.file_name && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => handleDownload(boilerplate.file_url!, boilerplate.file_name!, e)}
+                  >
+                    <Download className="h-3 w-3" />
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={(e) => handleCopy(boilerplate.code, e)}>
                   <Copy className="h-3 w-3" />
                 </Button>
@@ -177,10 +220,10 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
       </div>
 
       {viewingBoilerplate && (
-        <ViewSnippetModal
-          snippet={viewingBoilerplate}
-          isOpen={!!viewingBoilerplate}
-          onClose={() => setViewingBoilerplate(null)}
+        <ViewBoilerplateModal
+          boilerplate={viewingBoilerplate}
+          open={!!viewingBoilerplate}
+          onOpenChange={(open) => !open && setViewingBoilerplate(null)}
         />
       )}
     </>
