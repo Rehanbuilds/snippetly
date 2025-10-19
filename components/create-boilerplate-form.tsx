@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus } from "lucide-react"
+import { X, Plus, Upload, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -79,7 +79,11 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   const router = useRouter()
   const supabase = createClient()
 
-  const toggleLanguage = (language: string) => {
+  const toggleLanguage = (value: string) => {
+    // Find the actual language from the array (case-insensitive match)
+    const language = languages.find((lang) => lang.toLowerCase() === value.toLowerCase())
+    if (!language) return
+
     setSelectedLanguages((prev) => (prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]))
   }
 
@@ -129,7 +133,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
 
       toast.success("File uploaded successfully!")
     } catch (error) {
-      console.error("[v0] File upload error:", error)
+      console.error("File upload error:", error)
       toast.error("Failed to upload file")
     } finally {
       setIsUploading(false)
@@ -266,6 +270,85 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
                     </button>
                   </Badge>
                 ))}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>
+              Code <span className="text-destructive">*</span>
+            </Label>
+            <div className="flex gap-2 mb-3">
+              <Button
+                type="button"
+                variant={inputMode === "code" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setInputMode("code")}
+                className="flex-1"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Type Code
+              </Button>
+              <Button
+                type="button"
+                variant={inputMode === "file" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setInputMode("file")}
+                className="flex-1"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload File
+              </Button>
+            </div>
+
+            {inputMode === "code" ? (
+              <Textarea
+                id="code"
+                placeholder="Paste your boilerplate code here..."
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                rows={15}
+                className="font-mono text-sm"
+                required
+              />
+            ) : (
+              <div className="space-y-3">
+                {!uploadedFile ? (
+                  <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="hidden"
+                    />
+                    <Label
+                      htmlFor="file-upload"
+                      className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Upload className="h-8 w-8" />
+                      <span className="text-sm font-medium">
+                        {isUploading ? "Uploading..." : "Click to upload or drag and drop"}
+                      </span>
+                      <span className="text-xs">Any code file format supported</span>
+                    </Label>
+                  </div>
+                ) : (
+                  <div className="border rounded-lg p-4 bg-muted/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-8 w-8 text-primary" />
+                        <div>
+                          <p className="font-medium text-sm">{uploadedFile.filename}</p>
+                          <p className="text-xs text-muted-foreground">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                      </div>
+                      <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFile}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
