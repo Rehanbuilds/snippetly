@@ -221,6 +221,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
             <Popover open={languagePopoverOpen} onOpenChange={setLanguagePopoverOpen}>
               <PopoverTrigger asChild>
                 <Button
+                  type="button"
                   variant="outline"
                   role="combobox"
                   aria-expanded={languagePopoverOpen}
@@ -232,29 +233,34 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
                   <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[400px] p-0" align="start">
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                 <Command>
-                  <CommandInput placeholder="Search languages..." />
-                  <CommandList className="max-h-[300px] overflow-y-auto">
+                  <CommandInput placeholder="Search languages..." className="h-9" />
+                  <CommandList className="max-h-[300px]">
                     <CommandEmpty>No language found.</CommandEmpty>
                     <CommandGroup>
-                      {languages.map((language) => (
-                        <CommandItem
-                          key={language}
-                          value={language}
-                          onSelect={(value) => {
-                            toggleLanguage(value)
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedLanguages.includes(language) ? "opacity-100" : "opacity-0",
-                            )}
-                          />
-                          {language}
-                        </CommandItem>
-                      ))}
+                      {languages.map((language) => {
+                        const isSelected = selectedLanguages.includes(language)
+                        return (
+                          <CommandItem
+                            key={language}
+                            value={language}
+                            onSelect={(value) => {
+                              toggleLanguage(value)
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Plus
+                              className={cn(
+                                "mr-2 h-4 w-4 shrink-0",
+                                isSelected ? "opacity-100 text-primary" : "opacity-50",
+                              )}
+                            />
+                            <span className={cn(isSelected && "font-medium")}>{language}</span>
+                            {isSelected && <Check className="ml-auto h-4 w-4 text-primary" />}
+                          </CommandItem>
+                        )
+                      })}
                     </CommandGroup>
                   </CommandList>
                 </Command>
