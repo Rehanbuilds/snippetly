@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X, Upload, File, Trash2, Plus } from "lucide-react"
+import { X, Plus } from "lucide-react"
 import { toast } from "sonner"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -228,14 +228,20 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
                   <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
+              <PopoverContent className="w-[400px] p-0" align="start">
                 <Command>
                   <CommandInput placeholder="Search languages..." />
-                  <CommandList>
+                  <CommandList className="max-h-[300px] overflow-y-auto">
                     <CommandEmpty>No language found.</CommandEmpty>
                     <CommandGroup>
                       {languages.map((language) => (
-                        <CommandItem key={language} value={language} onSelect={() => toggleLanguage(language)}>
+                        <CommandItem
+                          key={language}
+                          value={language}
+                          onSelect={(value) => {
+                            toggleLanguage(value)
+                          }}
+                        >
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
@@ -263,79 +269,6 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
               </div>
             )}
           </div>
-
-          <div className="space-y-2">
-            <Label>Input Method</Label>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant={inputMode === "code" ? "default" : "outline"}
-                onClick={() => setInputMode("code")}
-                className="flex-1"
-              >
-                Type Code
-              </Button>
-              <Button
-                type="button"
-                variant={inputMode === "file" ? "default" : "outline"}
-                onClick={() => setInputMode("file")}
-                className="flex-1"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload File
-              </Button>
-            </div>
-          </div>
-
-          {inputMode === "code" ? (
-            <div className="space-y-2">
-              <Label htmlFor="code">
-                Code <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="code"
-                placeholder="Paste your boilerplate code here..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                rows={15}
-                className="font-mono text-sm"
-                required
-              />
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="file">
-                Upload File <span className="text-destructive">*</span>
-              </Label>
-              {!uploadedFile ? (
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-4">Upload your boilerplate code file (any format)</p>
-                  <Input
-                    id="file"
-                    type="file"
-                    onChange={handleFileUpload}
-                    disabled={isUploading}
-                    className="max-w-xs mx-auto"
-                  />
-                  {isUploading && <p className="text-sm text-muted-foreground mt-2">Uploading...</p>}
-                </div>
-              ) : (
-                <div className="border rounded-lg p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <File className="h-8 w-8 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{uploadedFile.filename}</p>
-                      <p className="text-sm text-muted-foreground">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
-                    </div>
-                  </div>
-                  <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFile}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>

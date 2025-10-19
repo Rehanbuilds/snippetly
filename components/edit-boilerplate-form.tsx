@@ -262,14 +262,20 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
                   <Plus className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-full p-0" align="start">
+              <PopoverContent className="w-[400px] p-0" align="start">
                 <Command>
                   <CommandInput placeholder="Search languages..." />
-                  <CommandList>
+                  <CommandList className="max-h-[300px] overflow-y-auto">
                     <CommandEmpty>No language found.</CommandEmpty>
                     <CommandGroup>
                       {languages.map((language) => (
-                        <CommandItem key={language} value={language} onSelect={() => toggleLanguage(language)}>
+                        <CommandItem
+                          key={language}
+                          value={language}
+                          onSelect={(value) => {
+                            toggleLanguage(value)
+                          }}
+                        >
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
