@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus, Upload, FileText, Check } from "lucide-react"
+import { X, Plus, Upload, FileText, Check, Folder } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -64,12 +64,15 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [uploadedFile, setUploadedFile] = useState<{
-    url: string
-    filename: string
-    size: number
-    type: string
-  } | null>(null)
+  const [uploadedFiles, setUploadedFiles] = useState<
+    Array<{
+      url: string
+      name: string
+      size: number
+      type: string
+      path: string
+    }>
+  >([])
   const [isUploading, setIsUploading] = useState(false)
   const [inputMode, setInputMode] = useState<"code" | "file">("code")
   const router = useRouter()
@@ -94,17 +97,19 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+  const handleMultipleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
     setIsUploading(true)
 
     try {
       const formData = new FormData()
-      formData.append("file", file)
+      Array.from(files).forEach((file) => {
+        formData.append("files", file)
+      })
 
-      const response = await fetch("/api/boilerplates/upload", {
+      const response = await fetch("/api/boilerplates/upload-multiple", {
         method: "POST",
         body: formData,
       })
@@ -114,26 +119,83 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
       }
 
       const data = await response.json()
-      setUploadedFile(data)
+      setUploadedFiles(data.files)
 
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        const content = event.target?.result as string
-        setCode(content)
-      }
-      reader.readAsText(file)
+      const fileContents = await Promise.all(
+        Array.from(files).map(
+          (file) =>
+            new Promise<string>((resolve) => {
+              const reader = new FileReader()
+              reader.onload = (event) => {
+                const content = event.target?.result as string
+                resolve(`// File: ${file.name}\n${content}\n\n`)
+              }
+              reader.readAsText(file)
+            }),
+        ),
+      )
 
-      toast.success("File uploaded successfully!")
+      setCode(fileContents.join(""))
+      toast.success(`${files.length} file(s) uploaded successfully!`)
     } catch (error) {
-      console.error("File upload error:", error)
-      toast.error("Failed to upload file")
+      console.error("[v0] Multiple file upload error:", error)
+      toast.error("Failed to upload files")
     } finally {
       setIsUploading(false)
     }
   }
 
-  const handleRemoveFile = () => {
-    setUploadedFile(null)
+  const handleFolderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      Array.from(files).forEach((file) => {
+        formData.append("files", file)
+      })
+
+      const response = await fetch("/api/boilerplates/upload-multiple", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Upload failed")
+      }
+
+      const data = await response.json()
+      setUploadedFiles(data.files)
+
+      const fileContents = await Promise.all(
+        Array.from(files).map(
+          (file) =>
+            new Promise<string>((resolve) => {
+              const reader = new FileReader()
+              reader.onload = (event) => {
+                const content = event.target?.result as string
+                const path = (file as any).webkitRelativePath || file.name
+                resolve(`// File: ${path}\n${content}\n\n`)
+              }
+              reader.readAsText(file)
+            }),
+        ),
+      )
+
+      setCode(fileContents.join(""))
+      toast.success(`Folder uploaded with ${files.length} file(s)!`)
+    } catch (error) {
+      console.error("[v0] Folder upload error:", error)
+      toast.error("Failed to upload folder")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleRemoveFiles = () => {
+    setUploadedFiles([])
     setCode("")
   }
 
@@ -157,10 +219,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
           language: selectedLanguages,
           tags,
           user_id: userId,
-          file_url: uploadedFile?.url || null,
-          file_name: uploadedFile?.filename || null,
-          file_size: uploadedFile?.size || null,
-          file_type: uploadedFile?.type || null,
+          files: uploadedFiles.length > 0 ? uploadedFiles : null,
         })
         .select()
         .single()
@@ -171,7 +230,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
       router.push("/dashboard/boilerplates")
       router.refresh()
     } catch (error) {
-      console.error("Error creating boilerplate:", error)
+      console.error("[v0] Error creating boilerplate:", error)
       toast.error("Failed to create boilerplate")
     } finally {
       setIsSubmitting(false)
@@ -260,7 +319,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
                 className="flex-1"
               >
                 <Upload className="h-4 w-4 mr-2" />
-                Upload File
+                Upload Files
               </Button>
             </div>
 
@@ -276,39 +335,70 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
               />
             ) : (
               <div className="space-y-3">
-                {!uploadedFile ? (
-                  <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
-                    <Input
-                      id="file-upload"
-                      type="file"
-                      onChange={handleFileUpload}
-                      disabled={isUploading}
-                      className="hidden"
-                    />
-                    <Label
-                      htmlFor="file-upload"
-                      className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      <Upload className="h-8 w-8" />
-                      <span className="text-sm font-medium">
-                        {isUploading ? "Uploading..." : "Click to upload or drag and drop"}
-                      </span>
-                      <span className="text-xs">Any code file format supported</span>
-                    </Label>
+                {uploadedFiles.length === 0 ? (
+                  <div className="space-y-3">
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                      <Input
+                        id="multiple-file-upload"
+                        type="file"
+                        multiple
+                        onChange={handleMultipleFileUpload}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor="multiple-file-upload"
+                        className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Upload className="h-8 w-8" />
+                        <span className="text-sm font-medium">
+                          {isUploading ? "Uploading..." : "Upload Multiple Files"}
+                        </span>
+                        <span className="text-xs">Select multiple code files</span>
+                      </Label>
+                    </div>
+
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                      <Input
+                        id="folder-upload"
+                        type="file"
+                        webkitdirectory=""
+                        directory=""
+                        onChange={handleFolderUpload}
+                        disabled={isUploading}
+                        className="hidden"
+                      />
+                      <Label
+                        htmlFor="folder-upload"
+                        className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Folder className="h-8 w-8" />
+                        <span className="text-sm font-medium">
+                          {isUploading ? "Uploading..." : "Upload Entire Folder"}
+                        </span>
+                        <span className="text-xs">Select a folder with your boilerplate files</span>
+                      </Label>
+                    </div>
                   </div>
                 ) : (
-                  <div className="border rounded-lg p-4 bg-muted/50">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <FileText className="h-8 w-8 text-primary" />
-                        <div>
-                          <p className="font-medium text-sm">{uploadedFile.filename}</p>
-                          <p className="text-xs text-muted-foreground">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
-                        </div>
-                      </div>
-                      <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFile}>
-                        <X className="h-4 w-4" />
+                  <div className="border rounded-lg p-4 bg-muted/50 space-y-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium">{uploadedFiles.length} file(s) uploaded</p>
+                      <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFiles}>
+                        <X className="h-4 w-4 mr-1" />
+                        Remove All
                       </Button>
+                    </div>
+                    <div className="max-h-[200px] overflow-y-auto space-y-2">
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center gap-3 p-2 bg-background rounded border">
+                          <FileText className="h-5 w-5 text-primary flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{file.path}</p>
+                            <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}

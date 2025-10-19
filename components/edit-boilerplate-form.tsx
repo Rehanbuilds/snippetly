@@ -76,7 +76,11 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [inputMode, setInputMode] = useState<"code" | "file">(boilerplate.file_url ? "file" : "code")
 
-  const initialLanguages = Array.isArray(boilerplate.language) ? boilerplate.language : [boilerplate.language]
+  const initialLanguages = Array.isArray(boilerplate.language)
+    ? boilerplate.language
+    : boilerplate.language
+      ? [boilerplate.language]
+      : []
 
   const [formData, setFormData] = useState({
     title: boilerplate.title,
@@ -113,6 +117,7 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
 
   const handleFileUpload = async (file: File) => {
     setIsUploading(true)
+    console.log("[v0] Starting file upload:", file.name)
     try {
       const formDataUpload = new FormData()
       formDataUpload.append("file", file)
@@ -123,10 +128,14 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Upload failed")
+        const errorData = await response.json()
+        console.error("[v0] Upload failed:", errorData)
+        throw new Error(errorData.error || "Upload failed")
       }
 
       const data = await response.json()
+      console.log("[v0] Upload successful:", data)
+
       setUploadedFile({
         url: data.url,
         name: file.name,
@@ -149,9 +158,20 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    console.log("[v0] Form submitted with data:", formData)
 
     if (formData.selectedLanguages.length === 0) {
       toast.error("Please select at least one language")
+      return
+    }
+
+    if (inputMode === "code" && !formData.code.trim()) {
+      toast.error("Please enter code or switch to file upload")
+      return
+    }
+
+    if (inputMode === "file" && !uploadedFile) {
+      toast.error("Please upload a file or switch to code input")
       return
     }
 
@@ -169,6 +189,7 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
         code: formData.code,
         language: formData.selectedLanguages,
         tags: tagsArray,
+        updated_at: new Date().toISOString(),
       }
 
       if (inputMode === "file" && uploadedFile) {
@@ -183,16 +204,22 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
         updateData.file_type = null
       }
 
+      console.log("[v0] Updating boilerplate with data:", updateData)
+
       const { error } = await supabase.from("boilerplates").update(updateData).eq("id", boilerplate.id)
 
-      if (error) throw error
+      if (error) {
+        console.error("[v0] Supabase update error:", error)
+        throw error
+      }
 
+      console.log("[v0] Boilerplate updated successfully")
       toast.success("Boilerplate updated successfully!")
       router.push("/dashboard/boilerplates")
       router.refresh()
     } catch (error) {
       console.error("[v0] Error updating boilerplate:", error)
-      toast.error("Failed to update boilerplate")
+      toast.error("Failed to update boilerplate. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -367,7 +394,7 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Update Boilerplate
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.back()}>
+            <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
               Cancel
             </Button>
           </div>
