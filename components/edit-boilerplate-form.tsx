@@ -63,6 +63,7 @@ interface Boilerplate {
   file_name: string | null
   file_size: number | null
   file_type: string | null
+  files?: any[] // Added files field for multiple file support
 }
 
 interface EditBoilerplateFormProps {
@@ -70,17 +71,22 @@ interface EditBoilerplateFormProps {
 }
 
 export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
+  console.log("[v0] EditBoilerplateForm received boilerplate:", boilerplate)
+
   const router = useRouter()
   const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [inputMode, setInputMode] = useState<"code" | "file">(boilerplate.file_url ? "file" : "code")
 
-  const initialLanguages = Array.isArray(boilerplate.language)
-    ? boilerplate.language
-    : boilerplate.language
-      ? [boilerplate.language]
-      : []
+  const initialLanguages = (() => {
+    if (!boilerplate.language) return []
+    if (Array.isArray(boilerplate.language)) return boilerplate.language
+    if (typeof boilerplate.language === "string") return [boilerplate.language]
+    return []
+  })()
+
+  console.log("[v0] Initial languages:", initialLanguages)
 
   const [formData, setFormData] = useState({
     title: boilerplate.title,
