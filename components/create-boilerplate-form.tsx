@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import { useEffect } from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { X, Plus, Upload, FileText, Check, Folder } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { UpgradeModal } from "@/components/upgrade-modal"
 
 const languages = [
   "JavaScript",
@@ -77,6 +78,10 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   const [inputMode, setInputMode] = useState<"code" | "file">("code")
   const router = useRouter()
   const supabase = createClient()
+
+  const [userPlan, setUserPlan] = useState<any>(null)
+  const [boilerplateCount, setBoilerplateCount] = useState(0)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
   const toggleLanguage = (language: string) => {
     setSelectedLanguages((prev) => (prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]))
@@ -199,11 +204,39 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
     setCode("")
   }
 
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan_type, boilerplate_limit")
+        .eq("id", userId)
+        .single()
+
+      setUserPlan(profile)
+
+      const { count } = await supabase
+        .from("boilerplates")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+
+      setBoilerplateCount(count || 0)
+    }
+    loadUserData()
+  }, [userId, supabase])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!title.trim() || !code.trim() || selectedLanguages.length === 0) {
       toast.error("Please fill in all required fields and select at least one language")
+      return
+    }
+
+    if (userPlan?.plan_type === "free" && boilerplateCount >= (userPlan?.boilerplate_limit || 5)) {
+      toast.error(
+        `You've reached the limit of ${userPlan?.boilerplate_limit || 5} boilerplates. Upgrade to Pro for unlimited boilerplates!`,
+      )
+      setShowUpgradeModal(true)
       return
     }
 
@@ -238,217 +271,228 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
   }
 
   return (
-    <Card>
-      <CardContent className="p-4 sm:p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="title"
-              placeholder="e.g., React Component Template"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Describe what this boilerplate is for..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>
-              Languages <span className="text-destructive">*</span>
-            </Label>
-            <p className="text-sm text-muted-foreground mb-3">Click on languages to select (multiple allowed)</p>
-            <div className="flex flex-wrap gap-2 p-4 border rounded-lg bg-muted/30 max-h-[300px] overflow-y-auto">
-              {languages.map((language) => {
-                const isSelected = selectedLanguages.includes(language)
-                return (
-                  <Badge
-                    key={language}
-                    variant={isSelected ? "default" : "outline"}
-                    className={cn(
-                      "cursor-pointer transition-all hover:scale-105",
-                      isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted",
-                    )}
-                    onClick={() => toggleLanguage(language)}
-                  >
-                    {isSelected ? <Check className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
-                    {language}
-                  </Badge>
-                )
-              })}
-            </div>
-            {selectedLanguages.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
-                Selected: {selectedLanguages.length} language{selectedLanguages.length > 1 ? "s" : ""}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>
-              Code <span className="text-destructive">*</span>
-            </Label>
-            <div className="flex gap-2 mb-3">
-              <Button
-                type="button"
-                variant={inputMode === "code" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setInputMode("code")}
-                className="flex-1"
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Type Code
-              </Button>
-              <Button
-                type="button"
-                variant={inputMode === "file" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setInputMode("file")}
-                className="flex-1"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Files
-              </Button>
-            </div>
-
-            {inputMode === "code" ? (
-              <Textarea
-                id="code"
-                placeholder="Paste your boilerplate code here..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                rows={15}
-                className="font-mono text-sm"
+    <>
+      <Card>
+        <CardContent className="p-4 sm:p-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="title">
+                Title <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="title"
+                placeholder="e.g., React Component Template"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 required
               />
-            ) : (
-              <div className="space-y-3">
-                {uploadedFiles.length === 0 ? (
-                  <div className="space-y-3">
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                      <Input
-                        id="multiple-file-upload"
-                        type="file"
-                        multiple
-                        onChange={handleMultipleFileUpload}
-                        disabled={isUploading}
-                        className="hidden"
-                      />
-                      <Label
-                        htmlFor="multiple-file-upload"
-                        className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <Upload className="h-8 w-8" />
-                        <span className="text-sm font-medium">
-                          {isUploading ? "Uploading..." : "Upload Multiple Files"}
-                        </span>
-                        <span className="text-xs">Select multiple code files</span>
-                      </Label>
-                    </div>
+            </div>
 
-                    <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                      <Input
-                        id="folder-upload"
-                        type="file"
-                        webkitdirectory=""
-                        directory=""
-                        onChange={handleFolderUpload}
-                        disabled={isUploading}
-                        className="hidden"
-                      />
-                      <Label
-                        htmlFor="folder-upload"
-                        className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        <Folder className="h-8 w-8" />
-                        <span className="text-sm font-medium">
-                          {isUploading ? "Uploading..." : "Upload Entire Folder"}
-                        </span>
-                        <span className="text-xs">Select a folder with your boilerplate files</span>
-                      </Label>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="border rounded-lg p-4 bg-muted/50 space-y-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium">{uploadedFiles.length} file(s) uploaded</p>
-                      <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFiles}>
-                        <X className="h-4 w-4 mr-1" />
-                        Remove All
-                      </Button>
-                    </div>
-                    <div className="max-h-[200px] overflow-y-auto space-y-2">
-                      {uploadedFiles.map((file, index) => (
-                        <div key={index} className="flex items-center gap-3 p-2 bg-background rounded border">
-                          <FileText className="h-5 w-5 text-primary flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">{file.path}</p>
-                            <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags</Label>
-            <div className="flex gap-2">
-              <Input
-                id="tags"
-                placeholder="Add a tag..."
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    handleAddTag()
-                  }
-                }}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                placeholder="Describe what this boilerplate is for..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
               />
-              <Button type="button" variant="outline" onClick={handleAddTag}>
-                Add
+            </div>
+
+            <div className="space-y-2">
+              <Label>
+                Languages <span className="text-destructive">*</span>
+              </Label>
+              <p className="text-sm text-muted-foreground mb-3">Click on languages to select (multiple allowed)</p>
+              <div className="flex flex-wrap gap-2 p-4 border rounded-lg bg-muted/30 max-h-[300px] overflow-y-auto">
+                {languages.map((language) => {
+                  const isSelected = selectedLanguages.includes(language)
+                  return (
+                    <Badge
+                      key={language}
+                      variant={isSelected ? "default" : "outline"}
+                      className={cn(
+                        "cursor-pointer transition-all hover:scale-105",
+                        isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                      )}
+                      onClick={() => toggleLanguage(language)}
+                    >
+                      {isSelected ? <Check className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+                      {language}
+                    </Badge>
+                  )
+                })}
+              </div>
+              {selectedLanguages.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Selected: {selectedLanguages.length} language{selectedLanguages.length > 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label>
+                Code <span className="text-destructive">*</span>
+              </Label>
+              <div className="flex gap-2 mb-3">
+                <Button
+                  type="button"
+                  variant={inputMode === "code" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setInputMode("code")}
+                  className="flex-1"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  Type Code
+                </Button>
+                <Button
+                  type="button"
+                  variant={inputMode === "file" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setInputMode("file")}
+                  className="flex-1"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Files
+                </Button>
+              </div>
+
+              {inputMode === "code" ? (
+                <Textarea
+                  id="code"
+                  placeholder="Paste your boilerplate code here..."
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                  required
+                />
+              ) : (
+                <div className="space-y-3">
+                  {uploadedFiles.length === 0 ? (
+                    <div className="space-y-3">
+                      <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <Input
+                          id="multiple-file-upload"
+                          type="file"
+                          multiple
+                          onChange={handleMultipleFileUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                        />
+                        <Label
+                          htmlFor="multiple-file-upload"
+                          className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Upload className="h-8 w-8" />
+                          <span className="text-sm font-medium">
+                            {isUploading ? "Uploading..." : "Upload Multiple Files"}
+                          </span>
+                          <span className="text-xs">Select multiple code files</span>
+                        </Label>
+                      </div>
+
+                      <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                        <Input
+                          id="folder-upload"
+                          type="file"
+                          webkitdirectory=""
+                          directory=""
+                          onChange={handleFolderUpload}
+                          disabled={isUploading}
+                          className="hidden"
+                        />
+                        <Label
+                          htmlFor="folder-upload"
+                          className="cursor-pointer flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Folder className="h-8 w-8" />
+                          <span className="text-sm font-medium">
+                            {isUploading ? "Uploading..." : "Upload Entire Folder"}
+                          </span>
+                          <span className="text-xs">Select a folder with your boilerplate files</span>
+                        </Label>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border rounded-lg p-4 bg-muted/50 space-y-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">{uploadedFiles.length} file(s) uploaded</p>
+                        <Button type="button" variant="ghost" size="sm" onClick={handleRemoveFiles}>
+                          <X className="h-4 w-4 mr-1" />
+                          Remove All
+                        </Button>
+                      </div>
+                      <div className="max-h-[200px] overflow-y-auto space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div key={index} className="flex items-center gap-3 p-2 bg-background rounded border">
+                            <FileText className="h-5 w-5 text-primary flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">{file.path}</p>
+                              <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="tags"
+                  placeholder="Add a tag..."
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      handleAddTag()
+                    }
+                  }}
+                />
+                <Button type="button" variant="outline" onClick={handleAddTag}>
+                  Add
+                </Button>
+              </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="gap-1">
+                      {tag}
+                      <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:text-destructive">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" disabled={isSubmitting} className="flex-1">
+                {isSubmitting ? "Creating..." : "Create Boilerplate"}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => router.back()}>
+                Cancel
               </Button>
             </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="gap-1">
-                    {tag}
-                    <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:text-destructive">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
+          </form>
+        </CardContent>
+      </Card>
 
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? "Creating..." : "Create Boilerplate"}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => router.back()}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+      {userPlan && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          currentSnippetCount={boilerplateCount}
+          snippetLimit={userPlan?.boilerplate_limit || 5}
+        />
+      )}
+    </>
   )
 }

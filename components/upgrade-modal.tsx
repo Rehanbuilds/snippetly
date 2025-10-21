@@ -76,6 +76,7 @@ export function UpgradeModal({ isOpen, onClose, currentSnippetCount, snippetLimi
   const proFeatures = [
     "Unlimited code snippets",
     "Unlimited folders",
+    "Unlimited boilerplates",
     "Unlimited snippets per folder",
     "Advanced search and filtering",
     "Priority support",
