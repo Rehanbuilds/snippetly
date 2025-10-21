@@ -3,8 +3,12 @@ import { redirect } from "next/navigation"
 import { EditBoilerplateForm } from "@/components/edit-boilerplate-form"
 import { DashboardLayout } from "@/components/dashboard-layout"
 
-export default async function EditBoilerplatePage({ params }: { params: { id: string } }) {
-  console.log("[v0] Edit page - params.id:", params.id)
+export default async function EditBoilerplatePage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
 
   const supabase = await createClient()
 
@@ -13,30 +17,19 @@ export default async function EditBoilerplatePage({ params }: { params: { id: st
   } = await supabase.auth.getUser()
 
   if (!user) {
-    console.log("[v0] Edit page - No user found, redirecting to signin")
     redirect("/signin")
   }
-
-  console.log("[v0] Edit page - Fetching boilerplate for user:", user.id)
 
   const { data: boilerplate, error } = await supabase
     .from("boilerplates")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", user.id)
     .single()
 
-  if (error) {
-    console.error("[v0] Edit page - Error fetching boilerplate:", error)
+  if (error || !boilerplate) {
     redirect("/dashboard/boilerplates")
   }
-
-  if (!boilerplate) {
-    console.log("[v0] Edit page - Boilerplate not found")
-    redirect("/dashboard/boilerplates")
-  }
-
-  console.log("[v0] Edit page - Boilerplate found:", boilerplate.id, boilerplate.title)
 
   return (
     <DashboardLayout>
