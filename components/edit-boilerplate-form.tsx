@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { Loader2, Upload, X, File, Plus, Check } from "lucide-react"
+import { Loader2, X, File, Plus, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const languages = [
@@ -52,48 +51,44 @@ const languages = [
   "Other",
 ]
 
-interface Boilerplate {
-  id: string
-  title: string
-  description: string | null
-  code: string | null
-  language: string | string[]
-  tags: string[] | null
-  file_url: string | null
-  file_name: string | null
-  file_size: number | null
-  file_type: string | null
-  files?: any[] // Added files field for multiple file support
-}
-
 interface EditBoilerplateFormProps {
-  boilerplate: Boilerplate
+  boilerplate: {
+    id: string
+    title: string
+    description?: string | null
+    code?: string | null
+    language?: string | string[] | null
+    tags?: string[] | null
+    file_url?: string | null
+    file_name?: string | null
+    file_size?: number | null
+    file_type?: string | null
+    files?: any[] | null
+  }
 }
 
 export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
-  console.log("[v0] EditBoilerplateForm received boilerplate:", boilerplate)
-
   const router = useRouter()
   const supabase = createClient()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
-  const [inputMode, setInputMode] = useState<"code" | "file">(boilerplate.file_url ? "file" : "code")
 
-  const initialLanguages = (() => {
-    if (!boilerplate.language) return []
+  const hasFile = boilerplate?.file_url || (boilerplate?.files && boilerplate.files.length > 0)
+  const [inputMode, setInputMode] = useState<"code" | "file">(hasFile ? "file" : "code")
+
+  const getInitialLanguages = () => {
+    if (!boilerplate?.language) return []
     if (Array.isArray(boilerplate.language)) return boilerplate.language
     if (typeof boilerplate.language === "string") return [boilerplate.language]
     return []
-  })()
-
-  console.log("[v0] Initial languages:", initialLanguages)
+  }
 
   const [formData, setFormData] = useState({
-    title: boilerplate.title,
-    description: boilerplate.description || "",
-    code: boilerplate.code || "",
-    selectedLanguages: initialLanguages,
-    tags: boilerplate.tags?.join(", ") || "",
+    title: boilerplate?.title || "",
+    description: boilerplate?.description || "",
+    code: boilerplate?.code || "",
+    selectedLanguages: getInitialLanguages(),
+    tags: boilerplate?.tags?.join(", ") || "",
   })
 
   const [uploadedFile, setUploadedFile] = useState<{
@@ -102,15 +97,25 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
     size: number
     type: string
   } | null>(
-    boilerplate.file_url
+    boilerplate?.file_url
       ? {
           url: boilerplate.file_url,
-          name: boilerplate.file_name || "",
+          name: boilerplate.file_name || "Uploaded file",
           size: boilerplate.file_size || 0,
           type: boilerplate.file_type || "",
         }
       : null,
   )
+
+  const [uploadedFiles, setUploadedFiles] = useState<
+    Array<{
+      url: string
+      name: string
+      size: number
+      type: string
+      path?: string
+    }>
+  >(boilerplate?.files || [])
 
   const toggleLanguage = (language: string) => {
     setFormData((prev) => ({
@@ -121,42 +126,62 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
     }))
   }
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
     setIsUploading(true)
-    console.log("[v0] Starting file upload:", file.name)
     try {
-      const formDataUpload = new FormData()
-      formDataUpload.append("file", file)
+      const formData = new FormData()
+      formData.append("file", file)
 
       const response = await fetch("/api/boilerplates/upload", {
         method: "POST",
-        body: formDataUpload,
+        body: formData,
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error("[v0] Upload failed:", errorData)
-        throw new Error(errorData.error || "Upload failed")
-      }
+      if (!response.ok) throw new Error("Upload failed")
 
       const data = await response.json()
-      console.log("[v0] Upload successful:", data)
-
       setUploadedFile({
         url: data.url,
         name: file.name,
         size: file.size,
         type: file.type,
       })
-
-      // Read file content for preview
-      const text = await file.text()
-      setFormData((prev) => ({ ...prev, code: text }))
-
-      toast.success("File uploaded successfully!")
+      toast.success("File uploaded successfully")
     } catch (error) {
-      console.error("[v0] Upload error:", error)
+      console.error("Upload error:", error)
       toast.error("Failed to upload file")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleMultipleFilesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setIsUploading(true)
+    try {
+      const formData = new FormData()
+      Array.from(files).forEach((file) => {
+        formData.append("files", file)
+      })
+
+      const response = await fetch("/api/boilerplates/upload-multiple", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) throw new Error("Upload failed")
+
+      const data = await response.json()
+      setUploadedFiles(data.files)
+      toast.success(`${data.files.length} file(s) uploaded successfully`)
+    } catch (error) {
+      console.error("Upload error:", error)
+      toast.error("Failed to upload files")
     } finally {
       setIsUploading(false)
     }
@@ -164,7 +189,16 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Form submitted with data:", formData)
+
+    if (!boilerplate?.id) {
+      toast.error("Invalid boilerplate ID")
+      return
+    }
+
+    if (!formData.title.trim()) {
+      toast.error("Please enter a title")
+      return
+    }
 
     if (formData.selectedLanguages.length === 0) {
       toast.error("Please select at least one language")
@@ -172,12 +206,12 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
     }
 
     if (inputMode === "code" && !formData.code.trim()) {
-      toast.error("Please enter code or switch to file upload")
+      toast.error("Please enter code or switch to file upload mode")
       return
     }
 
-    if (inputMode === "file" && !uploadedFile) {
-      toast.error("Please upload a file or switch to code input")
+    if (inputMode === "file" && uploadedFiles.length === 0 && !uploadedFile) {
+      toast.error("Please upload at least one file or switch to code input mode")
       return
     }
 
@@ -192,59 +226,59 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
       const updateData: any = {
         title: formData.title,
         description: formData.description || null,
-        code: formData.code,
         language: formData.selectedLanguages,
-        tags: tagsArray,
+        tags: tagsArray.length > 0 ? tagsArray : null,
         updated_at: new Date().toISOString(),
       }
 
-      if (inputMode === "file" && uploadedFile) {
-        updateData.file_url = uploadedFile.url
-        updateData.file_name = uploadedFile.name
-        updateData.file_size = uploadedFile.size
-        updateData.file_type = uploadedFile.type
-      } else {
+      if (inputMode === "code") {
+        updateData.code = formData.code
         updateData.file_url = null
         updateData.file_name = null
         updateData.file_size = null
         updateData.file_type = null
+        updateData.files = null
+      } else {
+        updateData.code = null
+        if (uploadedFiles.length > 0) {
+          updateData.files = uploadedFiles
+          updateData.file_url = null
+          updateData.file_name = null
+          updateData.file_size = null
+          updateData.file_type = null
+        } else if (uploadedFile) {
+          updateData.file_url = uploadedFile.url
+          updateData.file_name = uploadedFile.name
+          updateData.file_size = uploadedFile.size
+          updateData.file_type = uploadedFile.type
+          updateData.files = null
+        }
       }
-
-      console.log("[v0] Updating boilerplate with data:", updateData)
 
       const { error } = await supabase.from("boilerplates").update(updateData).eq("id", boilerplate.id)
 
-      if (error) {
-        console.error("[v0] Supabase update error:", error)
-        throw error
-      }
+      if (error) throw error
 
-      console.log("[v0] Boilerplate updated successfully")
       toast.success("Boilerplate updated successfully!")
       router.push("/dashboard/boilerplates")
       router.refresh()
     } catch (error) {
-      console.error("[v0] Error updating boilerplate:", error)
-      toast.error("Failed to update boilerplate. Please try again.")
+      console.error("Error updating boilerplate:", error)
+      toast.error("Failed to update boilerplate")
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + " B"
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB"
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB"
-  }
-
   return (
-    <Card>
+    <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Edit Boilerplate</CardTitle>
         <CardDescription>Update your boilerplate code template</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Title *</Label>
             <Input
@@ -256,6 +290,7 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
             />
           </div>
 
+          {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
@@ -267,12 +302,10 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
             />
           </div>
 
+          {/* Languages */}
           <div className="space-y-2">
-            <Label>
-              Languages <span className="text-destructive">*</span>
-            </Label>
-            <p className="text-sm text-muted-foreground mb-3">Click on languages to select (multiple allowed)</p>
-            <div className="flex flex-wrap gap-2 p-4 border rounded-lg bg-muted/30 max-h-[300px] overflow-y-auto">
+            <Label>Languages * (Select one or more)</Label>
+            <div className="flex flex-wrap gap-2 p-4 border rounded-md bg-muted/50 max-h-[300px] overflow-y-auto">
               {languages.map((language) => {
                 const isSelected = formData.selectedLanguages.includes(language)
                 return (
@@ -281,23 +314,22 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
                     variant={isSelected ? "default" : "outline"}
                     className={cn(
                       "cursor-pointer transition-all hover:scale-105",
-                      isSelected ? "bg-primary text-primary-foreground" : "hover:bg-muted",
+                      isSelected && "bg-primary text-primary-foreground",
                     )}
                     onClick={() => toggleLanguage(language)}
                   >
-                    {isSelected ? <Check className="h-3 w-3 mr-1" /> : <Plus className="h-3 w-3 mr-1" />}
+                    {isSelected ? <Check className="w-3 h-3 mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
                     {language}
                   </Badge>
                 )
               })}
             </div>
             {formData.selectedLanguages.length > 0 && (
-              <p className="text-sm text-muted-foreground mt-2">
-                Selected: {formData.selectedLanguages.length} language{formData.selectedLanguages.length > 1 ? "s" : ""}
-              </p>
+              <p className="text-sm text-muted-foreground">Selected: {formData.selectedLanguages.join(", ")}</p>
             )}
           </div>
 
+          {/* Input Mode Toggle */}
           <div className="space-y-2">
             <Label>Input Method</Label>
             <div className="flex gap-2">
@@ -315,13 +347,13 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
                 onClick={() => setInputMode("file")}
                 className="flex-1"
               >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload File
+                Upload Files
               </Button>
             </div>
           </div>
 
-          {inputMode === "code" ? (
+          {/* Code Input */}
+          {inputMode === "code" && (
             <div className="space-y-2">
               <Label htmlFor="code">Code *</Label>
               <Textarea
@@ -331,76 +363,107 @@ export function EditBoilerplateForm({ boilerplate }: EditBoilerplateFormProps) {
                 placeholder="Paste your boilerplate code here..."
                 rows={15}
                 className="font-mono text-sm"
-                required
               />
             </div>
-          ) : (
-            <div className="space-y-2">
-              <Label>Upload File</Label>
-              {uploadedFile ? (
-                <div className="border rounded-lg p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <File className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{uploadedFile.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatFileSize(uploadedFile.size)}</p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setUploadedFile(null)
-                        setFormData({ ...formData, code: "" })
-                      }}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+          )}
+
+          {/* File Upload */}
+          {inputMode === "file" && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Upload Files</Label>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Input type="file" onChange={handleFileUpload} disabled={isUploading} className="cursor-pointer" />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      type="file"
+                      multiple
+                      onChange={handleMultipleFilesUpload}
+                      disabled={isUploading}
+                      className="cursor-pointer"
+                    />
                   </div>
                 </div>
-              ) : (
-                <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                  <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground mb-2">Drag and drop a file here, or click to browse</p>
-                  <Input
-                    type="file"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0]
-                      if (file) handleFileUpload(file)
-                    }}
-                    disabled={isUploading}
-                    className="max-w-xs mx-auto"
-                  />
-                  {isUploading && (
-                    <div className="flex items-center justify-center gap-2 mt-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm">Uploading...</span>
-                    </div>
-                  )}
+                <p className="text-sm text-muted-foreground">
+                  Upload a single file or multiple files for your boilerplate
+                </p>
+              </div>
+
+              {/* Single File Display */}
+              {uploadedFile && uploadedFiles.length === 0 && (
+                <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/50">
+                  <File className="w-4 h-4" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{uploadedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">{(uploadedFile.size / 1024).toFixed(2)} KB</p>
+                  </div>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setUploadedFile(null)}>
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* Multiple Files Display */}
+              {uploadedFiles.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Uploaded Files ({uploadedFiles.length})</Label>
+                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                    {uploadedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center gap-2 p-2 border rounded-md bg-muted/50">
+                        <File className="w-4 h-4" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{file.path || file.name}</p>
+                          <p className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(2)} KB</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
+                          }}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           )}
 
+          {/* Tags */}
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
             <Input
               id="tags"
               value={formData.tags}
               onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-              placeholder="e.g., react, component, template (comma-separated)"
+              placeholder="e.g., react, component, ui (comma-separated)"
             />
-            <p className="text-xs text-muted-foreground">Separate tags with commas</p>
           </div>
 
-          <div className="flex gap-2">
-            <Button type="submit" disabled={isSubmitting || isUploading}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Update Boilerplate
+          {/* Submit Buttons */}
+          <div className="flex gap-3">
+            <Button type="submit" disabled={isSubmitting} className="flex-1">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Boilerplate"
+              )}
             </Button>
-            <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/dashboard/boilerplates")}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
           </div>
