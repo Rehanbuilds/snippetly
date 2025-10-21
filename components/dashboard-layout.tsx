@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X, Folder } from "lucide-react"
+import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X, Folder, FileStack } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -204,8 +204,8 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
               {/* Boilerplates navigation item */}
               <Link href="/dashboard/boilerplates" onClick={() => setSidebarOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start">
-                  <Code className="h-4 w-4 mr-2" />
-                  Boilerplates
+                  <FileStack className="h-4 w-4 mr-2" />
+                  My Boilerplates
                   <Badge variant="secondary" className="ml-auto">
                     {boilerplateCount}
                   </Badge>

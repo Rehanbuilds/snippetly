@@ -31,7 +31,7 @@ export default async function EditBoilerplatePage({
   }
 
   return (
-    <DashboardLayout>
+    <DashboardLayout user={user}>
       <div className="container mx-auto py-6 px-4 md:px-6">
         <EditBoilerplateForm boilerplate={boilerplate} />
       </div>
