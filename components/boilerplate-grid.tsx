@@ -26,6 +26,13 @@ interface Boilerplate {
   file_name?: string | null
   file_size?: number | null
   file_type?: string | null
+  files?: Array<{
+    url: string
+    name: string
+    size: number
+    type: string
+    path: string
+  }> | null
 }
 
 interface BoilerplateGridProps {
@@ -107,6 +114,34 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
     }
   }
 
+  const handleDownloadAll = async (files: Array<{ url: string; name: string; path: string }>, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    toast.info(`Downloading ${files.length} file(s)...`)
+
+    try {
+      for (const file of files) {
+        const response = await fetch(file.url)
+        const blob = await response.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = file.name
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+        // Small delay between downloads
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+      toast.success("All files downloaded successfully!")
+    } catch (error) {
+      console.error("[v0] Download all error:", error)
+      toast.error("Failed to download some files")
+    }
+  }
+
   if (boilerplates.length === 0) {
     return (
       <div className="text-center py-12">
@@ -127,6 +162,8 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {boilerplates.map((boilerplate) => {
           const languages = Array.isArray(boilerplate.language) ? boilerplate.language : [boilerplate.language]
+          const hasMultipleFiles = boilerplate.files && boilerplate.files.length > 0
+          const fileCount = hasMultipleFiles ? boilerplate.files!.length : boilerplate.file_url ? 1 : 0
 
           return (
             <Card
@@ -149,10 +186,10 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
                           +{languages.length - 2}
                         </Badge>
                       )}
-                      {boilerplate.file_url && (
+                      {fileCount > 0 && (
                         <Badge variant="outline" className="text-xs">
                           <File className="h-3 w-3 mr-1" />
-                          File
+                          {fileCount} {fileCount === 1 ? "File" : "Files"}
                         </Badge>
                       )}
                     </div>
@@ -203,14 +240,26 @@ export function BoilerplateGrid({ boilerplates, favoritesOnly = false }: Boilerp
                     <Eye className="h-3 w-3 mr-1" />
                     View
                   </Button>
-                  {boilerplate.file_url && boilerplate.file_name && (
+                  {hasMultipleFiles ? (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={(e) => handleDownload(boilerplate.file_url!, boilerplate.file_name!, e)}
+                      onClick={(e) => handleDownloadAll(boilerplate.files!, e)}
+                      title={`Download ${boilerplate.files!.length} files`}
                     >
                       <Download className="h-3 w-3" />
                     </Button>
+                  ) : (
+                    boilerplate.file_url &&
+                    boilerplate.file_name && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => handleDownload(boilerplate.file_url!, boilerplate.file_name!, e)}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    )
                   )}
                   <Button variant="outline" size="sm" onClick={(e) => handleCopy(boilerplate.code, e)}>
                     <Copy className="h-3 w-3" />
