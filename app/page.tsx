@@ -468,6 +468,10 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-center">
                     <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Up to 5 boilerplates</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
                     <span>10 snippets per folder</span>
                   </li>
                   <li className="flex items-center">
@@ -518,6 +522,10 @@ export default function LandingPage() {
                   <li className="flex items-center">
                     <Code className="h-4 w-4 mr-3 text-green-600" />
                     <span>Unlimited folders</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <span>Unlimited boilerplates</span>
                   </li>
                   <li className="flex items-center">
                     <Share className="h-4 w-4 mr-3 text-green-600" />
