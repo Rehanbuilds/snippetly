@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Plus, Search, Crown } from "lucide-react"
+import { Plus, Search, Crown, Star } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { BoilerplateGrid } from "@/components/boilerplate-grid"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +18,7 @@ export default function BoilerplatesPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [userPlan, setUserPlan] = useState<any>(null)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [filter, setFilter] = useState<"all" | "favorites">("all")
   const supabase = createClient()
 
   const FREE_BOILERPLATE_LIMIT = 5
@@ -77,11 +78,16 @@ export default function BoilerplatesPage() {
     }
   }
 
-  const filteredBoilerplates = boilerplates.filter(
-    (boilerplate) =>
+  const filteredBoilerplates = boilerplates.filter((boilerplate) => {
+    if (filter === "favorites" && !boilerplate.is_favorite) {
+      return false
+    }
+
+    return (
       boilerplate.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      boilerplate.description?.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      boilerplate.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })
 
   if (loading) {
     return (
@@ -146,17 +152,33 @@ export default function BoilerplatesPage() {
           </div>
         )}
 
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search boilerplates by title..."
-            className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          <div className="flex gap-2">
+            <Button variant={filter === "all" ? "default" : "outline"} size="sm" onClick={() => setFilter("all")}>
+              All Boilerplates
+            </Button>
+            <Button
+              variant={filter === "favorites" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setFilter("favorites")}
+            >
+              <Star className="h-4 w-4 mr-1" />
+              Favorites
+            </Button>
+          </div>
+
+          <div className="relative flex-1 max-w-md w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search boilerplates by title..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </div>
 
-        <BoilerplateGrid boilerplates={filteredBoilerplates} />
+        <BoilerplateGrid boilerplates={filteredBoilerplates} favoritesOnly={filter === "favorites"} />
       </div>
 
       {userPlan && (

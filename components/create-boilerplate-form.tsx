@@ -107,6 +107,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
     if (!files || files.length === 0) return
 
     setIsUploading(true)
+    console.log("[v0] Starting multiple file upload, file count:", files.length)
 
     try {
       const formData = new FormData()
@@ -114,33 +115,46 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
         formData.append("files", file)
       })
 
+      console.log("[v0] Sending files to API...")
       const response = await fetch("/api/boilerplates/upload-multiple", {
         method: "POST",
         body: formData,
       })
 
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[v0] Upload failed:", errorText)
         throw new Error("Upload failed")
       }
 
       const data = await response.json()
+      console.log("[v0] Upload successful, files:", data.files)
       setUploadedFiles(data.files)
 
-      const fileContents = await Promise.all(
-        Array.from(files).map(
-          (file) =>
-            new Promise<string>((resolve) => {
-              const reader = new FileReader()
-              reader.onload = (event) => {
-                const content = event.target?.result as string
-                resolve(`// File: ${file.name}\n${content}\n\n`)
-              }
-              reader.readAsText(file)
-            }),
-        ),
-      )
+      try {
+        const fileContents = await Promise.all(
+          Array.from(files).map(
+            (file) =>
+              new Promise<string>((resolve) => {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                  const content = event.target?.result as string
+                  resolve(`// File: ${file.name}\n${content}\n\n`)
+                }
+                reader.onerror = () => {
+                  console.warn("[v0] Could not read file:", file.name)
+                  resolve(`// File: ${file.name}\n// (Binary or unreadable file)\n\n`)
+                }
+                reader.readAsText(file)
+              }),
+          ),
+        )
+        setCode(fileContents.join(""))
+      } catch (readError) {
+        console.warn("[v0] Error reading file contents:", readError)
+        setCode(`// ${files.length} file(s) uploaded successfully\n// Files are stored and ready to use`)
+      }
 
-      setCode(fileContents.join(""))
       toast.success(`${files.length} file(s) uploaded successfully!`)
     } catch (error) {
       console.error("[v0] Multiple file upload error:", error)
@@ -155,6 +169,7 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
     if (!files || files.length === 0) return
 
     setIsUploading(true)
+    console.log("[v0] Starting folder upload, file count:", files.length)
 
     try {
       const formData = new FormData()
@@ -162,34 +177,48 @@ export function CreateBoilerplateForm({ userId }: CreateBoilerplateFormProps) {
         formData.append("files", file)
       })
 
+      console.log("[v0] Sending folder files to API...")
       const response = await fetch("/api/boilerplates/upload-multiple", {
         method: "POST",
         body: formData,
       })
 
       if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[v0] Folder upload failed:", errorText)
         throw new Error("Upload failed")
       }
 
       const data = await response.json()
+      console.log("[v0] Folder upload successful, files:", data.files)
       setUploadedFiles(data.files)
 
-      const fileContents = await Promise.all(
-        Array.from(files).map(
-          (file) =>
-            new Promise<string>((resolve) => {
-              const reader = new FileReader()
-              reader.onload = (event) => {
-                const content = event.target?.result as string
-                const path = (file as any).webkitRelativePath || file.name
-                resolve(`// File: ${path}\n${content}\n\n`)
-              }
-              reader.readAsText(file)
-            }),
-        ),
-      )
+      try {
+        const fileContents = await Promise.all(
+          Array.from(files).map(
+            (file) =>
+              new Promise<string>((resolve) => {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                  const content = event.target?.result as string
+                  const path = (file as any).webkitRelativePath || file.name
+                  resolve(`// File: ${path}\n${content}\n\n`)
+                }
+                reader.onerror = () => {
+                  const path = (file as any).webkitRelativePath || file.name
+                  console.warn("[v0] Could not read file:", path)
+                  resolve(`// File: ${path}\n// (Binary or unreadable file)\n\n`)
+                }
+                reader.readAsText(file)
+              }),
+          ),
+        )
+        setCode(fileContents.join(""))
+      } catch (readError) {
+        console.warn("[v0] Error reading folder contents:", readError)
+        setCode(`// Folder uploaded with ${files.length} file(s)\n// Files are stored and ready to use`)
+      }
 
-      setCode(fileContents.join(""))
       toast.success(`Folder uploaded with ${files.length} file(s)!`)
     } catch (error) {
       console.error("[v0] Folder upload error:", error)
