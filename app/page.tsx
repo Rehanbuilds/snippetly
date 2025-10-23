@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Code, Search, Share, Star, Zap, Users, Menu, X, ChevronDown } from "lucide-react"
+import { Code, Search, Share, Star, Zap, Users, Menu, X, ChevronDown, Check } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
@@ -459,27 +459,27 @@ export default function LandingPage() {
                 </h3>
                 <ul className="space-y-3">
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Up to 50 snippets</span>
                   </li>
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Up to 5 folders</span>
                   </li>
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Up to 5 boilerplates</span>
                   </li>
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>10 snippets per folder</span>
                   </li>
                   <li className="flex items-center">
-                    <Search className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Full search functionality</span>
                   </li>
                   <li className="flex items-center">
-                    <Star className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Tags and favorites</span>
                   </li>
                 </ul>
@@ -512,27 +512,27 @@ export default function LandingPage() {
                 </h3>
                 <ul className="space-y-3">
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span className="font-medium">Everything in Free</span>
                   </li>
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Unlimited snippets</span>
                   </li>
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Unlimited folders</span>
                   </li>
                   <li className="flex items-center">
-                    <Code className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Unlimited boilerplates</span>
                   </li>
                   <li className="flex items-center">
-                    <Share className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Team collaboration (coming soon)</span>
                   </li>
                   <li className="flex items-center">
-                    <Zap className="h-4 w-4 mr-3 text-green-600" />
+                    <Check className="h-4 w-4 mr-3 text-green-600" />
                     <span>Advanced features</span>
                   </li>
                 </ul>
