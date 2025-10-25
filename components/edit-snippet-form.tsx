@@ -15,6 +15,7 @@ import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { MarkdownEditor } from "@/components/markdown-editor"
 
 const languages = [
   "JavaScript",
@@ -189,12 +190,11 @@ export function EditSnippetForm({ snippet }: EditSnippetFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Describe what this snippet does..."
+            <MarkdownEditor
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              onChange={setDescription}
+              placeholder="Describe what this snippet does... (Markdown supported)"
+              rows={5}
             />
           </div>
 

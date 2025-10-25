@@ -7,6 +7,8 @@ import { Copy, Edit, Download, Trash2, Star, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useEffect, useRef, useState } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 interface Snippet {
   id: string
@@ -192,7 +194,9 @@ export function ViewSnippetModal({
             <div className="flex-1 min-w-0">
               <DialogTitle className="text-lg md:text-2xl mb-1 md:mb-2 truncate">{snippet.title}</DialogTitle>
               {snippet.description && (
-                <p className="text-xs md:text-sm text-muted-foreground line-clamp-2">{snippet.description}</p>
+                <div className="prose prose-sm dark:prose-invert max-w-none text-xs md:text-sm text-muted-foreground">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{snippet.description}</ReactMarkdown>
+                </div>
               )}
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 shrink-0">
