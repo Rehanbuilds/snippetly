@@ -7,6 +7,7 @@ import { Code, Search, Share, Star, Zap, Users, Menu, X, ChevronDown, Check } fr
 import Link from "next/link"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
+import { motion } from "framer-motion"
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -22,6 +23,31 @@ export default function LandingPage() {
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index)
+  }
+
+  const fadeUp = {
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, ease: "easeOut" },
+  }
+
+  const fadeUpDelay = (delay: number) => ({
+    initial: { opacity: 0, y: 30 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, delay, ease: "easeOut" },
+  })
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  }
+
+  const fadeUpChild = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
   }
 
   const faqs = [
@@ -178,9 +204,11 @@ export default function LandingPage() {
         }}
       >
         <div className="container mx-auto text-center">
-          {/* Badges above main tagline */}
-          {/* Group Startup Fame and Product Hunt badges in a responsive row */}
-          <div className="mb-4 flex items-center justify-center gap-2 flex-nowrap">
+          <motion.div
+            className="mb-4 flex items-center justify-center gap-2 flex-nowrap"
+            {...fadeUp}
+            viewport={{ once: true }}
+          >
             {/* Startup Fame badge */}
             <a
               href="https://startupfa.me/s/snippetly?utm_source=www.snippetly.xyz"
@@ -213,20 +241,35 @@ export default function LandingPage() {
                 height={54}
               />
             </a>
-          </div>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl text-balance mb-6 font-semibold leading-tight md:text-6xl leading-[0.70rem]">
+          </motion.div>
+
+          <motion.h1
+            className="text-3xl sm:text-5xl lg:text-6xl text-balance mb-6 font-semibold leading-tight md:text-6xl leading-[0.70rem]"
+            {...fadeUpDelay(0.1)}
+            viewport={{ once: true }}
+          >
             Your Supercharged
             <br />
             Code{" "}
             <span className="bg-gradient-to-b from-gray-400 to-black bg-clip-text text-transparent">
               Memory Partner
             </span>
-          </h1>
-          <p className="text-sm sm:text-lg text-muted-foreground text-balance mb-8 max-w-2xl mx-auto">
+          </motion.h1>
+
+          <motion.p
+            className="text-sm sm:text-lg text-muted-foreground text-balance mb-8 max-w-2xl mx-auto"
+            {...fadeUpDelay(0.2)}
+            viewport={{ once: true }}
+          >
             Save, organize, and share code in seconds. The ultimate code management tool for developers, students, and
             professionals.
-          </p>
-          <div className="flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 mb-12">
+          </motion.p>
+
+          <motion.div
+            className="flex flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 mb-12"
+            {...fadeUpDelay(0.3)}
+            viewport={{ once: true }}
+          >
             <Link href="/signup">
               <Button size="lg" className="text-sm sm:text-lg px-4 py-3 sm:px-8 sm:py-6">
                 Get Started Free
@@ -240,9 +283,9 @@ export default function LandingPage() {
             >
               View Demo
             </Button>
-          </div>
+          </motion.div>
 
-          <div className="max-w-6xl mx-auto">
+          <motion.div className="max-w-6xl mx-auto" {...fadeUpDelay(0.4)} viewport={{ once: true }}>
             <div className="relative group">
               <img
                 src="/images/snippetly-dashboard.png"
@@ -258,21 +301,22 @@ export default function LandingPage() {
               {/* Transparent border effect */}
               <div className="absolute inset-0 rounded-2xl border border-white/10 pointer-events-none" />
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Problem & Solution */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
-          <div className="flex justify-center mb-6">
+          <motion.div className="flex justify-center mb-6" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm text-sm font-medium">
               <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
               <span className="text-sm font-medium">Problem & Solution</span>
             </div>
-          </div>
+          </motion.div>
+
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <motion.div {...fadeUpDelay(0.1)} viewport={{ once: true, margin: "-100px" }}>
               <h2 className="text-3xl mb-6 font-semibold">Stop losing your code snippets</h2>
               <p className="text-lg text-muted-foreground mb-6">
                 Tired of searching through old projects, scattered files, and bookmarks to find that perfect piece of
@@ -292,8 +336,13 @@ export default function LandingPage() {
                   <span>Share snippets with your team</span>
                 </li>
               </ul>
-            </div>
-            <div className="bg-card p-6 rounded-lg border">
+            </motion.div>
+
+            <motion.div
+              className="bg-card p-6 rounded-lg border"
+              {...fadeUpDelay(0.2)}
+              viewport={{ once: true, margin: "-100px" }}
+            >
               <div className="bg-muted rounded-lg p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
@@ -313,7 +362,7 @@ export default function LandingPage() {
                   <div className="text-green-600">✅ Easy sharing & collaboration</div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -321,79 +370,98 @@ export default function LandingPage() {
       {/* Features Highlights */}
       <section id="features" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="flex justify-center mb-6">
+          <motion.div className="flex justify-center mb-6" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
               <span className="text-sm font-medium">Features</span>
             </div>
-          </div>
-          <div className="text-center mb-12">
+          </motion.div>
+
+          <motion.div className="text-center mb-12" {...fadeUpDelay(0.1)} viewport={{ once: true, margin: "-100px" }}>
             <h2 className="text-3xl mb-4 font-semibold">Everything you need to manage code snippets</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to make your development workflow more efficient
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <Code className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle>Save Snippets</CardTitle>
-                <CardDescription>
-                  Quickly save code snippets with syntax highlighting for up to 50 languages
-                </CardDescription>
-              </CardHeader>
-            </Card>
+          <motion.div
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            <motion.div variants={fadeUpChild}>
+              <Card>
+                <CardHeader>
+                  <Code className="h-10 w-10 mb-4 text-primary" />
+                  <CardTitle>Save Snippets</CardTitle>
+                  <CardDescription>
+                    Quickly save code snippets with syntax highlighting for up to 50 languages
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
 
-            <Card>
-              <CardHeader>
-                <Search className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle>Smart Search</CardTitle>
-                <CardDescription>
-                  Find any snippet instantly with powerful search across titles, tags, and code content
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <motion.div variants={fadeUpChild}>
+              <Card>
+                <CardHeader>
+                  <Search className="h-10 w-10 mb-4 text-primary" />
+                  <CardTitle>Smart Search</CardTitle>
+                  <CardDescription>
+                    Find any snippet instantly with powerful search across titles, tags, and code content
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
 
-            <Card>
-              <CardHeader>
-                <Star className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle>Organize</CardTitle>
-                <CardDescription>
-                  Tag snippets, mark favorites, organize in folders, and filter by language for perfect organization
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <motion.div variants={fadeUpChild}>
+              <Card>
+                <CardHeader>
+                  <Star className="h-10 w-10 mb-4 text-primary" />
+                  <CardTitle>Organize</CardTitle>
+                  <CardDescription>
+                    Tag snippets, mark favorites, organize in folders, and filter by language for perfect organization
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
 
-            <Card className="relative">
-              <div className="absolute top-4 right-4">
-                <Badge variant="secondary" className="text-xs">
-                  Coming Soon
-                </Badge>
-              </div>
-              <CardHeader>
-                <Share className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle>Share & Collaborate</CardTitle>
-                <CardDescription>Share snippets with your team or make them public for the community</CardDescription>
-              </CardHeader>
-            </Card>
+            <motion.div variants={fadeUpChild}>
+              <Card className="relative">
+                <div className="absolute top-4 right-4">
+                  <Badge variant="secondary" className="text-xs">
+                    Coming Soon
+                  </Badge>
+                </div>
+                <CardHeader>
+                  <Share className="h-10 w-10 mb-4 text-primary" />
+                  <CardTitle>Share & Collaborate</CardTitle>
+                  <CardDescription>Share snippets with your team or make them public for the community</CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
 
-            <Card>
-              <CardHeader>
-                <Zap className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle>Lightning Fast</CardTitle>
-                <CardDescription>Built for speed - save, search, and copy snippets in milliseconds</CardDescription>
-              </CardHeader>
-            </Card>
+            <motion.div variants={fadeUpChild}>
+              <Card>
+                <CardHeader>
+                  <Zap className="h-10 w-10 mb-4 text-primary" />
+                  <CardTitle>Lightning Fast</CardTitle>
+                  <CardDescription>Built for speed - save, search, and copy snippets in milliseconds</CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
 
-            <Card>
-              <CardHeader>
-                <Users className="h-10 w-10 mb-4 text-primary" />
-                <CardTitle>Team Ready</CardTitle>
-                <CardDescription>Perfect for individual developers and teams of any size</CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
+            <motion.div variants={fadeUpChild}>
+              <Card>
+                <CardHeader>
+                  <Users className="h-10 w-10 mb-4 text-primary" />
+                  <CardTitle>Team Ready</CardTitle>
+                  <CardDescription>Perfect for individual developers and teams of any size</CardDescription>
+                </CardHeader>
+              </Card>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -402,18 +470,23 @@ export default function LandingPage() {
       {/* Demo Video Section */}
       <section id="demo" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="flex justify-center mb-6">
+          <motion.div className="flex justify-center mb-6" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
               <span className="text-sm font-medium">Demo Video</span>
             </div>
-          </div>
-          <div className="text-center mb-8">
+          </motion.div>
+
+          <motion.div className="text-center mb-8" {...fadeUpDelay(0.1)} viewport={{ once: true, margin: "-100px" }}>
             <h2 className="text-3xl mb-4 font-semibold">Watch the demo See Snippetly in Action</h2>
             <p className="text-lg text-muted-foreground">A quick tour of Snippetly</p>
-          </div>
+          </motion.div>
 
-          <div className="bg-card rounded-lg border p-3 sm:p-6 max-w-5xl mx-auto">
+          <motion.div
+            className="bg-card rounded-lg border p-3 sm:p-6 max-w-5xl mx-auto"
+            {...fadeUpDelay(0.2)}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-white/20 shadow-2xl shadow-black/20 bg-background/40 backdrop-blur-sm">
               <iframe
                 className="absolute inset-0 w-full h-full"
@@ -425,127 +498,138 @@ export default function LandingPage() {
                 allowFullScreen
               />
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Pricing */}
       <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="flex justify-center mb-6">
+          <motion.div className="flex justify-center mb-6" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
               <span className="text-sm font-medium">Pricing</span>
             </div>
-          </div>
-          <div className="text-center mb-12">
+          </motion.div>
+
+          <motion.div className="text-center mb-12" {...fadeUpDelay(0.1)} viewport={{ once: true, margin: "-100px" }}>
             <h2 className="text-3xl mb-4 font-semibold">Simple, transparent pricing</h2>
             <p className="text-lg text-muted-foreground">Start free, upgrade when you need more</p>
-          </div>
+          </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="relative">
-              <CardHeader>
-                <CardTitle className="text-2xl">Free</CardTitle>
-                <CardDescription>Perfect for getting started</CardDescription>
-                <div className="font-bold text-4xl">$0</div>
-              </CardHeader>
-              <CardContent>
-                <Link href="/signup">
-                  <Button className="w-full mb-6">Get Started Free</Button>
-                </Link>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                  What's Included
-                </h3>
-                <ul className="space-y-3">
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Up to 50 snippets</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Up to 5 folders</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Up to 5 boilerplates</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>10 snippets per folder</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Full search functionality</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Tags and favorites</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
+          <motion.div
+            className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+          >
+            <motion.div variants={fadeUpChild}>
+              <Card className="relative">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Free</CardTitle>
+                  <CardDescription>Perfect for getting started</CardDescription>
+                  <div className="font-bold text-4xl">$0</div>
+                </CardHeader>
+                <CardContent>
+                  <Link href="/signup">
+                    <Button className="w-full mb-6">Get Started Free</Button>
+                  </Link>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                    What's Included
+                  </h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Up to 50 snippets</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Up to 5 folders</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Up to 5 boilerplates</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>10 snippets per folder</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Full search functionality</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Tags and favorites</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="relative border-primary">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-              </div>
-              <CardHeader>
-                <CardTitle className="text-2xl">Pro</CardTitle>
-                <CardDescription>For power users and teams</CardDescription>
-                <div className="font-bold text-4xl">
-                  $29<span className="text-lg font-normal text-muted-foreground"> one time</span>
+            <motion.div variants={fadeUpChild}>
+              <Card className="relative border-primary">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <Link href="/signup">
-                  <Button
-                    size="lg"
-                    className="w-full mb-6 bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white hover:from-gray-600 hover:via-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
-                  >
-                    <span className="relative z-10">Get Started</span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                  </Button>
-                </Link>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-                  What's Included
-                </h3>
-                <ul className="space-y-3">
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span className="font-medium">Everything in Free</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Unlimited snippets</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Unlimited folders</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Unlimited boilerplates</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Team collaboration (coming soon)</span>
-                  </li>
-                  <li className="flex items-center">
-                    <Check className="h-4 w-4 mr-3 text-green-600" />
-                    <span>Advanced features</span>
-                  </li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+                <CardHeader>
+                  <CardTitle className="text-2xl">Pro</CardTitle>
+                  <CardDescription>For power users and teams</CardDescription>
+                  <div className="font-bold text-4xl">
+                    $29<span className="text-lg font-normal text-muted-foreground"> one time</span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Link href="/signup">
+                    <Button
+                      size="lg"
+                      className="w-full mb-6 bg-gradient-to-r from-gray-700 via-gray-900 to-black text-white hover:from-gray-600 hover:via-gray-800 hover:to-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl relative overflow-hidden group"
+                    >
+                      <span className="relative z-10">Get Started</span>
+                      <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    </Button>
+                  </Link>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-4">
+                    What's Included
+                  </h3>
+                  <ul className="space-y-3">
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span className="font-medium">Everything in Free</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Unlimited snippets</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Unlimited folders</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Unlimited boilerplates</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Team collaboration (coming soon)</span>
+                    </li>
+                    <li className="flex items-center">
+                      <Check className="h-4 w-4 mr-3 text-green-600" />
+                      <span>Advanced features</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Builder behind this Product. */}
       <section id="builder" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="mb-10 text-center">
+          <motion.div className="mb-10 text-center" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <div className="flex justify-center mb-4">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm text-sm font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-foreground"></span>
@@ -553,9 +637,13 @@ export default function LandingPage() {
               </span>
             </div>
             <h2 className="text-3xl text-balance font-semibold">Builder behind this Product.</h2>
-          </div>
+          </motion.div>
 
-          <div className="bg-card rounded-lg border p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
+          <motion.div
+            className="bg-card rounded-lg border p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl"
+            {...fadeUpDelay(0.1)}
+            viewport={{ once: true, margin: "-100px" }}
+          >
             <div className="bg-muted rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
@@ -642,59 +730,68 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* FAQ Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-muted/50">
         <div className="container mx-auto">
-          <div className="flex justify-center mb-6">
+          <motion.div className="flex justify-center mb-6" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-background/50 backdrop-blur-sm">
               <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
               <span className="text-sm font-medium">FAQs</span>
             </div>
-          </div>
-          <div className="text-center mb-12">
+          </motion.div>
+
+          <motion.div className="text-center mb-12" {...fadeUpDelay(0.1)} viewport={{ once: true, margin: "-100px" }}>
             <h2 className="text-3xl mb-4 font-semibold">Frequently Asked Questions</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Everything you need to know about Snippetly
             </p>
-          </div>
+          </motion.div>
 
-          <div className="max-w-3xl mx-auto space-y-4">
+          <motion.div
+            className="max-w-3xl mx-auto space-y-4"
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true, margin: "-100px" }}
+          >
             {faqs.map((faq, index) => (
-              <Card key={index} className="overflow-hidden">
-                <button
-                  onClick={() => toggleFaq(index)}
-                  className="w-full text-left p-6 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold pr-4">{faq.question}</h3>
-                    <ChevronDown
-                      className={`h-5 w-5 text-muted-foreground transition-transform duration-200 flex-shrink-0 ${
-                        openFaq === index ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-                </button>
-                {openFaq === index && (
-                  <div className="px-6 pb-6">
-                    <div className="pt-2 border-t border-border">
-                      <p className="text-muted-foreground leading-relaxed mt-4">{faq.answer}</p>
+              <motion.div key={index} variants={fadeUpChild}>
+                <Card className="overflow-hidden">
+                  <button
+                    onClick={() => toggleFaq(index)}
+                    className="w-full text-left p-6 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold pr-4">{faq.question}</h3>
+                      <ChevronDown
+                        className={`h-5 w-5 text-muted-foreground transition-transform duration-200 flex-shrink-0 ${
+                          openFaq === index ? "rotate-180" : ""
+                        }`}
+                      />
                     </div>
-                  </div>
-                )}
-              </Card>
+                  </button>
+                  {openFaq === index && (
+                    <div className="px-6 pb-6">
+                      <div className="pt-2 border-t border-border">
+                        <p className="text-muted-foreground leading-relaxed mt-4">{faq.answer}</p>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
         <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto text-center">
+          <motion.div className="max-w-4xl mx-auto text-center" {...fadeUp} viewport={{ once: true, margin: "-100px" }}>
             <Card className="bg-black border-gray-800 text-white p-8 sm:p-12 lg:p-16 rounded-2xl shadow-2xl">
               <CardContent className="p-0">
                 <h2 className="text-3xl sm:text-5xl lg:text-6xl text-balance mb-8 text-white font-semibold">
@@ -725,7 +822,7 @@ export default function LandingPage() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </div>
       </section>
 
