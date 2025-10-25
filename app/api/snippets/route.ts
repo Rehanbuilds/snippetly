@@ -30,16 +30,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { title, description, code, language, tags, files, is_public = false } = body
 
+    if (!code && (!files || files.length === 0)) {
+      return NextResponse.json({ error: "Please provide either code or upload files" }, { status: 400 })
+    }
+
     // Create the snippet
     const { data, error } = await supabase
       .from("snippets")
       .insert({
         title,
         description,
-        code,
+        code: code || null, // Allow null code when files are provided
         language,
         tags: tags || [],
-        files: files || null, // Store uploaded files
+        files: files || null,
         is_public,
         user_id: user.id,
         is_favorite: false,
