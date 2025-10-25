@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { X, Plus } from "lucide-react"
-import { useState, useEffect } from "react"
+import { X, Plus, Upload, FileCode, Folder } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
@@ -68,6 +68,12 @@ export function NewSnippetForm() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [userPlan, setUserPlan] = useState<any>(null)
   const [snippetCount, setSnippetCount] = useState(0)
+
+  const [inputMode, setInputMode] = useState<"code" | "files">("code")
+  const [uploadedFiles, setUploadedFiles] = useState<any[]>([])
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const folderInputRef = useRef<HTMLInputElement>(null)
 
   const supabase = createClient()
   const router = useRouter()
@@ -127,6 +133,56 @@ export function NewSnippetForm() {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      Array.from(files).forEach((file) => {
+        formData.append("files", file)
+      })
+
+      const response = await fetch("/api/snippets/upload-multiple", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to upload files")
+      }
+
+      const data = await response.json()
+      setUploadedFiles(data.files)
+
+      toast({
+        title: "Success",
+        description: `Uploaded ${data.files.length} file(s) successfully`,
+      })
+    } catch (error) {
+      console.error("[v0] Error uploading files:", error)
+      toast({
+        title: "Error",
+        description: "Failed to upload files. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleMultipleFilesSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFileUpload(e.target.files)
+  }
+
+  const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFileUpload(e.target.files)
+  }
+
+  const removeUploadedFile = (index: number) => {
+    setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -144,10 +200,28 @@ export function NewSnippetForm() {
       return
     }
 
-    if (!title.trim() || !code.trim() || !language) {
+    if (!title.trim() || !language) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (inputMode === "code" && !code.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter some code.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (inputMode === "files" && uploadedFiles.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please upload at least one file.",
         variant: "destructive",
       })
       return
@@ -164,9 +238,10 @@ export function NewSnippetForm() {
         body: JSON.stringify({
           title: title.trim(),
           description: description.trim() || null,
-          code: code.trim(),
+          code: inputMode === "code" ? code.trim() : null,
           language: language,
           tags: tags,
+          files: inputMode === "files" ? uploadedFiles : null,
         }),
       })
 
@@ -275,18 +350,112 @@ export function NewSnippetForm() {
             <CardTitle>Code</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              <Label htmlFor="code">Code *</Label>
-              <Textarea
-                id="code"
-                placeholder="Paste your code here..."
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                rows={15}
-                className="font-mono text-sm"
-                required
-              />
+            <div className="flex gap-2 mb-4">
+              <Button
+                type="button"
+                variant={inputMode === "code" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setInputMode("code")}
+              >
+                <FileCode className="h-4 w-4 mr-2" />
+                Type Code
+              </Button>
+              <Button
+                type="button"
+                variant={inputMode === "files" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setInputMode("files")}
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Files
+              </Button>
             </div>
+
+            {inputMode === "code" ? (
+              <div className="space-y-2">
+                <Label htmlFor="code">Code *</Label>
+                <Textarea
+                  id="code"
+                  placeholder="Paste your code here..."
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  rows={15}
+                  className="font-mono text-sm"
+                  required
+                />
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploading ? "Uploading..." : "Upload Multiple Files"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => folderInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    <Folder className="h-4 w-4 mr-2" />
+                    {uploading ? "Uploading..." : "Upload Entire Folder"}
+                  </Button>
+                </div>
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  onChange={handleMultipleFilesSelect}
+                  className="hidden"
+                  accept=".js,.jsx,.ts,.tsx,.py,.java,.cpp,.c,.cs,.php,.rb,.go,.rs,.swift,.kt,.html,.css,.scss,.sql,.md,.json,.xml,.yaml,.yml"
+                />
+                <input
+                  ref={folderInputRef}
+                  type="file"
+                  onChange={handleFolderSelect}
+                  className="hidden"
+                  {...({ webkitdirectory: "", directory: "" } as any)}
+                />
+
+                {uploadedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Uploaded Files ({uploadedFiles.length})</Label>
+                    <div className="border rounded-lg p-4 space-y-2 max-h-60 overflow-y-auto">
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <FileCode className="h-4 w-4 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{file.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {(file.size / 1024).toFixed(2)} KB
+                                {file.path !== file.name && ` • ${file.path}`}
+                              </p>
+                            </div>
+                          </div>
+                          <Button type="button" variant="ghost" size="sm" onClick={() => removeUploadedFile(index)}>
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {uploadedFiles.length === 0 && !uploading && (
+                  <div className="border-2 border-dashed rounded-lg p-8 text-center text-muted-foreground">
+                    <Upload className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Upload multiple code files or an entire folder</p>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -297,7 +466,7 @@ export function NewSnippetForm() {
             </Button>
           </Link>
           <div className="flex gap-2">
-            <Button type="submit" disabled={loading || !title.trim() || !code.trim() || !language}>
+            <Button type="submit" disabled={loading || !title.trim() || !language}>
               {loading ? "Saving..." : "Save Snippet"}
             </Button>
           </div>
