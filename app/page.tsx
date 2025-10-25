@@ -738,6 +738,13 @@ export default function LandingPage() {
                 <SnippetlyLogo />
               </div>
               <p className="text-muted-foreground mb-4">Your personal snippet vault for better code management.</p>
+              <div className="mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted border border-border">
+                  <span className="text-xs text-muted-foreground">Backed by</span>
+                  <span className="text-xs font-medium">▲</span>
+                  <span className="text-xs font-medium">Vercel</span>
+                </div>
+              </div>
               <div className="flex items-center space-x-3">
                 <a
                   href="https://x.com/snippetly_xyz"
