@@ -9,17 +9,26 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useEffect, useRef, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { toast } from "@/components/ui/use-toast"
 
 interface Snippet {
   id: string
   title: string
   description: string | null
-  code: string
+  code: string | null // Made nullable
   language: string
   tags: string[]
   is_favorite: boolean
   created_at: string
   user_id: string
+  files?: Array<{
+    // Added files field
+    url: string
+    name: string
+    size: number
+    type: string
+    path?: string
+  }> | null
 }
 
 interface ViewSnippetModalProps {
@@ -93,7 +102,7 @@ export function ViewSnippetModal({
   const [highlighted, setHighlighted] = useState(false)
 
   useEffect(() => {
-    if (!isOpen || !codeRef.current) return
+    if (!isOpen || !codeRef.current || !snippet.code) return
 
     let mounted = true
 
@@ -183,7 +192,50 @@ export function ViewSnippetModal({
     })
   }
 
-  const codeLines = snippet.code.split("\n")
+  const copyToClipboard = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      toast({
+        title: "Copied to clipboard",
+        description: "Code snippet copied to your clipboard.",
+      })
+    } catch (error) {
+      console.error("Error copying to clipboard:", error)
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const downloadFile = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(url)
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement("a")
+      link.href = downloadUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+
+      toast({
+        title: "Downloaded",
+        description: `${filename} has been downloaded.`,
+      })
+    } catch (error) {
+      console.error("Error downloading file:", error)
+      toast({
+        title: "Error",
+        description: "Failed to download file.",
+        variant: "destructive",
+      })
+    }
+  }
+
   const languageClass = `language-${getLanguageForHighlighter(snippet.language)}`
 
   return (
@@ -229,10 +281,17 @@ export function ViewSnippetModal({
                 />
                 <span className="hidden sm:inline">{snippet.is_favorite ? "Favorited" : "Favorite"}</span>
               </Button>
-              <Button variant="ghost" size="sm" onClick={() => onCopy(snippet.code)} className="text-xs md:text-sm">
-                <Copy className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
-                Copy
-              </Button>
+              {snippet.code && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(snippet.code)}
+                  className="text-xs md:text-sm"
+                >
+                  <Copy className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+                  Copy
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={() => onExport(snippet)} className="text-xs md:text-sm">
                 <Download className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                 Export
@@ -263,33 +322,74 @@ export function ViewSnippetModal({
         </DialogHeader>
 
         <ScrollArea className="flex-1 px-4 md:px-6 py-3 md:py-4 overflow-auto">
-          <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
-            <div className="bg-muted/50 px-4 py-2 border-b border-border flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">{snippet.language}</span>
-              <Button variant="ghost" size="sm" onClick={() => onCopy(snippet.code)} className="h-7 text-xs">
-                <Copy className="h-3 w-3 mr-1.5" />
-                Copy
-              </Button>
-            </div>
-            <div className="relative">
-              <div className="flex">
-                {/* Line numbers */}
-                <div className="select-none bg-muted/30 px-3 py-4 text-right border-r border-border">
-                  {codeLines.map((_, index) => (
-                    <div key={index} className="text-xs leading-6 text-muted-foreground/60">
-                      {index + 1}
+          {snippet.files && snippet.files.length > 0 ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="secondary">
+                  {snippet.files.length} {snippet.files.length === 1 ? "file" : "files"}
+                </Badge>
+              </div>
+              {snippet.files.map((file, index) => (
+                <div key={index} className="rounded-lg overflow-hidden border border-border bg-muted/30">
+                  <div className="bg-muted/50 px-4 py-2 border-b border-border flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-medium">{file.name}</span>
+                      <span className="text-xs text-muted-foreground">({(file.size / 1024).toFixed(1)} KB)</span>
                     </div>
-                  ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => downloadFile(file.url, file.name)}
+                      className="h-7 text-xs"
+                    >
+                      <Download className="h-3 w-3 mr-1.5" />
+                      Download
+                    </Button>
+                  </div>
+                  {file.path && (
+                    <div className="px-4 py-2 text-xs text-muted-foreground border-b border-border bg-muted/20">
+                      Path: {file.path}
+                    </div>
+                  )}
                 </div>
-                {/* Code content */}
-                <pre className="flex-1 p-4 overflow-x-auto !bg-transparent !m-0">
-                  <code ref={codeRef} className={`${languageClass} !bg-transparent text-xs md:text-sm leading-6`}>
-                    {snippet.code}
-                  </code>
-                </pre>
+              ))}
+            </div>
+          ) : snippet.code ? (
+            <div className="rounded-lg overflow-hidden border border-border bg-muted/30">
+              <div className="bg-muted/50 px-4 py-2 border-b border-border flex items-center justify-between">
+                <span className="text-xs font-medium text-muted-foreground">{snippet.language}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => copyToClipboard(snippet.code!)}
+                  className="h-7 text-xs"
+                >
+                  <Copy className="h-3 w-3 mr-1.5" />
+                  Copy
+                </Button>
+              </div>
+              <div className="relative">
+                <div className="flex">
+                  {/* Line numbers */}
+                  <div className="select-none bg-muted/30 px-3 py-4 text-right border-r border-border">
+                    {snippet.code.split("\n").map((_, index) => (
+                      <div key={index} className="text-xs leading-6 text-muted-foreground/60">
+                        {index + 1}
+                      </div>
+                    ))}
+                  </div>
+                  {/* Code content */}
+                  <pre className="flex-1 p-4 overflow-x-auto !bg-transparent !m-0">
+                    <code ref={codeRef} className={`${languageClass} !bg-transparent text-xs md:text-sm leading-6`}>
+                      {snippet.code}
+                    </code>
+                  </pre>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">No code or files available</div>
+          )}
         </ScrollArea>
       </DialogContent>
     </Dialog>

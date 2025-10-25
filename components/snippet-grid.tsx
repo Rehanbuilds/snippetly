@@ -15,12 +15,20 @@ interface Snippet {
   id: string
   title: string
   description: string | null
-  code: string
+  code: string | null // Made nullable to support file-only snippets
   language: string
   tags: string[]
   is_favorite: boolean
   created_at: string
   user_id: string
+  files?: Array<{
+    // Added files field for multiple file uploads
+    url: string
+    name: string
+    size: number
+    type: string
+    path?: string
+  }> | null
 }
 
 interface SnippetGridProps {
@@ -154,6 +162,14 @@ export function SnippetGrid({
     }
   }
 
+  const getSnippetCode = (snippet: Snippet): string => {
+    if (snippet.code) return snippet.code
+    if (snippet.files && snippet.files.length > 0) {
+      return `// Files: ${snippet.files.map((f) => f.name).join(", ")}\n// Download to view full content`
+    }
+    return ""
+  }
+
   const deleteSnippet = async (snippetId: string) => {
     if (!confirm("Are you sure you want to delete this snippet? This action cannot be undone.")) {
       return
@@ -266,7 +282,7 @@ export function SnippetGrid({
                 className="h-8 w-8 p-0"
                 onClick={(e) => {
                   e.preventDefault()
-                  copyToClipboard(snippet.code)
+                  copyToClipboard(getSnippetCode(snippet))
                 }}
                 title="Copy code"
               >
@@ -304,9 +320,34 @@ export function SnippetGrid({
                 <CardDescription className="text-sm">{snippet.description}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="bg-muted rounded-md p-3 mb-4 font-mono text-sm overflow-hidden hover:bg-muted/80 transition-colors">
-                  <pre className="text-xs leading-relaxed line-clamp-4">{snippet.code}</pre>
-                </div>
+                {snippet.files && snippet.files.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {snippet.files.length} {snippet.files.length === 1 ? "file" : "files"}
+                      </Badge>
+                    </div>
+                    <div className="bg-muted rounded-md p-3 space-y-2">
+                      {snippet.files.slice(0, 3).map((file, index) => (
+                        <div key={index} className="flex items-center gap-2 text-xs">
+                          <span className="font-mono truncate">{file.name}</span>
+                          <span className="text-muted-foreground">({(file.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                      ))}
+                      {snippet.files.length > 3 && (
+                        <div className="text-xs text-muted-foreground">+{snippet.files.length - 3} more files</div>
+                      )}
+                    </div>
+                  </div>
+                ) : snippet.code ? (
+                  <div className="bg-muted rounded-md p-3 mb-4 font-mono text-sm overflow-hidden hover:bg-muted/80 transition-colors">
+                    <pre className="text-xs leading-relaxed line-clamp-4">{snippet.code}</pre>
+                  </div>
+                ) : (
+                  <div className="bg-muted rounded-md p-3 mb-4 text-sm text-muted-foreground italic">
+                    No code or files
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-2 mb-3">
                   <Badge variant="secondary">{snippet.language}</Badge>

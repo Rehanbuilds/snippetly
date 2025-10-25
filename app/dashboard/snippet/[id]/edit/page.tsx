@@ -6,12 +6,13 @@ import { EditSnippetForm } from "@/components/edit-snippet-form"
 export const dynamic = "force-dynamic"
 
 interface EditSnippetPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function EditSnippetPage({ params }: EditSnippetPageProps) {
+  const { id } = await params
   const supabase = await createClient()
   const { data, error } = await supabase.auth.getUser()
 
@@ -23,7 +24,7 @@ export default async function EditSnippetPage({ params }: EditSnippetPageProps) 
   const { data: snippet, error: snippetError } = await supabase
     .from("snippets")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("user_id", data.user.id)
     .single()
 
