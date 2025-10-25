@@ -254,57 +254,54 @@ export function SnippetGrid({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredSnippets.map((snippet) => (
           <Card key={snippet.id} className="group hover:shadow-md transition-shadow cursor-pointer">
+            <div className="border-b bg-muted/30 px-4 py-2 flex items-center justify-end gap-1">
+              <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit snippet">
+                  <Edit className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.preventDefault()
+                  copyToClipboard(snippet.code)
+                }}
+                title="Copy code"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.preventDefault()
+                  openExportModal(snippet)
+                }}
+                title="Export snippet"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                onClick={(e) => {
+                  e.preventDefault()
+                  deleteSnippet(snippet.id)
+                }}
+                title="Delete snippet"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+
             <div onClick={() => openViewModal(snippet)} className="block">
               <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg mb-1 hover:text-primary">{snippet.title}</CardTitle>
-                    <CardDescription className="text-sm">{snippet.description}</CardDescription>
-                  </div>
-                  <div className="flex items-center space-x-1" onClick={(e) => e.preventDefault()}>
-                    <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit snippet">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        copyToClipboard(snippet.code)
-                      }}
-                      title="Copy code"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        openExportModal(snippet)
-                      }}
-                      title="Export snippet"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        deleteSnippet(snippet.id)
-                      }}
-                      title="Delete snippet"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <CardTitle className="text-lg mb-1 hover:text-primary">{snippet.title}</CardTitle>
+                <CardDescription className="text-sm">{snippet.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="bg-muted rounded-md p-3 mb-4 font-mono text-sm overflow-hidden hover:bg-muted/80 transition-colors">

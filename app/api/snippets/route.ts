@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, code, language, tags, is_public = false } = body
+    const { title, description, code, language, tags, files, is_public = false } = body
 
     // Create the snippet
     const { data, error } = await supabase
@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
         code,
         language,
         tags: tags || [],
+        files: files || null, // Store uploaded files
         is_public,
         user_id: user.id,
         is_favorite: false,
@@ -47,12 +48,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      console.error("[v0] Error creating snippet:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error("Error creating snippet:", error)
+    console.error("[v0] Error creating snippet:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
