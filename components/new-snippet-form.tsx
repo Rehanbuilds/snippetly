@@ -186,6 +186,11 @@ export function NewSnippetForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    console.log("[v0] Form submission started")
+    console.log("[v0] Input mode:", inputMode)
+    console.log("[v0] Uploaded files:", uploadedFiles)
+    console.log("[v0] Code:", code ? "Has code" : "No code")
+
     if (!user) {
       toast({
         title: "Error",
@@ -219,6 +224,7 @@ export function NewSnippetForm() {
     }
 
     if (inputMode === "files" && uploadedFiles.length === 0) {
+      console.log("[v0] Validation failed: No files uploaded")
       toast({
         title: "Error",
         description: "Please upload at least one file.",
@@ -227,25 +233,33 @@ export function NewSnippetForm() {
       return
     }
 
+    console.log("[v0] Validation passed, submitting to API")
     setLoading(true)
 
     try {
+      const payload = {
+        title: title.trim(),
+        description: description.trim() || null,
+        code: inputMode === "code" ? code.trim() : null,
+        language: language,
+        tags: tags,
+        files: inputMode === "files" ? uploadedFiles : null,
+      }
+
+      console.log("[v0] Payload:", payload)
+
       const response = await fetch("/api/snippets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          title: title.trim(),
-          description: description.trim() || null,
-          code: inputMode === "code" ? code.trim() : null,
-          language: language,
-          tags: tags,
-          files: inputMode === "files" ? uploadedFiles : null,
-        }),
+        body: JSON.stringify(payload),
       })
 
+      console.log("[v0] API response status:", response.status)
+
       const result = await response.json()
+      console.log("[v0] API response data:", result)
 
       if (!response.ok) {
         if (result.code === "LIMIT_REACHED") {
@@ -262,7 +276,7 @@ export function NewSnippetForm() {
 
       router.push("/dashboard")
     } catch (error) {
-      console.error("Error creating snippet:", error)
+      console.error("[v0] Error creating snippet:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to create snippet. Please try again.",
