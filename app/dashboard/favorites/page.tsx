@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server"
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { SnippetGrid } from "@/components/snippet-grid"
 import { FolderGrid } from "@/components/folder-grid"
-import { Star, Folder } from "lucide-react"
+import { BoilerplateGrid } from "@/components/boilerplate-grid"
+import { Star, Folder, FileStack } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export const dynamic = "force-dynamic"
@@ -28,6 +29,13 @@ export default async function FavoritesPage() {
     .eq("is_favorite", true)
     .order("created_at", { ascending: false })
 
+  const { data: favoriteBoilerplates } = await supabase
+    .from("boilerplates")
+    .select("*")
+    .eq("user_id", data.user.id)
+    .eq("is_favorite", true)
+    .order("created_at", { ascending: false })
+
   return (
     <DashboardLayout user={data.user}>
       <div className="space-y-6">
@@ -36,11 +44,11 @@ export default async function FavoritesPage() {
             <Star className="h-6 w-6 text-yellow-500 fill-current" />
             <h1 className="text-2xl font-bold">Favorites</h1>
           </div>
-          <p className="text-muted-foreground">Your starred snippets and folders</p>
+          <p className="text-muted-foreground">Your starred snippets, folders, and boilerplates</p>
         </div>
 
         <Tabs defaultValue="snippets" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="snippets" className="flex items-center gap-2">
               <Star className="h-4 w-4" />
               Snippets
@@ -48,6 +56,10 @@ export default async function FavoritesPage() {
             <TabsTrigger value="folders" className="flex items-center gap-2">
               <Folder className="h-4 w-4" />
               Folders
+            </TabsTrigger>
+            <TabsTrigger value="boilerplates" className="flex items-center gap-2">
+              <FileStack className="h-4 w-4" />
+              Boilerplates
             </TabsTrigger>
           </TabsList>
 
@@ -64,6 +76,20 @@ export default async function FavoritesPage() {
                 <h3 className="text-lg sm:text-xl font-medium mb-2">No favorite folders yet</h3>
                 <p className="text-muted-foreground mb-6 text-sm sm:text-base px-4">
                   Star folders to add them to your favorites
+                </p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="boilerplates" className="mt-6">
+            {favoriteBoilerplates && favoriteBoilerplates.length > 0 ? (
+              <BoilerplateGrid boilerplates={favoriteBoilerplates} favoritesOnly />
+            ) : (
+              <div className="text-center py-16 sm:py-20">
+                <FileStack className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg sm:text-xl font-medium mb-2">No favorite boilerplates yet</h3>
+                <p className="text-muted-foreground mb-6 text-sm sm:text-base px-4">
+                  Star boilerplates to add them to your favorites
                 </p>
               </div>
             )}
