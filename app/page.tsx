@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Code, Search, Share, Star, Zap, Users, Menu, X, ChevronDown, Check } from "lucide-react"
+import { Code, Search, Share, Star, Zap, Users, Menu, X, Check, Plus } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { SnippetlyLogo } from "@/components/snippetly-logo"
@@ -763,19 +763,19 @@ export default function LandingPage() {
                 <Card className="overflow-hidden">
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="w-full text-left p-6 hover:bg-muted/50 transition-colors"
+                    className="w-full text-left p-4 hover:bg-muted/50 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-lg font-semibold pr-4">{faq.question}</h3>
-                      <ChevronDown
+                      <Plus
                         className={`h-5 w-5 text-muted-foreground transition-transform duration-200 flex-shrink-0 ${
-                          openFaq === index ? "rotate-180" : ""
+                          openFaq === index ? "rotate-45" : ""
                         }`}
                       />
                     </div>
                   </button>
                   {openFaq === index && (
-                    <div className="px-6 pb-6">
+                    <div className="px-4 pb-4">
                       <div className="pt-2 border-t border-border">
                         <p className="text-muted-foreground leading-relaxed mt-4">{faq.answer}</p>
                       </div>
