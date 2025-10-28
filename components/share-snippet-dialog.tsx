@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -27,30 +27,44 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
   const [copied, setCopied] = useState(false)
   const [isPublic, setIsPublic] = useState(false)
 
+  useEffect(() => {
+    if (isOpen && !publicUrl && !loading) {
+      generatePublicLink()
+    }
+  }, [isOpen])
+
   const generatePublicLink = async () => {
     setLoading(true)
+    console.log("[v0] ShareDialog - Generating public link for snippet:", snippetId)
+
     try {
       const response = await fetch(`/api/snippets/${snippetId}/share`, {
         method: "POST",
       })
 
+      console.log("[v0] ShareDialog - Response status:", response.status)
+
       if (!response.ok) {
-        throw new Error("Failed to generate public link")
+        const errorData = await response.json()
+        console.error("[v0] ShareDialog - Error response:", errorData)
+        throw new Error(errorData.error || "Failed to generate public link")
       }
 
       const data = await response.json()
+      console.log("[v0] ShareDialog - Success data:", data)
+
       setPublicUrl(data.public_url)
       setIsPublic(data.is_public)
 
       toast({
-        title: "Public link generated",
+        title: "Public link ready",
         description: "Your snippet is now publicly accessible.",
       })
     } catch (error) {
-      console.error("Error generating public link:", error)
+      console.error("[v0] ShareDialog - Error generating public link:", error)
       toast({
         title: "Error",
-        description: "Failed to generate public link.",
+        description: error instanceof Error ? error.message : "Failed to generate public link.",
         variant: "destructive",
       })
     } finally {
@@ -68,7 +82,7 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
         description: "Public link copied to clipboard.",
       })
     } catch (error) {
-      console.error("Error copying link:", error)
+      console.error("[v0] ShareDialog - Error copying link:", error)
       toast({
         title: "Error",
         description: "Failed to copy link.",
@@ -87,6 +101,7 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
         throw new Error("Failed to remove public sharing")
       }
 
+      setPublicUrl("")
       setIsPublic(false)
       toast({
         title: "Public sharing removed",
@@ -94,7 +109,7 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
       })
       onClose()
     } catch (error) {
-      console.error("Error removing public sharing:", error)
+      console.error("[v0] ShareDialog - Error removing public sharing:", error)
       toast({
         title: "Error",
         description: "Failed to remove public sharing.",
@@ -103,15 +118,16 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
     }
   }
 
-  const handleOpenDialog = () => {
-    if (!publicUrl && !loading) {
-      generatePublicLink()
-    }
+  const handleClose = () => {
+    setPublicUrl("")
+    setIsPublic(false)
+    setCopied(false)
+    onClose()
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md" onOpenAutoFocus={handleOpenDialog}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
@@ -125,6 +141,7 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <span className="ml-3 text-muted-foreground">Generating public link...</span>
           </div>
         ) : publicUrl ? (
           <div className="space-y-4">
@@ -139,24 +156,12 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
             </div>
 
             <div className="bg-muted rounded-lg p-3 text-sm text-muted-foreground">
-              <p>This snippet is now publicly accessible. Anyone with the link can view and copy the code.</p>
+              <p>✓ This snippet is now publicly accessible. Anyone with the link can view and copy the code.</p>
             </div>
           </div>
         ) : (
           <div className="flex items-center justify-center py-8">
-            <Button onClick={generatePublicLink} disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Generate Public Link
-                </>
-              )}
-            </Button>
+            <p className="text-muted-foreground">Failed to generate link. Please try again.</p>
           </div>
         )}
 
@@ -166,7 +171,7 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
               Remove Public Sharing
             </Button>
           )}
-          <Button onClick={onClose} variant="secondary" className="w-full sm:w-auto">
+          <Button onClick={handleClose} variant="secondary" className="w-full sm:w-auto">
             Close
           </Button>
         </DialogFooter>
