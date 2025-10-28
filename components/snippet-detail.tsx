@@ -3,12 +3,13 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Star, Edit, Trash2, ArrowLeft, Check } from "lucide-react"
+import { Copy, Star, Edit, Trash2, ArrowLeft, Check, Share2 } from "lucide-react"
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import { ShareSnippetDialog } from "./share-snippet-dialog"
 
 interface Snippet {
   id: string
@@ -32,6 +33,7 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
 
   const supabase = createClient()
   const router = useRouter()
@@ -178,6 +180,10 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
           </Link>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShareDialogOpen(true)}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
           <Button variant="outline" size="sm" onClick={toggleFavorite}>
             <Star className={`h-4 w-4 mr-2 ${snippet.is_favorite ? "fill-current text-yellow-500" : ""}`} />
             {snippet.is_favorite ? "Favorited" : "Add to Favorites"}
@@ -287,6 +293,9 @@ export function SnippetDetail({ snippetId }: SnippetDetailProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Share Dialog */}
+      <ShareSnippetDialog snippetId={snippetId} isOpen={shareDialogOpen} onClose={() => setShareDialogOpen(false)} />
     </div>
   )
 }

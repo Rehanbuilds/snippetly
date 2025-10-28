@@ -7,22 +7,22 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
-import { Edit, Copy, Trash2, Star, Download } from "lucide-react"
+import { Edit, Copy, Trash2, Star, Download, Share2 } from "lucide-react"
 import { ExportModal } from "./export-modal"
 import { ViewSnippetModal } from "./view-snippet-modal"
+import { ShareSnippetDialog } from "./share-snippet-dialog"
 
 interface Snippet {
   id: string
   title: string
   description: string | null
-  code: string | null // Made nullable to support file-only snippets
+  code: string | null
   language: string
   tags: string[]
   is_favorite: boolean
   created_at: string
   user_id: string
   files?: Array<{
-    // Added files field for multiple file uploads
     url: string
     name: string
     size: number
@@ -54,6 +54,7 @@ export function SnippetGrid({
   const [exportModalOpen, setExportModalOpen] = useState(false)
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [selectedSnippet, setSelectedSnippet] = useState<Snippet | null>(null)
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -216,6 +217,16 @@ export function SnippetGrid({
     setSelectedSnippet(null)
   }
 
+  const openShareDialog = (snippet: Snippet) => {
+    setSelectedSnippet(snippet)
+    setShareDialogOpen(true)
+  }
+
+  const closeShareDialog = () => {
+    setShareDialogOpen(false)
+    setSelectedSnippet(null)
+  }
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
@@ -271,6 +282,18 @@ export function SnippetGrid({
         {filteredSnippets.map((snippet) => (
           <Card key={snippet.id} className="group hover:shadow-md transition-shadow cursor-pointer">
             <div className="border-b bg-muted/30 px-4 py-2 flex items-center justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0"
+                onClick={(e) => {
+                  e.preventDefault()
+                  openShareDialog(snippet)
+                }}
+                title="Share snippet"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
               <Link href={`/dashboard/snippet/${snippet.id}/edit`}>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit snippet">
                   <Edit className="h-4 w-4" />
@@ -393,6 +416,7 @@ export function SnippetGrid({
             onExport={openExportModal}
           />
           <ExportModal snippet={selectedSnippet} isOpen={exportModalOpen} onClose={closeExportModal} />
+          <ShareSnippetDialog snippetId={selectedSnippet.id} isOpen={shareDialogOpen} onClose={closeShareDialog} />
         </>
       )}
     </>
