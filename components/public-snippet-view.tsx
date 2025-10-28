@@ -57,7 +57,7 @@ export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
     const loadSnippet = async () => {
       try {
         console.log("[v0] Public view - loading snippet with publicId:", publicId)
-        const response = await fetch(`/api/snippets/public/${publicId}`)
+        const response = await fetch(`/api/public-snippet/${publicId}`)
 
         console.log("[v0] Public view - response status:", response.status)
 

@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from "next/server"
 export async function GET(request: NextRequest, { params }: { params: Promise<{ publicId: string }> }) {
   try {
     const { publicId } = await params
-    console.log("[v0] Public API GET - Fetching snippet with publicId:", publicId)
+    console.log("[v0] Public snippet API - Fetching with publicId:", publicId)
 
     const supabase = await createClient()
 
@@ -34,27 +34,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       .eq("is_public", true)
       .single()
 
-    console.log("[v0] Public API GET - Query result:", {
+    console.log("[v0] Public snippet API - Database query result:", {
       found: !!snippet,
-      error: error,
+      error: error?.message,
       snippetId: snippet?.id,
+      publicId: snippet?.public_id,
       isPublic: snippet?.is_public,
     })
 
-    if (error) {
-      console.error("[v0] Public API GET - Database error:", error)
+    if (error || !snippet) {
+      console.error("[v0] Public snippet API - Not found:", { error, publicId })
       return NextResponse.json({ error: "Snippet not found or not public" }, { status: 404 })
     }
 
-    if (!snippet) {
-      console.error("[v0] Public API GET - No snippet found")
-      return NextResponse.json({ error: "Snippet not found or not public" }, { status: 404 })
-    }
-
-    console.log("[v0] Public API GET - Successfully returning snippet:", snippet.id)
+    console.log("[v0] Public snippet API - Success! Returning snippet:", snippet.id)
     return NextResponse.json(snippet)
   } catch (error) {
-    console.error("[v0] Public API GET - Unexpected error:", error)
+    console.error("[v0] Public snippet API - Unexpected error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
