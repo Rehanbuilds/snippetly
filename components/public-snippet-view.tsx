@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Copy, Download, Save, Check, User, Calendar, AlertCircle } from "lucide-react"
+import { Copy, Download, Save, Check, User, Calendar } from "lucide-react"
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "@/hooks/use-toast"
@@ -27,13 +27,10 @@ interface PublicSnippet {
 }
 
 interface PublicSnippetViewProps {
-  publicId: string
+  snippet: PublicSnippet
 }
 
-export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
-  const [snippet, setSnippet] = useState<PublicSnippet | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export function PublicSnippetView({ snippet }: PublicSnippetViewProps) {
   const [copied, setCopied] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [saving, setSaving] = useState(false)
@@ -48,49 +45,11 @@ export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
         data: { user },
       } = await supabase.auth.getUser()
       setUser(user)
-      console.log("[v0] Public view - user:", user?.id)
     }
     getUser()
   }, [supabase])
 
-  useEffect(() => {
-    const loadSnippet = async () => {
-      try {
-        console.log("[v0] Public view - loading snippet with publicId:", publicId)
-        const response = await fetch(`/api/public-snippet/${publicId}`)
-
-        console.log("[v0] Public view - response status:", response.status)
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          console.error("[v0] Public view - error response:", errorData)
-          setError(errorData.error || "Snippet not found or not public")
-          throw new Error(errorData.error || "Snippet not found")
-        }
-
-        const data = await response.json()
-        console.log("[v0] Public view - snippet loaded successfully:", {
-          id: data.id,
-          title: data.title,
-          isPublic: data.is_public,
-          publicId: data.public_id,
-        })
-        setSnippet(data)
-        setError(null)
-      } catch (error) {
-        console.error("[v0] Error loading public snippet:", error)
-        // Error is already set above
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadSnippet()
-  }, [publicId])
-
   const handleCopy = async () => {
-    if (!snippet) return
-
     try {
       await navigator.clipboard.writeText(snippet.code)
       setCopied(true)
@@ -110,7 +69,7 @@ export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
   }
 
   const handleSaveToAccount = async () => {
-    if (!snippet || !user) {
+    if (!user) {
       router.push("/signin")
       return
     }
@@ -153,39 +112,6 @@ export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
     } finally {
       setSaving(false)
     }
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading snippet...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (error || !snippet) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4 max-w-md">
-          <AlertCircle className="h-16 w-16 text-muted-foreground mx-auto" />
-          <h1 className="text-2xl font-bold">Snippet Not Found</h1>
-          <p className="text-muted-foreground">{error || "This snippet doesn't exist or is not publicly available."}</p>
-          <div className="flex gap-3 justify-center">
-            <Link href="/">
-              <Button>Go to Home</Button>
-            </Link>
-            {!user && (
-              <Link href="/signin">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-    )
   }
 
   const authorName = snippet.profiles?.display_name || snippet.profiles?.full_name || "Anonymous"
