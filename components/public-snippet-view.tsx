@@ -47,6 +47,7 @@ export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
         data: { user },
       } = await supabase.auth.getUser()
       setUser(user)
+      console.log("[v0] Public view - user:", user?.id)
     }
     getUser()
   }, [supabase])
@@ -54,16 +55,22 @@ export function PublicSnippetView({ publicId }: PublicSnippetViewProps) {
   useEffect(() => {
     const loadSnippet = async () => {
       try {
+        console.log("[v0] Public view - loading snippet with publicId:", publicId)
         const response = await fetch(`/api/snippets/public/${publicId}`)
 
+        console.log("[v0] Public view - response status:", response.status)
+
         if (!response.ok) {
+          const errorData = await response.json()
+          console.error("[v0] Public view - error response:", errorData)
           throw new Error("Snippet not found")
         }
 
         const data = await response.json()
+        console.log("[v0] Public view - snippet loaded:", data.id)
         setSnippet(data)
       } catch (error) {
-        console.error("Error loading public snippet:", error)
+        console.error("[v0] Error loading public snippet:", error)
         toast({
           title: "Error",
           description: "Failed to load snippet. It may not exist or is not public.",

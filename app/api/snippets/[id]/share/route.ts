@@ -2,8 +2,11 @@ import { createClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { nanoid } from "nanoid"
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id: snippetId } = await params
+    console.log("[v0] Share API - snippetId:", snippetId)
+
     const supabase = await createClient()
 
     // Get the current user
@@ -11,11 +14,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       data: { user },
       error: authError,
     } = await supabase.auth.getUser()
+
+    console.log("[v0] Share API - user:", user?.id)
+
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-
-    const snippetId = params.id
 
     // Check if snippet exists and belongs to user
     const { data: snippet, error: fetchError } = await supabase
@@ -25,12 +29,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       .eq("user_id", user.id)
       .single()
 
+    console.log("[v0] Share API - snippet found:", !!snippet, "error:", fetchError)
+
     if (fetchError || !snippet) {
       return NextResponse.json({ error: "Snippet not found" }, { status: 404 })
     }
 
     // If already has a public_id, return existing URL
     if (snippet.public_id && snippet.public_url) {
+      console.log("[v0] Share API - returning existing public URL:", snippet.public_url)
       return NextResponse.json({
         public_url: snippet.public_url,
         public_id: snippet.public_id,
@@ -40,8 +47,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     // Generate unique public ID
     const publicId = nanoid(10)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://snippetly.xyz"
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
     const publicUrl = `${siteUrl}/s/${publicId}`
+
+    console.log("[v0] Share API - generating new public URL:", publicUrl)
 
     // Update snippet with public sharing info
     const { data: updatedSnippet, error: updateError } = await supabase
@@ -61,6 +70,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: "Failed to generate public link" }, { status: 500 })
     }
 
+    console.log("[v0] Share API - successfully created public link")
+
     return NextResponse.json({
       public_url: updatedSnippet.public_url,
       public_id: updatedSnippet.public_id,
@@ -72,9 +83,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-// DELETE endpoint to remove public sharing
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id: snippetId } = await params
     const supabase = await createClient()
 
     const {
@@ -84,8 +95,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-
-    const snippetId = params.id
 
     // Remove public sharing
     const { error: updateError } = await supabase
