@@ -23,6 +23,7 @@ interface PublicSnippet {
   profiles: {
     display_name: string | null
     full_name: string | null
+    bio: string | null
   }
 }
 
@@ -115,6 +116,7 @@ export function PublicSnippetView({ snippet }: PublicSnippetViewProps) {
   }
 
   const authorName = snippet.profiles?.display_name || snippet.profiles?.full_name || "Anonymous"
+  const authorBio = snippet.profiles?.bio
 
   return (
     <div className="min-h-screen bg-background">
@@ -147,43 +149,56 @@ export function PublicSnippetView({ snippet }: PublicSnippetViewProps) {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 max-w-5xl">
         <div className="space-y-6">
-          {/* Author Info */}
+          {/* Author Info Card */}
+          <Card className="border-2">
+            <CardHeader>
+              <div className="flex items-start gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                  <User className="h-8 w-8 text-primary" />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div>
+                    <h2 className="text-2xl font-bold">{authorName}</h2>
+                    <p className="text-sm text-muted-foreground">Snippet Author</p>
+                  </div>
+                  {authorBio && <p className="text-muted-foreground leading-relaxed">{authorBio}</p>}
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+
+          {/* Snippet Info */}
           <Card>
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-3 flex-1">
+              <div className="space-y-4">
+                <div className="space-y-3">
                   <CardTitle className="text-3xl">{snippet.title}</CardTitle>
                   {snippet.description && <p className="text-muted-foreground text-lg">{snippet.description}</p>}
 
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>By {authorName}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>
-                        {new Date(snippet.created_at).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>
+                      Created on{" "}
+                      {new Date(snippet.created_at).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
                   </div>
                 </div>
-              </div>
 
-              {/* Tags and Language */}
-              <div className="flex flex-wrap gap-2 pt-4">
-                <Badge variant="secondary" className="font-medium">
-                  {snippet.language}
-                </Badge>
-                {snippet.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
+                {/* Tags and Language */}
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary" className="font-medium">
+                    {snippet.language}
                   </Badge>
-                ))}
+                  {snippet.tags.map((tag) => (
+                    <Badge key={tag} variant="outline">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
               </div>
             </CardHeader>
           </Card>
