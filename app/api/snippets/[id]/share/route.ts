@@ -9,7 +9,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log("[v0] Snippet ID:", snippetId)
 
     const supabase = await createClient()
-    const supabaseAdmin = await createServiceRoleClient()
+    const supabaseAdmin = createServiceRoleClient()
 
     const {
       data: { user },
@@ -118,7 +118,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     console.log("[v0] Share API DELETE - snippetId:", snippetId)
 
     const supabase = await createClient()
-    const supabaseAdmin = await createServiceRoleClient()
+    const supabaseAdmin = createServiceRoleClient()
 
     const {
       data: { user },

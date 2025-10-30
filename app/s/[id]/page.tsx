@@ -14,7 +14,7 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
   console.log("[v0] PUBLIC PAGE - Looking for public_id:", publicId)
 
   try {
-    const supabase = await createServiceRoleClient()
+    const supabase = createServiceRoleClient()
 
     const { data: snippet, error } = await supabase
       .from("snippets")
