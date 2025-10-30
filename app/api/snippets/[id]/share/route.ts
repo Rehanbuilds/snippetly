@@ -5,7 +5,8 @@ import { nanoid } from "nanoid"
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: snippetId } = await params
-    console.log("[v0] Share API - snippetId:", snippetId)
+    console.log("[v0] ===== SHARE API START =====")
+    console.log("[v0] Snippet ID:", snippetId)
 
     const supabase = await createClient()
     const supabaseAdmin = await createServiceRoleClient()
@@ -16,8 +17,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     } = await supabase.auth.getUser()
 
     if (authError || !user) {
+      console.log("[v0] Auth failed")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    console.log("[v0] User ID:", user.id)
 
     const { data: snippet, error: fetchError } = await supabaseAdmin
       .from("snippets")
@@ -27,17 +31,37 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       .single()
 
     if (fetchError || !snippet) {
+      console.log("[v0] Snippet not found or not owned by user")
       return NextResponse.json({ error: "Snippet not found" }, { status: 404 })
     }
 
-    // If snippet already has a public_id, reuse it
+    console.log("[v0] Snippet found - current state:")
+    console.log("[v0] - public_id:", snippet.public_id)
+    console.log("[v0] - is_public:", snippet.is_public)
+
     if (snippet.public_id && snippet.public_url) {
       console.log("[v0] Reusing existing public link:", snippet.public_url)
 
-      // Make sure is_public is set to true
-      if (!snippet.is_public) {
-        await supabaseAdmin.from("snippets").update({ is_public: true }).eq("id", snippetId)
+      const { error: updateError } = await supabaseAdmin
+        .from("snippets")
+        .update({ is_public: true })
+        .eq("id", snippetId)
+
+      if (updateError) {
+        console.log("[v0] Failed to update is_public:", updateError)
+      } else {
+        console.log("[v0] Successfully set is_public to true")
       }
+
+      const { data: verifyData } = await supabaseAdmin
+        .from("snippets")
+        .select("is_public, public_id")
+        .eq("id", snippetId)
+        .single()
+
+      console.log("[v0] Verification after update:")
+      console.log("[v0] - is_public:", verifyData?.is_public)
+      console.log("[v0] - public_id:", verifyData?.public_id)
 
       return NextResponse.json({
         public_url: snippet.public_url,
@@ -48,11 +72,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const publicId = nanoid(10)
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-    // Fix double slash issue
     const cleanSiteUrl = siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl
     const publicUrl = `${cleanSiteUrl}/s/${publicId}`
 
-    console.log("[v0] Creating new public link:", publicUrl)
+    console.log("[v0] Creating new public link:")
+    console.log("[v0] - public_id:", publicId)
+    console.log("[v0] - public_url:", publicUrl)
 
     const { data: updatedSnippet, error: updateError } = await supabaseAdmin
       .from("snippets")
@@ -62,16 +87,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         is_public: true,
       })
       .eq("id", snippetId)
-      .eq("user_id", user.id)
       .select("id, public_id, public_url, is_public")
       .single()
 
     if (updateError || !updatedSnippet) {
-      console.error("[v0] Failed to create public link:", updateError)
+      console.error("[v0] Update failed:", updateError)
       return NextResponse.json({ error: "Failed to generate public link" }, { status: 500 })
     }
 
-    console.log("[v0] Successfully created public link")
+    console.log("[v0] Update successful:")
+    console.log("[v0] - public_id:", updatedSnippet.public_id)
+    console.log("[v0] - is_public:", updatedSnippet.is_public)
+    console.log("[v0] ===== SHARE API END (SUCCESS) =====")
 
     return NextResponse.json({
       public_url: updatedSnippet.public_url,

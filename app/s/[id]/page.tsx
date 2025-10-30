@@ -25,7 +25,7 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
   console.log("[v0] Step 1: Checking if snippet exists with public_id:", publicId)
   const { data: checkSnippet, error: checkError } = await supabase
     .from("snippets")
-    .select("id, public_id, is_public, title")
+    .select("id, public_id, is_public, title, user_id")
     .eq("public_id", publicId)
     .maybeSingle()
 
@@ -33,6 +33,17 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
   console.log("[v0] Check result - error:", checkError)
   if (checkSnippet) {
     console.log("[v0] Check result - snippet data:", JSON.stringify(checkSnippet, null, 2))
+  }
+
+  if (checkSnippet && !checkSnippet.is_public) {
+    console.log("[v0] FIXING: Snippet found but is_public is false. Setting to true...")
+    const { error: updateError } = await supabase.from("snippets").update({ is_public: true }).eq("id", checkSnippet.id)
+
+    if (updateError) {
+      console.log("[v0] FIX FAILED:", updateError)
+    } else {
+      console.log("[v0] FIX SUCCESS: is_public set to true")
+    }
   }
 
   console.log("[v0] Step 2: Fetching full snippet with profiles")
@@ -70,7 +81,7 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
           title: snippet.title,
           public_id: snippet.public_id,
           is_public: snippet.is_public,
-          author: snippet.profiles?.display_name || snippet.profiles?.full_name,
+          author: snippet.profiles?.display_name || snippet.profiles?.full_name || "Unknown",
         },
         null,
         2,
@@ -78,46 +89,7 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
     )
   }
 
-  if (!snippet && checkSnippet && !checkSnippet.is_public) {
-    console.log("[v0] FOUND ISSUE: Snippet exists but is_public is false. Auto-fixing...")
-    const { error: updateError } = await supabase.from("snippets").update({ is_public: true }).eq("id", checkSnippet.id)
-
-    if (updateError) {
-      console.log("[v0] Auto-fix failed:", updateError)
-    } else {
-      console.log("[v0] Auto-fix successful! Refetching snippet...")
-      // Refetch the snippet
-      const { data: refetchedSnippet } = await supabase
-        .from("snippets")
-        .select(`
-          id,
-          title,
-          description,
-          code,
-          language,
-          tags,
-          created_at,
-          is_public,
-          public_id,
-          profiles (
-            display_name,
-            full_name,
-            bio
-          )
-        `)
-        .eq("public_id", publicId)
-        .eq("is_public", true)
-        .maybeSingle()
-
-      if (refetchedSnippet) {
-        console.log("[v0] SUCCESS after auto-fix! Rendering snippet")
-        console.log("[v0] ===== PUBLIC PAGE END (SUCCESS) =====")
-        return <PublicSnippetView snippet={refetchedSnippet} />
-      }
-    }
-  }
-
-  if (error || !snippet) {
+  if (!snippet) {
     console.log("[v0] Snippet not found - showing 404")
     console.log("[v0] ===== PUBLIC PAGE END (NOT FOUND) =====")
     notFound()
