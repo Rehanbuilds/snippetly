@@ -52,6 +52,9 @@ export function ShareSnippetDialog({ snippetId, isOpen, onClose }: ShareSnippetD
 
       const data = await response.json()
       console.log("[v0] ShareDialog - Success data:", data)
+      console.log("[v0] ShareDialog - public_url:", data.public_url)
+      console.log("[v0] ShareDialog - public_id:", data.public_id)
+      console.log("[v0] ShareDialog - is_public:", data.is_public)
 
       setPublicUrl(data.public_url)
       setIsPublic(data.is_public)
