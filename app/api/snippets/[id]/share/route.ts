@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server"
 import { type NextRequest, NextResponse } from "next/server"
 import { nanoid } from "nanoid"
 
@@ -9,6 +9,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log("[v0] Share API POST - snippetId:", snippetId)
 
     const supabase = await createClient()
+    const supabaseAdmin = await createServiceRoleClient()
 
     // Get the current user
     const {
@@ -23,8 +24,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Check if snippet exists and belongs to user
-    const { data: snippet, error: fetchError } = await supabase
+    const { data: snippet, error: fetchError } = await supabaseAdmin
       .from("snippets")
       .select("id, user_id, public_id, public_url, is_public")
       .eq("id", snippetId)
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       // Make sure is_public is set to true
       if (!snippet.is_public) {
         console.log("[v0] Share API POST - Setting is_public to true")
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseAdmin
           .from("snippets")
           .update({ is_public: true })
           .eq("id", snippetId)
@@ -82,8 +82,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log("[v0] Share API POST - Site URL:", siteUrl)
     console.log("[v0] Share API POST - New publicUrl:", publicUrl)
 
-    // Update snippet with public sharing info
-    const { data: updatedSnippet, error: updateError } = await supabase
+    const { data: updatedSnippet, error: updateError } = await supabaseAdmin
       .from("snippets")
       .update({
         public_id: publicId,
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // Verify the update by fetching again
-    const { data: verifySnippet, error: verifyError } = await supabase
+    const { data: verifySnippet, error: verifyError } = await supabaseAdmin
       .from("snippets")
       .select("id, public_id, public_url, is_public")
       .eq("id", snippetId)
@@ -140,6 +139,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     console.log("[v0] Share API DELETE - snippetId:", snippetId)
 
     const supabase = await createClient()
+    const supabaseAdmin = await createServiceRoleClient()
 
     const {
       data: { user },
@@ -151,8 +151,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Remove public sharing (keep public_id and public_url but set is_public to false)
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from("snippets")
       .update({
         is_public: false,
