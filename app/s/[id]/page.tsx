@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { createServiceRoleClient } from "@/lib/supabase/server"
 import { PublicSnippetView } from "@/components/public-snippet-view"
 import { notFound } from "next/navigation"
 
@@ -14,7 +14,7 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
   console.log("[v0] ===== PUBLIC PAGE START =====")
   console.log("[v0] Public snippet page - publicId from URL:", publicId)
 
-  const supabase = await createClient()
+  const supabase = await createServiceRoleClient()
 
   const { data: snippet, error } = await supabase
     .from("snippets")
