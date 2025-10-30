@@ -11,86 +11,63 @@ interface PublicSnippetPageProps {
 export default async function PublicSnippetPage({ params }: PublicSnippetPageProps) {
   const { id: publicId } = await params
 
-  console.log("[v0] ===== PUBLIC PAGE START =====")
-  console.log("[v0] Looking for snippet with public_id:", publicId)
+  console.log("[v0] PUBLIC PAGE - Looking for public_id:", publicId)
 
-  const supabase = await createServiceRoleClient()
+  try {
+    const supabase = await createServiceRoleClient()
 
-  const { data: anySnippet, error: anyError } = await supabase
-    .from("snippets")
-    .select("id, public_id, is_public, title")
-    .eq("public_id", publicId)
-    .maybeSingle()
+    const { data: snippet, error } = await supabase
+      .from("snippets")
+      .select(`
+        id,
+        title,
+        description,
+        code,
+        language,
+        tags,
+        created_at,
+        is_public,
+        public_id,
+        profiles!snippets_user_id_fkey (
+          display_name,
+          full_name,
+          bio,
+          avatar_url
+        )
+      `)
+      .eq("public_id", publicId)
+      .maybeSingle()
 
-  console.log("[v0] Step 1 - Check if snippet exists (any is_public value):")
-  console.log("[v0] - Found:", !!anySnippet)
-  console.log("[v0] - Error:", anyError?.message || "none")
+    console.log("[v0] Query result - snippet:", snippet ? "FOUND" : "NOT FOUND")
+    console.log("[v0] Query result - error:", error?.message || "none")
 
-  if (anySnippet) {
-    console.log("[v0] - Snippet ID:", anySnippet.id)
-    console.log("[v0] - Title:", anySnippet.title)
-    console.log("[v0] - public_id:", anySnippet.public_id)
-    console.log("[v0] - is_public:", anySnippet.is_public)
-
-    if (!anySnippet.is_public) {
-      console.log("[v0] Step 2 - Snippet found but is_public = false, fixing...")
-
-      const { error: fixError } = await supabase.from("snippets").update({ is_public: true }).eq("id", anySnippet.id)
-
-      if (fixError) {
-        console.log("[v0] - Fix FAILED:", fixError.message)
-      } else {
-        console.log("[v0] - Fix SUCCESS: is_public set to true")
-
-        // Verify the fix
-        const { data: verifySnippet } = await supabase
-          .from("snippets")
-          .select("is_public")
-          .eq("id", anySnippet.id)
-          .single()
-
-        console.log("[v0] - Verification: is_public is now", verifySnippet?.is_public)
-      }
+    if (snippet) {
+      console.log("[v0] Snippet details:")
+      console.log("[v0] - ID:", snippet.id)
+      console.log("[v0] - Title:", snippet.title)
+      console.log("[v0] - is_public:", snippet.is_public)
+      console.log("[v0] - Author:", snippet.profiles?.display_name || snippet.profiles?.full_name || "Unknown")
     }
-  } else {
-    console.log("[v0] Step 1 - NO SNIPPET FOUND with public_id:", publicId)
+
+    // If snippet exists but is_public is false, auto-fix it
+    if (snippet && !snippet.is_public) {
+      console.log("[v0] Auto-fixing: Setting is_public to true")
+
+      await supabase.from("snippets").update({ is_public: true }).eq("id", snippet.id)
+
+      snippet.is_public = true
+      console.log("[v0] Auto-fix complete")
+    }
+
+    if (!snippet || !snippet.is_public) {
+      console.log("[v0] PUBLIC PAGE - NOT FOUND (snippet:", !!snippet, "is_public:", snippet?.is_public, ")")
+      notFound()
+    }
+
+    console.log("[v0] PUBLIC PAGE - SUCCESS, rendering snippet")
+    return <PublicSnippetView snippet={snippet} />
+  } catch (err) {
+    console.error("[v0] PUBLIC PAGE - ERROR:", err)
+    throw err
   }
-
-  console.log("[v0] Step 3 - Fetching full snippet data with profiles")
-  const { data: snippet, error } = await supabase
-    .from("snippets")
-    .select(`
-      id,
-      title,
-      description,
-      code,
-      language,
-      tags,
-      created_at,
-      is_public,
-      public_id,
-      profiles (
-        display_name,
-        full_name,
-        bio,
-        avatar_url
-      )
-    `)
-    .eq("public_id", publicId)
-    .eq("is_public", true)
-    .maybeSingle()
-
-  console.log("[v0] Step 3 - Result:")
-  console.log("[v0] - Found:", !!snippet)
-  console.log("[v0] - Error:", error?.message || "none")
-
-  if (!snippet) {
-    console.log("[v0] ===== PUBLIC PAGE END (NOT FOUND) =====")
-    notFound()
-  }
-
-  console.log("[v0] ===== PUBLIC PAGE END (SUCCESS) =====")
-  console.log("[v0] Rendering snippet:", snippet.title)
-
-  return <PublicSnippetView snippet={snippet} />
 }
