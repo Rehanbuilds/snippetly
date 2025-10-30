@@ -24,6 +24,7 @@ interface PublicSnippet {
     display_name: string | null
     full_name: string | null
     bio: string | null
+    avatar_url: string | null
   }
 }
 
@@ -117,6 +118,7 @@ export function PublicSnippetView({ snippet }: PublicSnippetViewProps) {
 
   const authorName = snippet.profiles?.display_name || snippet.profiles?.full_name || "Anonymous"
   const authorBio = snippet.profiles?.bio
+  const authorAvatar = snippet.profiles?.avatar_url
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,9 +155,17 @@ export function PublicSnippetView({ snippet }: PublicSnippetViewProps) {
           <Card className="border-2">
             <CardHeader>
               <div className="flex items-start gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                  <User className="h-8 w-8 text-primary" />
-                </div>
+                {authorAvatar ? (
+                  <img
+                    src={authorAvatar || "/placeholder.svg"}
+                    alt={authorName}
+                    className="h-16 w-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                    <User className="h-8 w-8 text-primary" />
+                  </div>
+                )}
                 <div className="flex-1 space-y-2">
                   <div>
                     <h2 className="text-2xl font-bold">{authorName}</h2>
