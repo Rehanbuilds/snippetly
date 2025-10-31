@@ -1,4 +1,4 @@
-import { createServiceRoleClient } from "@/lib/supabase/server"
+import { getDb } from "@/lib/db"
 import { PublicSnippetView } from "@/components/public-snippet-view"
 import { notFound } from "next/navigation"
 
@@ -14,54 +14,73 @@ export default async function PublicSnippetPage({ params }: PublicSnippetPagePro
   console.log("[v0] PUBLIC PAGE - Looking for public_id:", publicId)
 
   try {
-    const supabase = createServiceRoleClient()
+    const sql = getDb()
 
-    const { data: snippet, error } = await supabase
-      .from("snippets")
-      .select(`
-        id,
-        title,
-        description,
-        code,
-        language,
-        tags,
-        created_at,
-        is_public,
-        public_id,
-        profiles!snippets_user_id_fkey (
-          display_name,
-          full_name,
-          bio,
-          avatar_url
-        )
-      `)
-      .eq("public_id", publicId)
-      .maybeSingle()
+    const result = await sql`
+      SELECT 
+        s.id,
+        s.title,
+        s.description,
+        s.code,
+        s.language,
+        s.tags,
+        s.created_at,
+        s.is_public,
+        s.public_id,
+        p.display_name,
+        p.full_name,
+        p.bio,
+        p.avatar_url
+      FROM snippets s
+      LEFT JOIN profiles p ON s.user_id = p.id
+      WHERE s.public_id = ${publicId}
+      LIMIT 1
+    `
 
-    console.log("[v0] Query result - snippet:", snippet ? "FOUND" : "NOT FOUND")
-    console.log("[v0] Query result - error:", error?.message || "none")
+    console.log("[v0] Query result - found:", result.length > 0)
 
-    if (snippet) {
-      console.log("[v0] Snippet details:")
-      console.log("[v0] - ID:", snippet.id)
-      console.log("[v0] - Title:", snippet.title)
-      console.log("[v0] - is_public:", snippet.is_public)
-      console.log("[v0] - Author:", snippet.profiles?.display_name || snippet.profiles?.full_name || "Unknown")
+    if (result.length === 0) {
+      console.log("[v0] PUBLIC PAGE - NOT FOUND")
+      notFound()
     }
 
+    const row = result[0]
+    console.log("[v0] Snippet details:")
+    console.log("[v0] - ID:", row.id)
+    console.log("[v0] - Title:", row.title)
+    console.log("[v0] - is_public:", row.is_public)
+    console.log("[v0] - Author:", row.display_name || row.full_name || "Unknown")
+
     // If snippet exists but is_public is false, auto-fix it
-    if (snippet && !snippet.is_public) {
+    if (!row.is_public) {
       console.log("[v0] Auto-fixing: Setting is_public to true")
-
-      await supabase.from("snippets").update({ is_public: true }).eq("id", snippet.id)
-
-      snippet.is_public = true
+      await sql`UPDATE snippets SET is_public = true WHERE id = ${row.id}`
+      row.is_public = true
       console.log("[v0] Auto-fix complete")
     }
 
-    if (!snippet || !snippet.is_public) {
-      console.log("[v0] PUBLIC PAGE - NOT FOUND (snippet:", !!snippet, "is_public:", snippet?.is_public, ")")
+    if (!row.is_public) {
+      console.log("[v0] PUBLIC PAGE - NOT PUBLIC")
       notFound()
+    }
+
+    // Transform the result to match the expected format
+    const snippet = {
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      code: row.code,
+      language: row.language,
+      tags: row.tags,
+      created_at: row.created_at,
+      is_public: row.is_public,
+      public_id: row.public_id,
+      profiles: {
+        display_name: row.display_name,
+        full_name: row.full_name,
+        bio: row.bio,
+        avatar_url: row.avatar_url,
+      },
     }
 
     console.log("[v0] PUBLIC PAGE - SUCCESS, rendering snippet")

@@ -1,4 +1,5 @@
-import { createClient, createServiceRoleClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/supabase/server"
+import { getDb } from "@/lib/db"
 import { type NextRequest, NextResponse } from "next/server"
 import { nanoid } from "nanoid"
 
@@ -9,7 +10,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log("[v0] Snippet ID:", snippetId)
 
     const supabase = await createClient()
-    const supabaseAdmin = createServiceRoleClient()
+    const sql = getDb()
 
     const {
       data: { user },
@@ -23,18 +24,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     console.log("[v0] User ID:", user.id)
 
-    const { data: snippet, error: fetchError } = await supabaseAdmin
-      .from("snippets")
-      .select("id, user_id, public_id, public_url, is_public")
-      .eq("id", snippetId)
-      .eq("user_id", user.id)
-      .single()
+    const snippetResult = await sql`
+      SELECT id, user_id, public_id, public_url, is_public
+      FROM snippets
+      WHERE id = ${snippetId} AND user_id = ${user.id}
+      LIMIT 1
+    `
 
-    if (fetchError || !snippet) {
+    if (snippetResult.length === 0) {
       console.log("[v0] Snippet not found or not owned by user")
       return NextResponse.json({ error: "Snippet not found" }, { status: 404 })
     }
 
+    const snippet = snippetResult[0]
     console.log("[v0] Snippet found - current state:")
     console.log("[v0] - public_id:", snippet.public_id)
     console.log("[v0] - is_public:", snippet.is_public)
@@ -42,26 +44,24 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (snippet.public_id && snippet.public_url) {
       console.log("[v0] Reusing existing public link:", snippet.public_url)
 
-      const { error: updateError } = await supabaseAdmin
-        .from("snippets")
-        .update({ is_public: true })
-        .eq("id", snippetId)
+      await sql`
+        UPDATE snippets 
+        SET is_public = true 
+        WHERE id = ${snippetId}
+      `
 
-      if (updateError) {
-        console.log("[v0] Failed to update is_public:", updateError)
-      } else {
-        console.log("[v0] Successfully set is_public to true")
-      }
+      console.log("[v0] Successfully set is_public to true")
 
-      const { data: verifyData } = await supabaseAdmin
-        .from("snippets")
-        .select("is_public, public_id")
-        .eq("id", snippetId)
-        .single()
+      const verifyResult = await sql`
+        SELECT is_public, public_id 
+        FROM snippets 
+        WHERE id = ${snippetId}
+        LIMIT 1
+      `
 
       console.log("[v0] Verification after update:")
-      console.log("[v0] - is_public:", verifyData?.is_public)
-      console.log("[v0] - public_id:", verifyData?.public_id)
+      console.log("[v0] - is_public:", verifyResult[0]?.is_public)
+      console.log("[v0] - public_id:", verifyResult[0]?.public_id)
 
       return NextResponse.json({
         public_url: snippet.public_url,
@@ -79,22 +79,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     console.log("[v0] - public_id:", publicId)
     console.log("[v0] - public_url:", publicUrl)
 
-    const { data: updatedSnippet, error: updateError } = await supabaseAdmin
-      .from("snippets")
-      .update({
-        public_id: publicId,
-        public_url: publicUrl,
-        is_public: true,
-      })
-      .eq("id", snippetId)
-      .select("id, public_id, public_url, is_public")
-      .single()
+    await sql`
+      UPDATE snippets
+      SET public_id = ${publicId},
+          public_url = ${publicUrl},
+          is_public = true
+      WHERE id = ${snippetId}
+    `
 
-    if (updateError || !updatedSnippet) {
-      console.error("[v0] Update failed:", updateError)
+    const updatedResult = await sql`
+      SELECT id, public_id, public_url, is_public
+      FROM snippets
+      WHERE id = ${snippetId}
+      LIMIT 1
+    `
+
+    if (updatedResult.length === 0) {
+      console.error("[v0] Update failed: snippet not found after update")
       return NextResponse.json({ error: "Failed to generate public link" }, { status: 500 })
     }
 
+    const updatedSnippet = updatedResult[0]
     console.log("[v0] Update successful:")
     console.log("[v0] - public_id:", updatedSnippet.public_id)
     console.log("[v0] - is_public:", updatedSnippet.is_public)
@@ -118,7 +123,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     console.log("[v0] Share API DELETE - snippetId:", snippetId)
 
     const supabase = await createClient()
-    const supabaseAdmin = createServiceRoleClient()
+    const sql = getDb()
 
     const {
       data: { user },
@@ -130,18 +135,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { error: updateError } = await supabaseAdmin
-      .from("snippets")
-      .update({
-        is_public: false,
-      })
-      .eq("id", snippetId)
-      .eq("user_id", user.id)
-
-    if (updateError) {
-      console.error("[v0] Share API DELETE - Error removing public sharing:", updateError)
-      return NextResponse.json({ error: "Failed to remove public sharing" }, { status: 500 })
-    }
+    await sql`
+      UPDATE snippets
+      SET is_public = false
+      WHERE id = ${snippetId} AND user_id = ${user.id}
+    `
 
     console.log("[v0] Share API DELETE - Successfully removed public sharing")
     console.log("[v0] ===== SHARE API DELETE END =====")
