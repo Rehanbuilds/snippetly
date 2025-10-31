@@ -15,6 +15,7 @@ import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
+import { useTheme } from "next-themes"
 
 interface SettingsFormProps {
   user: SupabaseUser
@@ -34,7 +35,7 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [displayName, setDisplayName] = useState("")
   const [bio, setBio] = useState("")
   const [email, setEmail] = useState(user?.email || "")
-  const [darkMode, setDarkMode] = useState(false)
+  const { theme, setTheme } = useTheme()
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [loading, setLoading] = useState(false)
   const [profileLoading, setProfileLoading] = useState(true)
@@ -390,7 +391,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
               <Label htmlFor="darkMode">Dark Mode</Label>
               <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
             </div>
-            <Switch id="darkMode" checked={darkMode} onCheckedChange={setDarkMode} />
+            <Switch
+              id="darkMode"
+              checked={theme === "dark"}
+              onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+            />
           </div>
         </CardContent>
       </Card>
