@@ -15,7 +15,7 @@ importers:
         specifier: ^3.10.0
         version: 3.10.0(react-hook-form@7.60.0(react@18.0.0))
       '@neondatabase/serverless':
-        specifier: latest
+        specifier: 1.0.2
         version: 1.0.2
       '@paddle/paddle-js':
         specifier: latest
@@ -150,7 +150,7 @@ importers:
         specifier: ^0.454.0
         version: 0.454.0(react@18.0.0)
       nanoid:
-        specifier: latest
+        specifier: 5.1.6
         version: 5.1.6
       next:
         specifier: 14.2.16
