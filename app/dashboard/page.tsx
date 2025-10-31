@@ -114,7 +114,7 @@ export default function DashboardPage() {
   return (
     <DashboardLayout user={user}>
       <div className="space-y-6">
-        {userPlan && (
+        {userPlan && userPlan.plan_type === "free" && (
           <Card
             className={`border-2 ${userPlan.plan_type === "pro" ? "border-yellow-200 bg-yellow-50" : "border-gray-200"}`}
           >

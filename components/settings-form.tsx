@@ -9,13 +9,15 @@ import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
-import { User, Palette, Bell, Trash2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { User, Palette, Bell, Trash2, Crown, Zap, CreditCard } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { useTheme } from "next-themes"
+import { UpgradeModal } from "@/components/upgrade-modal"
 
 interface SettingsFormProps {
   user: SupabaseUser
@@ -27,6 +29,9 @@ interface Profile {
   display_name: string | null
   bio: string | null
   avatar_url: string | null
+  plan_type: string | null
+  plan_status: string | null
+  snippet_limit: number | null
 }
 
 export function SettingsForm({ user }: SettingsFormProps) {
@@ -43,6 +48,8 @@ export function SettingsForm({ user }: SettingsFormProps) {
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [currentPassword, setCurrentPassword] = useState("")
+  const [userPlan, setUserPlan] = useState<any>(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const router = useRouter()
@@ -67,8 +74,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
           setName(data.full_name || "")
           setDisplayName(data.display_name || "")
           setBio(data.bio || "")
+          setUserPlan({
+            plan_type: data.plan_type || "free",
+            plan_status: data.plan_status || "active",
+            snippet_limit: data.snippet_limit || 50,
+          })
         } else {
-          // Create profile if it doesn't exist
           const { data: newProfile, error: createError } = await supabase
             .from("profiles")
             .insert({
@@ -86,6 +97,11 @@ export function SettingsForm({ user }: SettingsFormProps) {
             setName(newProfile.full_name || "")
             setDisplayName(newProfile.display_name || "")
             setBio(newProfile.bio || "")
+            setUserPlan({
+              plan_type: newProfile.plan_type || "free",
+              plan_status: newProfile.plan_status || "active",
+              snippet_limit: newProfile.snippet_limit || 50,
+            })
           }
         }
       } catch (error) {
@@ -126,7 +142,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
 
       if (authError) throw authError
 
-      // Update profiles table
       const { error: profileError } = await supabase.from("profiles").upsert({
         id: user.id,
         full_name: name || null,
@@ -141,7 +156,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
         description: "Your profile information has been updated successfully.",
       })
 
-      // Refresh the page to show updated data
       router.refresh()
     } catch (error) {
       console.error("Error updating profile:", error)
@@ -181,7 +195,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
         description: "Your password has been updated successfully.",
       })
 
-      // Clear password fields
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
@@ -202,8 +215,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
       try {
         setLoading(true)
 
-        // Note: Supabase doesn't have a direct delete user method from client
-        // In a real app, you'd call a server action or API endpoint
         toast({
           title: "Account deletion requested",
           description: "Please contact support to complete account deletion.",
@@ -253,14 +264,12 @@ export function SettingsForm({ user }: SettingsFormProps) {
         throw new Error("Failed to get public URL.")
       }
 
-      // Update profiles table with new avatar_url
       const { error: profileError } = await supabase
         .from("profiles")
         .update({ avatar_url: publicUrl })
         .eq("id", user.id)
       if (profileError) throw profileError
 
-      // Update local state
       setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev))
 
       toast({ title: "Photo updated", description: "Your profile photo has been updated." })
@@ -274,7 +283,6 @@ export function SettingsForm({ user }: SettingsFormProps) {
       })
     } finally {
       setAvatarUploading(false)
-      // clear input value so the same file can be re-selected if needed
       if (fileInputRef.current) fileInputRef.current.value = ""
     }
   }
@@ -376,6 +384,92 @@ export function SettingsForm({ user }: SettingsFormProps) {
         </CardContent>
       </Card>
 
+      {/* Plans & Billing */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Plans & Billing
+          </CardTitle>
+          <CardDescription>Manage your subscription and billing information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="border rounded-lg p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                {userPlan?.plan_type === "pro" ? (
+                  <Crown className="h-6 w-6 text-yellow-600" />
+                ) : (
+                  <Zap className="h-6 w-6 text-blue-600" />
+                )}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-lg">
+                      {userPlan?.plan_type === "pro" ? "Snippetly Pro" : "Free Plan"}
+                    </span>
+                    <Badge variant={userPlan?.plan_type === "pro" ? "default" : "secondary"}>
+                      {userPlan?.plan_type?.toUpperCase() || "FREE"}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {userPlan?.plan_type === "pro"
+                      ? "Unlimited snippets and advanced features"
+                      : `Up to ${userPlan?.snippet_limit || 50} snippets`}
+                  </p>
+                </div>
+              </div>
+              {userPlan?.plan_type === "free" && (
+                <Button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                >
+                  <Crown className="h-4 w-4 mr-2" />
+                  Upgrade to Pro
+                </Button>
+              )}
+            </div>
+
+            {userPlan?.plan_type === "pro" ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className="font-medium text-green-600">Active</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Plan Type:</span>
+                  <span className="font-medium">One-time payment</span>
+                </div>
+                <Separator className="my-2" />
+                <p className="text-xs text-muted-foreground">
+                  You have lifetime access to all Pro features. Thank you for your support!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Separator />
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Upgrade to Pro and get:</h4>
+                  <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span> Unlimited snippets
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span> Unlimited folders
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span> Unlimited boilerplates
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-green-600">✓</span> Priority support
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Appearance Settings */}
       <Card>
         <CardHeader>
@@ -442,6 +536,16 @@ export function SettingsForm({ user }: SettingsFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Upgrade Modal */}
+      {userPlan && (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          currentSnippetCount={0}
+          snippetLimit={userPlan.snippet_limit}
+        />
+      )}
     </div>
   )
 }

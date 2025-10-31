@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X, Folder, FileStack } from "lucide-react"
+import { Code, Star, Tag, Plus, Settings, LogOut, Menu, X, Folder, FileStack, Crown } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
@@ -40,6 +40,7 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
   })
   const [folderCount, setFolderCount] = useState(0)
   const [boilerplateCount, setBoilerplateCount] = useState(0)
+  const [userPlan, setUserPlan] = useState<any>(null)
   const router = useRouter()
   const supabase = createClient()
 
@@ -84,6 +85,16 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           .eq("user_id", user.id)
 
         setBoilerplateCount(boilerplateCountData || 0)
+
+        const { data: planData } = await supabase
+          .from("profiles")
+          .select("plan_type, plan_status")
+          .eq("id", user.id)
+          .single()
+
+        if (planData) {
+          setUserPlan(planData)
+        }
       } catch (error) {
         console.error("Error loading dashboard data:", error)
       }
@@ -126,6 +137,13 @@ export function DashboardLayout({ children, user }: DashboardLayoutProps) {
           </div>
 
           <div className="ml-auto flex items-center gap-2 md:gap-4">
+            {userPlan?.plan_type === "pro" && (
+              <Badge className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white border-0">
+                <Crown className="h-3 w-3 mr-1" />
+                Pro
+              </Badge>
+            )}
+
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span className="hidden sm:inline">Welcome, {userDisplayName}</span>
               <span className="sm:hidden truncate max-w-20">Hi, {userDisplayName.split(" ")[0]}</span>
