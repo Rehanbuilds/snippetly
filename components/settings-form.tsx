@@ -18,6 +18,7 @@ import { toast } from "@/hooks/use-toast"
 import type { User as SupabaseUser } from "@supabase/supabase-js"
 import { useTheme } from "next-themes"
 import { UpgradeModal } from "@/components/upgrade-modal"
+import { upload } from "@vercel/blob/client"
 
 interface SettingsFormProps {
   user: SupabaseUser
@@ -249,28 +250,21 @@ export function SettingsForm({ user }: SettingsFormProps) {
     }
     try {
       setAvatarUploading(true)
-      const ext = file.name.split(".").pop() || "jpg"
-      const path = `${user.id}/${Date.now()}.${ext}`
-      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
-        cacheControl: "3600",
-        upsert: true,
-        contentType: file.type,
-      })
-      if (uploadError) throw uploadError
 
-      const { data: publicData } = supabase.storage.from("avatars").getPublicUrl(path)
-      const publicUrl = publicData?.publicUrl
-      if (!publicUrl) {
-        throw new Error("Failed to get public URL.")
-      }
+      const blob = await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: "/api/upload",
+      })
+
+      const avatarUrl = blob.url
 
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: avatarUrl })
         .eq("id", user.id)
       if (profileError) throw profileError
 
-      setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev))
+      setProfile((prev) => (prev ? { ...prev, avatar_url: avatarUrl } : prev))
 
       toast({ title: "Photo updated", description: "Your profile photo has been updated." })
       router.refresh()
