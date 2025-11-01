@@ -24,28 +24,27 @@ const blogPosts: Record<string, BlogPost> = {
     slug: "hidden-cost-of-copy-pasting-code",
     title: "The Hidden Cost of Copy-Pasting Code: Why You Need a Snippet Manager",
     coverImage: "/images/blog/copy-paste-code-cover.jpg",
-    date: "2025-01-30",
+    date: "2025-11-01",
     author: "Rehan",
     authorRole: "Founder & Product Engineer",
     authorBio:
       "Entrepreneur and product engineer passionate about building tools that make developers' lives easier. Creator of Snippetly.",
     readTime: "5 min read",
     tags: ["Productivity", "Developer Tools", "Code Management"],
-    content: `
-We've all been there. You're working on a project, and you need that perfect regex pattern you wrote last month. Or maybe it's that API integration snippet you spent hours perfecting. You know you saved it somewhere, but where?
+    content: `We've all been there. You're working on a project, and you need that perfect regex pattern you wrote last month. Or maybe it's that API integration snippet you spent hours perfecting. You know you saved it somewhere, but where?
 
 You start searching through old projects, scrolling through Slack messages, checking your notes app, and browsing through bookmarked Stack Overflow answers. Twenty minutes later, you're still looking. Sound familiar?
 
 ## The Real Cost of Disorganized Code
 
-According to recent developer surveys, the average developer spends **30-45 minutes per day** searching for code snippets they've used before. That's nearly **4 hours per week** or **200 hours per year** just looking for code you've already written.
+According to recent developer surveys, the average developer spends 30-45 minutes per day searching for code snippets they've used before. That's nearly 4 hours per week or 200 hours per year just looking for code you've already written.
 
 Let's break down what this really costs:
 
 ### Time Waste
-- **30-45 minutes daily** searching for snippets
-- **2-3 hours weekly** recreating code you've written before
-- **Countless hours** context-switching between tasks
+- 30-45 minutes daily searching for snippets
+- 2-3 hours weekly recreating code you've written before
+- Countless hours context-switching between tasks
 
 ### Productivity Loss
 - Breaking your flow state to search for code
@@ -62,16 +61,16 @@ Let's break down what this really costs:
 Many developers try to solve this problem with makeshift solutions:
 
 ### 1. Scattered Text Files
-You save snippets in random .txt files across your computer. Good luck finding them later when you need them.
+You save snippets in random text files across your computer. Good luck finding them later when you need them.
 
 ### 2. Code Comments in Old Projects
-"I'll just remember which project I used this in." Spoiler: You won't.
+Saving code in old project comments works until you forget which project it was in.
 
 ### 3. Browser Bookmarks
 Bookmarking Stack Overflow answers works until you have 500+ bookmarks with no organization.
 
 ### 4. Note-Taking Apps
-Generic note apps aren't built for code. No syntax highlighting, no language detection, no proper formatting.
+Generic note apps are not built for code. No syntax highlighting, no language detection, no proper formatting.
 
 ### 5. GitHub Gists
 Great for sharing, but terrible for personal organization. No tags, limited search, and no folder structure.
@@ -84,10 +83,10 @@ A dedicated snippet manager solves all these problems by providing:
 All your code snippets in one place. No more hunting through multiple locations.
 
 ### Smart Organization
-- **Tags** for categorization
-- **Folders** for project-based organization
-- **Favorites** for frequently used snippets
-- **Language detection** for automatic syntax highlighting
+- Tags for categorization
+- Folders for project-based organization
+- Favorites for frequently used snippets
+- Language detection for automatic syntax highlighting
 
 ### Instant Search
 Find any snippet in seconds with full-text search across titles, tags, and code content.
@@ -102,15 +101,15 @@ Share snippets with your team or keep them private. Export in multiple formats w
 
 Let's do the math on what a snippet manager can save you:
 
-**Before Snippet Manager:**
-- 30 minutes/day searching for code = 2.5 hours/week
-- 2.5 hours/week × 50 weeks = 125 hours/year
-- At $50/hour developer rate = **$6,250 in lost productivity**
+Before Snippet Manager:
+- 30 minutes per day searching for code = 2.5 hours per week
+- 2.5 hours per week × 50 weeks = 125 hours per year
+- At $50 per hour developer rate = $6,250 in lost productivity
 
-**After Snippet Manager:**
-- 5 minutes/day finding snippets = 0.4 hours/week
-- 0.4 hours/week × 50 weeks = 20 hours/year
-- **Savings: 105 hours and $5,250 per year**
+After Snippet Manager:
+- 5 minutes per day finding snippets = 0.4 hours per week
+- 0.4 hours per week × 50 weeks = 20 hours per year
+- Savings: 105 hours and $5,250 per year
 
 And that's just the time savings. The real value comes from:
 - Maintaining your flow state
@@ -130,7 +129,7 @@ Look for a snippet manager that offers:
 - Fast search functionality
 - Syntax highlighting
 - Tag-based organization
-- Easy copy/paste workflow
+- Easy copy and paste workflow
 - Cross-platform access
 
 ### 3. Develop a Tagging System
@@ -149,7 +148,7 @@ Review and update your snippets monthly. Remove outdated code and add notes for 
 
 Here are the most valuable snippet categories developers maintain:
 
-### Authentication & Security
+### Authentication and Security
 - JWT token handling
 - Password hashing
 - OAuth flows
@@ -182,24 +181,22 @@ Here are the most valuable snippet categories developers maintain:
 ## The Compound Effect
 
 The beauty of a snippet manager is the compound effect. Every snippet you save today makes you more productive tomorrow. Over time, you build a personal library of battle-tested code that:
-
 - Speeds up your development
-- Reduces bugs (reusing proven code)
+- Reduces bugs by reusing proven code
 - Improves consistency across projects
 - Serves as documentation for your team
 
 ## Conclusion
 
-The hidden cost of copy-pasting code isn't just the time spent searching. It's the broken flow, the recreated solutions, and the mental overhead of managing scattered snippets.
+The hidden cost of copy-pasting code is not just the time spent searching. It's the broken flow, the recreated solutions, and the mental overhead of managing scattered snippets.
 
-A dedicated snippet manager isn't just a nice-to-have tool—it's an investment in your productivity and professional growth. The time you save compounds over your career, and the knowledge base you build becomes increasingly valuable.
+A dedicated snippet manager is not just a nice-to-have tool. It's an investment in your productivity and professional growth. The time you save compounds over your career, and the knowledge base you build becomes increasingly valuable.
 
 Stop losing your code snippets. Start building your personal snippet vault today.
 
 ---
 
-**Ready to organize your code snippets?** Try [Snippetly](https://snippetly.xyz) free and see how much time you can save. No credit card required.
-    `,
+Ready to organize your code snippets? Try Snippetly free and see how much time you can save. No credit card required.`,
   },
 }
 
@@ -246,6 +243,51 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   if (!post) {
     notFound()
+  }
+
+  const parseContent = (content: string) => {
+    return content.split("\n\n").map((paragraph, index) => {
+      const trimmedParagraph = paragraph.trim()
+
+      if (trimmedParagraph.startsWith("## ")) {
+        return (
+          <h2 key={index} className="text-3xl font-bold mt-12 mb-6">
+            {trimmedParagraph.replace("## ", "")}
+          </h2>
+        )
+      }
+
+      if (trimmedParagraph.startsWith("### ")) {
+        return (
+          <h3 key={index} className="text-2xl font-semibold mt-8 mb-4">
+            {trimmedParagraph.replace("### ", "")}
+          </h3>
+        )
+      }
+
+      if (trimmedParagraph.startsWith("- ")) {
+        const items = trimmedParagraph.split("\n")
+        return (
+          <ul key={index} className="list-disc pl-6 my-6 space-y-2">
+            {items.map((item, i) => (
+              <li key={i} className="text-base leading-relaxed">
+                {item.replace("- ", "").replace(/\*\*/g, "")}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      if (trimmedParagraph.startsWith("---")) {
+        return <hr key={index} className="my-12 border-border" />
+      }
+
+      return (
+        <p key={index} className="text-base leading-relaxed my-6 text-muted-foreground">
+          {trimmedParagraph.replace(/\*\*/g, "")}
+        </p>
+      )
+    })
   }
 
   return (
@@ -318,56 +360,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </header>
 
           {/* Content */}
-          <div className="prose prose-lg dark:prose-invert max-w-none">
-            {post.content.split("\n\n").map((paragraph, index) => {
-              if (paragraph.startsWith("## ")) {
-                return (
-                  <h2 key={index} className="text-3xl font-bold mt-12 mb-6">
-                    {paragraph.replace("## ", "")}
-                  </h2>
-                )
-              } else if (paragraph.startsWith("### ")) {
-                return (
-                  <h3 key={index} className="text-2xl font-semibold mt-8 mb-4">
-                    {paragraph.replace("### ", "")}
-                  </h3>
-                )
-              } else if (paragraph.startsWith("**") && paragraph.endsWith("**")) {
-                return (
-                  <p key={index} className="text-xl font-semibold my-6">
-                    {paragraph.replace(/\*\*/g, "")}
-                  </p>
-                )
-              } else if (paragraph.startsWith("- ")) {
-                const items = paragraph.split("\n")
-                return (
-                  <ul key={index} className="list-disc pl-6 my-6 space-y-2">
-                    {items.map((item, i) => (
-                      <li key={i} className="text-lg">
-                        {item.replace("- ", "").replace(/\*\*/g, "")}
-                      </li>
-                    ))}
-                  </ul>
-                )
-              } else if (paragraph.startsWith("---")) {
-                return <hr key={index} className="my-12 border-border" />
-              } else {
-                return (
-                  <p key={index} className="text-lg leading-relaxed my-6 text-muted-foreground">
-                    {paragraph.split("**").map((part, i) =>
-                      i % 2 === 0 ? (
-                        part
-                      ) : (
-                        <strong key={i} className="font-semibold text-foreground">
-                          {part}
-                        </strong>
-                      ),
-                    )}
-                  </p>
-                )
-              }
-            })}
-          </div>
+          <div className="prose prose-lg dark:prose-invert max-w-none">{parseContent(post.content)}</div>
 
           {/* Author Bio */}
           <div className="mt-16 p-8 bg-muted rounded-2xl border border-border">
